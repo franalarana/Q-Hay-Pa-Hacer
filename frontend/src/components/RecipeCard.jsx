@@ -1,6 +1,6 @@
-import { Clock, Users, ChefHat, CheckCircle2, AlertTriangle, XCircle, ArrowRight } from 'lucide-react';
+import { Clock, Users, ArrowRight, Heart } from 'lucide-react';
 
-export default function RecipeCard({ receta, onSelect }) {
+export default function RecipeCard({ receta, onSelect, isFavorito, onToggleFavorito }) {
   const isVerde = receta.estadoGeneral === 'VERDE';
   const isAmarillo = receta.estadoGeneral === 'AMARILLO';
 
@@ -19,7 +19,8 @@ export default function RecipeCard({ receta, onSelect }) {
       display: 'flex',
       flexDirection: 'column',
       transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-      cursor: 'pointer'
+      cursor: 'pointer',
+      position: 'relative'
     }}
     onClick={() => onSelect(receta)}
     onMouseEnter={(e) => {
@@ -31,13 +32,43 @@ export default function RecipeCard({ receta, onSelect }) {
       e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
     }}
     >
-      {/* Imagen con Badge de estado */}
+      {/* Imagen con Badge de estado y Botón de Favorito */}
       <div style={{ position: 'relative', height: '170px', width: '100%' }}>
         <img 
           src={receta.imagenUrl || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=600&auto=format&fit=crop&q=60'} 
           alt={receta.titulo}
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />
+        
+        {/* Botón Favorito */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            if (onToggleFavorito) onToggleFavorito(receta.id);
+          }}
+          title={isFavorito ? 'Quitar de favoritos' : 'Guardar en favoritos'}
+          style={{
+            position: 'absolute',
+            top: '12px',
+            left: '12px',
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            border: 'none',
+            borderRadius: '50%',
+            width: '32px',
+            height: '32px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
+            transition: 'transform 0.2s'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+        >
+          <Heart size={18} color={isFavorito ? '#EF4444' : '#666'} fill={isFavorito ? '#EF4444' : 'none'} />
+        </button>
+
         <div style={{
           position: 'absolute',
           top: '12px',

@@ -55,6 +55,66 @@ public class ComparadorRecetasService {
     }
 
     @Transactional(readOnly = true)
+    public List<RecetaComparadaDTO> obtenerMisRecetas(Jwt jwt) {
+        Usuario usuario = usuarioService.obtenerOCrear(jwt);
+        List<IngredienteUsuario> despensa = ingredienteUsuarioRepository.findByUsuarioOrderByIngredienteNombreAsc(usuario);
+        
+        Map<Long, IngredienteUsuario> despensaMap = despensa.stream()
+                .collect(Collectors.toMap(
+                        item -> item.getIngrediente().getId(),
+                        item -> item,
+                        (item1, item2) -> item1
+                ));
+
+        List<Receta> misRecetas = recetaRepository.findByCreadorOrderByTituloAsc(usuario);
+
+        return misRecetas.stream()
+                .map(receta -> compararRecetaConDespensa(receta, despensaMap))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public RecetaComparadaDTO crearRecetaPropia(Jwt jwt, cl.quehaypahacer.backend.dto.CrearRecetaRequest req, cl.quehaypahacer.backend.repository.IngredienteRepository ingredienteRepository) {
+        Usuario usuario = usuarioService.obtenerOCrear(jwt);
+
+        Receta nueva = Receta.builder()
+                .titulo(req.getTitulo())
+                .descripcion(req.getDescripcion())
+                .instrucciones(req.getInstrucciones())
+                .tiempoMinutos(req.getTiempoMinutos())
+                .porciones(req.getPorciones())
+                .dificultad(req.getDificultad() != null ? req.getDificultad() : "Fácil")
+                .imagenUrl(req.getImagenUrl() != null && !req.getImagenUrl().isBlank() 
+                        ? req.getImagenUrl() 
+                        : "https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=600&auto=format&fit=crop&q=60")
+                .creador(usuario)
+                .build();
+
+        Receta guardada = recetaRepository.save(nueva);
+
+        List<IngredienteReceta> ingredientesList = new ArrayList<>();
+        for (cl.quehaypahacer.backend.dto.IngredienteRecetaRequest irr : req.getIngredientes()) {
+            cl.quehaypahacer.backend.model.Ingrediente ing = ingredienteRepository.findById(irr.getIngredienteId())
+                    .orElseThrow(() -> new IllegalArgumentException("Ingrediente no encontrado con id: " + irr.getIngredienteId()));
+
+            IngredienteReceta ir = IngredienteReceta.builder()
+                    .receta(guardada)
+                    .ingrediente(ing)
+                    .cantidadRequerida(irr.getCantidadRequerida())
+                    .unidad(irr.getUnidad())
+                    .opcional(irr.getOpcional() != null ? irr.getOpcional() : false)
+                    .build();
+
+            ingredientesList.add(ir);
+        }
+
+        guardada.setIngredientes(ingredientesList);
+        guardada = recetaRepository.save(guardada);
+
+        return obtenerDetalleReceta(jwt, guardada.getId());
+    }
+
+    @Transactional(readOnly = true)
     public RecetaComparadaDTO obtenerDetalleReceta(Jwt jwt, Long recetaId) {
         Usuario usuario = usuarioService.obtenerOCrear(jwt);
         List<IngredienteUsuario> despensa = ingredienteUsuarioRepository.findByUsuarioOrderByIngredienteNombreAsc(usuario);
@@ -71,6 +131,7 @@ public class ComparadorRecetasService {
 
         return compararRecetaConDespensa(receta, despensaMap);
     }
+
 
     private RecetaComparadaDTO compararRecetaConDespensa(Receta receta, Map<Long, IngredienteUsuario> despensaMap) {
         List<ComparacionIngredienteDTO> comparaciones = new ArrayList<>();

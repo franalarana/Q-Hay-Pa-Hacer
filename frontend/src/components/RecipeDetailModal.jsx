@@ -1,7 +1,31 @@
-import { X, Clock, Users, ChefHat, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react';
+import { useState } from 'react';
+import { X, Clock, Users, ChefHat, CheckCircle2, AlertTriangle, XCircle, Heart, Utensils, Loader2 } from 'lucide-react';
+import axiosClient from '../api/axiosClient';
 
-export default function RecipeDetailModal({ receta, onClose }) {
+export default function RecipeDetailModal({ receta, onClose, isFavorito, onToggleFavorito, onCookingDone }) {
+  const [cooking, setCooking] = useState(false);
+  const [cookedSuccess, setCookedSuccess] = useState(false);
+  const [notas, setNotas] = useState('');
+  const [showNotasInput, setShowNotasInput] = useState(false);
+
   if (!receta) return null;
+
+  const handleCocinar = async () => {
+    try {
+      setCooking(true);
+      await axiosClient.post(`/historial/${receta.id}`, { notas: notas.trim() || undefined });
+      setCookedSuccess(true);
+      if (onCookingDone) onCookingDone();
+      setTimeout(() => {
+        setCookedSuccess(false);
+        setShowNotasInput(false);
+      }, 3000);
+    } catch (err) {
+      console.error('Error al registrar en historial:', err);
+    } finally {
+      setCooking(false);
+    }
+  };
 
   return (
     <div style={{
@@ -30,13 +54,38 @@ export default function RecipeDetailModal({ receta, onClose }) {
         display: 'flex',
         flexDirection: 'column'
       }}>
-        {/* Imagen y botón de cierre */}
+        {/* Imagen y botones de acción superior */}
         <div style={{ position: 'relative', height: '240px', width: '100%', overflow: 'hidden' }}>
           <img 
             src={receta.imagenUrl || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800&auto=format&fit=crop&q=60'} 
             alt={receta.titulo}
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
+          
+          {/* Botón Favorito */}
+          <button 
+            onClick={() => onToggleFavorito && onToggleFavorito(receta.id)}
+            title={isFavorito ? 'Quitar de favoritos' : 'Guardar en favoritos'}
+            style={{
+              position: 'absolute',
+              top: '16px',
+              left: '16px',
+              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+              border: 'none',
+              borderRadius: '50%',
+              width: '40px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
+            }}
+          >
+            <Heart size={22} color={isFavorito ? '#EF4444' : '#666'} fill={isFavorito ? '#EF4444' : 'none'} />
+          </button>
+
+          {/* Botón Cerrar */}
           <button 
             onClick={onClose}
             style={{
@@ -46,8 +95,8 @@ export default function RecipeDetailModal({ receta, onClose }) {
               backgroundColor: 'rgba(255, 255, 255, 0.9)',
               border: 'none',
               borderRadius: '50%',
-              width: '36px',
-              height: '36px',
+              width: '40px',
+              height: '40px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -55,20 +104,20 @@ export default function RecipeDetailModal({ receta, onClose }) {
               boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
             }}
           >
-            <X size={20} color="#333" />
+            <X size={22} color="#333" />
           </button>
         </div>
 
         {/* Contenido del modal */}
         <div style={{ padding: '24px 32px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '8px' }}>
             <h2 style={{ fontSize: '1.6rem', color: 'var(--text-main)', margin: 0 }}>
               {receta.titulo}
             </h2>
             <span style={{
-              padding: '4px 10px',
+              padding: '4px 12px',
               borderRadius: '20px',
-              fontSize: '0.8rem',
+              fontSize: '0.85rem',
               fontWeight: '600',
               backgroundColor: receta.estadoGeneral === 'VERDE' ? '#DEF7EC' : receta.estadoGeneral === 'AMARILLO' ? '#FEF08A' : '#FDE8E8',
               color: receta.estadoGeneral === 'VERDE' ? '#03543F' : receta.estadoGeneral === 'AMARILLO' ? '#854D0E' : '#9B1C1C'
@@ -140,7 +189,7 @@ export default function RecipeDetailModal({ receta, onClose }) {
           </div>
 
           {/* Instrucciones de preparación */}
-          <div>
+          <div style={{ marginBottom: '28px' }}>
             <h3 style={{ fontSize: '1.1rem', marginBottom: '12px', color: 'var(--text-main)' }}>
               Instrucciones de preparación
             </h3>
@@ -156,6 +205,69 @@ export default function RecipeDetailModal({ receta, onClose }) {
             }}>
               {receta.instrucciones}
             </div>
+          </div>
+
+          {/* Sección ¡Cociné esta receta! */}
+          <div style={{
+            padding: '20px',
+            backgroundColor: '#F0FDF4',
+            borderRadius: 'var(--border-radius-md)',
+            border: '1px solid #BBF7D0',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+              <div>
+                <strong style={{ color: '#166534', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Utensils size={18} /> ¿Preparaste este plato?
+                </strong>
+                <p style={{ margin: '4px 0 0', color: '#15803D', fontSize: '0.85rem' }}>
+                  Guárdalo en tu historial de cocina para recordar tus preparaciones.
+                </p>
+              </div>
+
+              {!cookedSuccess ? (
+                <button 
+                  className="btn btn-primary"
+                  onClick={() => {
+                    if (!showNotasInput) {
+                      setShowNotasInput(true);
+                    } else {
+                      handleCocinar();
+                    }
+                  }}
+                  disabled={cooking}
+                  style={{ backgroundColor: '#16A34A', color: 'white', padding: '10px 18px', gap: '6px' }}
+                >
+                  {cooking ? <Loader2 size={16} className="spin" /> : '¡Cociné esta receta!'}
+                </button>
+              ) : (
+                <div style={{ color: '#16A34A', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <CheckCircle2 size={20} /> ¡Registrado en tu historial!
+                </div>
+              )}
+            </div>
+
+            {showNotasInput && !cookedSuccess && (
+              <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                <input 
+                  type="text" 
+                  placeholder="Nota opcional (ej: Le agregué más queso y quedó espectacular)"
+                  value={notas}
+                  onChange={(e) => setNotas(e.target.value)}
+                  style={{ flex: 1, padding: '8px 12px', borderRadius: 'var(--border-radius-sm)', border: '1px solid #86EFAC', fontSize: '0.85rem' }}
+                />
+                <button 
+                  className="btn btn-primary"
+                  onClick={handleCocinar}
+                  disabled={cooking}
+                  style={{ backgroundColor: '#16A34A', color: 'white', padding: '8px 14px', fontSize: '0.85rem' }}
+                >
+                  Confirmar
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

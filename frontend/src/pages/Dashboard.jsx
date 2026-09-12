@@ -1,8 +1,10 @@
 import { useMsal, useAccount } from '@azure/msal-react';
-import { LogOut, User, CheckCircle2, AlertCircle, ShieldCheck, Search, Sparkles, Filter, Loader2, UtensilsCrossed } from 'lucide-react';
+import { LogOut, User, CheckCircle2, AlertCircle, ShieldCheck, Search, Sparkles, Loader2, UtensilsCrossed, Heart, Plus, History, ChefHat } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import RecipeCard from '../components/RecipeCard';
 import RecipeDetailModal from '../components/RecipeDetailModal';
+import CreateRecipeModal from '../components/CreateRecipeModal';
+import HistoryModal from '../components/HistoryModal';
 import { useState, useEffect } from 'react';
 import axiosClient from '../api/axiosClient';
 
@@ -13,12 +15,18 @@ export default function Dashboard() {
   const [userData, setUserData] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
 
-  // Estados de recetas y despensa
+  // Estados de vistas y modales
+  const [activeTab, setActiveTab] = useState('EXPLORAR'); // EXPLORAR, FAVORITOS, MIS_RECETAS
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [selectedReceta, setSelectedReceta] = useState(null);
+
+  // Estados de datos
   const [recetas, setRecetas] = useState([]);
+  const [favoritosIds, setFavoritosIds] = useState([]);
   const [loadingRecetas, setLoadingRecetas] = useState(true);
   const [filtroEstado, setFiltroEstado] = useState('TODAS'); // TODAS, VERDE, AMARILLO, ROJO
   const [searchReceta, setSearchReceta] = useState('');
-  const [selectedReceta, setSelectedReceta] = useState(null);
   const [despensaCount, setDespensaCount] = useState(0);
 
   const handleLogout = () => {
@@ -27,14 +35,44 @@ export default function Dashboard() {
     });
   };
 
-  // Función para cargar/recargar las recetas sugeridas comparadas con la despensa
-  const cargarRecetasSugeridas = async () => {
+  // Cargar IDs de favoritos del usuario
+  const cargarFavoritosIds = async () => {
+    try {
+      const res = await axiosClient.get('/favoritos/ids');
+      setFavoritosIds(res.data);
+    } catch (err) {
+      console.error('Error al cargar favoritos:', err);
+    }
+  };
+
+  // Alternar favorito (toggle)
+  const handleToggleFavorito = async (recetaId) => {
+    try {
+      await axiosClient.post(`/favoritos/${recetaId}`);
+      if (favoritosIds.includes(recetaId)) {
+        setFavoritosIds(favoritosIds.filter(id => id !== recetaId));
+      } else {
+        setFavoritosIds([...favoritosIds, recetaId]);
+      }
+    } catch (err) {
+      console.error('Error al alternar favorito:', err);
+    }
+  };
+
+  // Cargar recetas según pestaña activa
+  const cargarRecetas = async () => {
     try {
       setLoadingRecetas(true);
-      const res = await axiosClient.get('/recetas/sugeridas');
+      let endpoint = '/recetas/sugeridas';
+      if (activeTab === 'FAVORITOS') {
+        endpoint = '/favoritos';
+      } else if (activeTab === 'MIS_RECETAS') {
+        endpoint = '/recetas/mis-recetas';
+      }
+      const res = await axiosClient.get(endpoint);
       setRecetas(res.data);
     } catch (err) {
-      console.error('Error al cargar recetas sugeridas:', err);
+      console.error('Error al cargar recetas:', err);
     } finally {
       setLoadingRecetas(false);
     }
@@ -43,34 +81,28 @@ export default function Dashboard() {
   useEffect(() => {
     // 1. Probar salud pública del backend
     axiosClient.get('/public/health')
-      .then(res => {
-        setBackendStatus(res.data);
-      })
-      .catch(err => {
-        setBackendStatus('Error de conexión: ' + (err.response?.data || err.message));
-      });
+      .then(res => setBackendStatus(res.data))
+      .catch(err => setBackendStatus('Error de conexión: ' + (err.response?.data || err.message)));
 
-    // 2. Probar endpoint protegido /me (valida JWT y devuelve/crea usuario en BD)
+    // 2. Probar endpoint protegido /me
     axiosClient.get('/me')
-      .then(res => {
-        setUserData(res.data);
-      })
-      .catch(err => {
-        console.error('Error al consultar /me:', err);
-      })
-      .finally(() => {
-        setLoadingUser(false);
-      });
+      .then(res => setUserData(res.data))
+      .catch(err => console.error('Error al consultar /me:', err))
+      .finally(() => setLoadingUser(false));
 
-    // 3. Carga inicial de recetas
-    cargarRecetasSugeridas();
+    // 3. Cargar IDs de favoritos
+    cargarFavoritosIds();
   }, []);
+
+  useEffect(() => {
+    cargarRecetas();
+  }, [activeTab]);
 
   // Filtrado de recetas por estado y por texto de búsqueda
   const recetasFiltradas = recetas.filter(r => {
     const coincideEstado = (filtroEstado === 'TODAS') || (r.estadoGeneral === filtroEstado);
     const coincideTexto = r.titulo.toLowerCase().includes(searchReceta.toLowerCase()) ||
-                          r.descripcion.toLowerCase().includes(searchReceta.toLowerCase());
+                          r.descripcion?.toLowerCase().includes(searchReceta.toLowerCase());
     return coincideEstado && coincideTexto;
   });
 
@@ -79,30 +111,87 @@ export default function Dashboard() {
 
   return (
     <div className="app-container">
-      {/* Sidebar de despensa que dispara recarga de recetas automáticamente al cambiar */}
+      {/* Sidebar de despensa */}
       <Sidebar 
         onDespensaChange={(items) => {
           setDespensaCount(items.length);
-          cargarRecetasSugeridas();
+          cargarRecetas();
         }} 
       />
       
       <main className="main-content">
+        {/* Barra superior de navegación */}
         <header className="top-nav">
-          <a href="#" className="active" style={{ color: 'var(--primary-dark)', fontWeight: '600' }}>Inicio</a>
-          <a href="#">Mis Recetas</a>
-          <a href="#">Explorar</a>
+          <button 
+            onClick={() => setActiveTab('EXPLORAR')}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: activeTab === 'EXPLORAR' ? 'var(--primary-dark)' : 'var(--text-main)',
+              fontWeight: activeTab === 'EXPLORAR' ? '700' : '500',
+              borderBottom: activeTab === 'EXPLORAR' ? '2px solid var(--primary-dark)' : 'none',
+              paddingBottom: '4px', fontSize: '0.95rem'
+            }}
+          >
+            Explorar
+          </button>
+
+          <button 
+            onClick={() => setActiveTab('FAVORITOS')}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: activeTab === 'FAVORITOS' ? 'var(--primary-dark)' : 'var(--text-main)',
+              fontWeight: activeTab === 'FAVORITOS' ? '700' : '500',
+              borderBottom: activeTab === 'FAVORITOS' ? '2px solid var(--primary-dark)' : 'none',
+              paddingBottom: '4px', fontSize: '0.95rem',
+              display: 'flex', alignItems: 'center', gap: '4px'
+            }}
+          >
+            <Heart size={16} color="#EF4444" fill={activeTab === 'FAVORITOS' ? '#EF4444' : 'none'} /> Mis Favoritas
+          </button>
+
+          <button 
+            onClick={() => setActiveTab('MIS_RECETAS')}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: activeTab === 'MIS_RECETAS' ? 'var(--primary-dark)' : 'var(--text-main)',
+              fontWeight: activeTab === 'MIS_RECETAS' ? '700' : '500',
+              borderBottom: activeTab === 'MIS_RECETAS' ? '2px solid var(--primary-dark)' : 'none',
+              paddingBottom: '4px', fontSize: '0.95rem'
+            }}
+          >
+            Mis Recetas
+          </button>
+
+          <button 
+            onClick={() => setShowHistoryModal(true)}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: 'var(--text-main)', fontWeight: '500',
+              paddingBottom: '4px', fontSize: '0.95rem',
+              display: 'flex', alignItems: 'center', gap: '4px'
+            }}
+          >
+            <History size={16} /> Historial
+          </button>
+
+          <button 
+            onClick={() => setShowCreateModal(true)}
+            className="btn btn-primary"
+            style={{ padding: '8px 16px', fontSize: '0.85rem', gap: '6px' }}
+          >
+            <Plus size={16} /> Crear Receta
+          </button>
           
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginLeft: 'auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginLeft: 'auto' }}>
             <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
               Hola, {userData?.nombre || account?.name || 'Usuario'}
             </span>
             <div style={{
-              width: '40px', height: '40px', borderRadius: '50%', 
+              width: '38px', height: '38px', borderRadius: '50%', 
               backgroundColor: '#E0E0E0', display: 'flex', 
               alignItems: 'center', justifyContent: 'center'
             }}>
-              <User size={20} color="#666" />
+              <User size={18} color="#666" />
             </div>
             <button 
               className="btn btn-outline" 
@@ -119,17 +208,23 @@ export default function Dashboard() {
           {/* Header principal con resumen inteligente */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
             <div>
-              <h1 style={{ marginBottom: '6px', fontSize: '2rem' }}>¿Qué hay pa' cocinar hoy?</h1>
+              <h1 style={{ marginBottom: '6px', fontSize: '1.9rem' }}>
+                {activeTab === 'EXPLORAR' && "¿Qué hay pa' cocinar hoy?"}
+                {activeTab === 'FAVORITOS' && "Tus Recetas Favoritas ❤️"}
+                {activeTab === 'MIS_RECETAS' && "Recetas Creadas por Ti 👨‍🍳"}
+              </h1>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
-                {countVerdes > 0 
-                  ? `🎉 ¡Tienes ${countVerdes} receta${countVerdes > 1 ? 's' : ''} lista${countVerdes > 1 ? 's' : ''} para preparar de inmediato con tus ingredientes!` 
-                  : (despensaCount === 0 
-                      ? 'Agrega ingredientes en el panel izquierdo para que el algoritmo busque qué puedes cocinar.' 
-                      : `Tienes ${despensaCount} ingredientes registrados. Te mostramos qué te falta para completar cada receta.`)}
+                {activeTab === 'EXPLORAR' && (
+                  countVerdes > 0 
+                    ? `🎉 ¡Tienes ${countVerdes} receta${countVerdes > 1 ? 's' : ''} lista${countVerdes > 1 ? 's' : ''} para preparar ahora mismo con tu despensa!` 
+                    : `Tienes ${despensaCount} ingredientes registrados. Comparamos tu despensa contra todas las recetas disponibles.`
+                )}
+                {activeTab === 'FAVORITOS' && "Guarda tus preparaciones preferidas y comprueba si tienes los ingredientes a mano."}
+                {activeTab === 'MIS_RECETAS' && "Administra tus recetas personalizadas y compártelas con tu despensa."}
               </p>
             </div>
 
-            {/* Barra de búsqueda de recetas */}
+            {/* Buscador de recetas */}
             <div style={{ position: 'relative', minWidth: '260px' }}>
               <input 
                 type="text" 
@@ -182,11 +277,11 @@ export default function Dashboard() {
             </button>
           </div>
 
-          {/* Grid de Recetas Sugeridas */}
+          {/* Grid de Recetas */}
           {loadingRecetas ? (
             <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
               <Loader2 size={24} className="spin" color="var(--primary-dark)" />
-              <span>Comparando despensa y calculando mejores recetas...</span>
+              <span>Calculando coincidencias con tu despensa...</span>
             </div>
           ) : recetasFiltradas.length === 0 ? (
             <div style={{
@@ -199,7 +294,11 @@ export default function Dashboard() {
               <UtensilsCrossed size={48} color="#9CA3AF" style={{ marginBottom: '12px' }} />
               <h3 style={{ color: 'var(--text-main)', marginBottom: '8px' }}>No se encontraron recetas</h3>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                Prueba cambiando el filtro de estado o ajustando los ingredientes de tu despensa.
+                {activeTab === 'FAVORITOS' 
+                  ? 'Aún no has marcado recetas como favoritas. Haz clic en el corazón ❤️ de cualquier receta.' 
+                  : (activeTab === 'MIS_RECETAS' 
+                      ? 'No has creado recetas aún. ¡Haz clic en "+ Crear Receta" para agregar la tuya!' 
+                      : 'Prueba cambiando el filtro o agregando ingredientes a tu despensa.')}
               </p>
             </div>
           ) : (
@@ -213,6 +312,8 @@ export default function Dashboard() {
                 <RecipeCard 
                   key={receta.id} 
                   receta={receta} 
+                  isFavorito={favoritosIds.includes(receta.id)}
+                  onToggleFavorito={handleToggleFavorito}
                   onSelect={(r) => setSelectedReceta(r)} 
                 />
               ))}
@@ -232,16 +333,37 @@ export default function Dashboard() {
             borderTop: '1px solid #E5E7EB'
           }}>
             <span>Backend: {backendStatus}</span>
-            <span>Usuario autenticado: {account?.username || 'Invitado'}</span>
+            <span>Usuario: {account?.username || 'Invitado'}</span>
           </div>
         </div>
       </main>
 
-      {/* Modal de detalle y preparación */}
+      {/* Modal de Detalle de Receta */}
       {selectedReceta && (
         <RecipeDetailModal 
           receta={selectedReceta} 
+          isFavorito={favoritosIds.includes(selectedReceta.id)}
+          onToggleFavorito={handleToggleFavorito}
+          onCookingDone={cargarRecetas}
           onClose={() => setSelectedReceta(null)} 
+        />
+      )}
+
+      {/* Modal de Crear Receta */}
+      {showCreateModal && (
+        <CreateRecipeModal 
+          onClose={() => setShowCreateModal(false)}
+          onRecipeCreated={() => {
+            setActiveTab('MIS_RECETAS');
+            cargarRecetas();
+          }}
+        />
+      )}
+
+      {/* Modal de Historial de Cocina */}
+      {showHistoryModal && (
+        <HistoryModal 
+          onClose={() => setShowHistoryModal(false)}
         />
       )}
     </div>
