@@ -33,6 +33,11 @@ public class SecurityConfig {
     @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
     private String issuerUri;
 
+    // cambios aqui
+    @Value("${app.azure.tenant-id:1abed6ed-c70a-4381-b9fe-0a67d2f0745e}")
+    private String tenantId;
+    // hasta aqui
+
     @Value("${app.azure.client-id}")
     private String clientId;
 
@@ -49,6 +54,9 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/actuator/health").permitAll()
                 .requestMatchers("/api/public/**").permitAll()
+                // cambios aqui
+                .requestMatchers(HttpMethod.GET, "/api/ingredientes/**").permitAll()
+                // hasta aqui
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2
@@ -70,12 +78,25 @@ public class SecurityConfig {
     public JwtDecoder jwtDecoder() {
         NimbusJwtDecoder decoder = (NimbusJwtDecoder) JwtDecoders.fromIssuerLocation(issuerUri);
 
-        OAuth2TokenValidator<org.springframework.security.oauth2.jwt.Jwt> withIssuer =
-                JwtValidators.createDefaultWithIssuer(issuerUri);
+        // cambios aqui
+        OAuth2TokenValidator<org.springframework.security.oauth2.jwt.Jwt> withIssuer = jwt -> {
+            String iss = jwt.getIssuer() != null ? jwt.getIssuer().toString() : "";
+            if (iss.contains(tenantId) || iss.equals(issuerUri)) {
+                return org.springframework.security.oauth2.core.OAuth2TokenValidatorResult.success();
+            }
+            return org.springframework.security.oauth2.core.OAuth2TokenValidatorResult.failure(
+                    new org.springframework.security.oauth2.core.OAuth2Error("invalid_token", "Issuer inválido: " + iss, null)
+            );
+        };
         OAuth2TokenValidator<org.springframework.security.oauth2.jwt.Jwt> withAudience =
                 new AudienceValidator(clientId);
         OAuth2TokenValidator<org.springframework.security.oauth2.jwt.Jwt> combined =
-                new org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator<>(withIssuer, withAudience);
+                new org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator<>(
+                        new org.springframework.security.oauth2.jwt.JwtTimestampValidator(),
+                        withIssuer,
+                        withAudience
+                );
+        // hasta aqui
 
         decoder.setJwtValidator(combined);
         return decoder;
@@ -98,7 +119,9 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(allowedOrigins.split(",")));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        // cambios aqui
+        configuration.setAllowedHeaders(List.of("*"));
+        // hasta aqui
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

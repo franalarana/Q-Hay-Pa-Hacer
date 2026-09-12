@@ -19,9 +19,15 @@ public class AudienceValidator implements OAuth2TokenValidator<Jwt> {
 
     @Override
     public OAuth2TokenValidatorResult validate(Jwt jwt) {
-        if (jwt.getAudience() != null && jwt.getAudience().contains(expectedAudience)) {
-            return OAuth2TokenValidatorResult.success();
+        // cambios aqui
+        if (jwt.getAudience() != null) {
+            for (String aud : jwt.getAudience()) {
+                if (aud.equals(expectedAudience) || aud.equals("api://" + expectedAudience) || aud.contains(expectedAudience)) {
+                    return OAuth2TokenValidatorResult.success();
+                }
+            }
         }
+        // hasta aqui
         OAuth2Error error = new OAuth2Error(
                 "invalid_token",
                 "El token no fue emitido para esta API (audience inválido)",
