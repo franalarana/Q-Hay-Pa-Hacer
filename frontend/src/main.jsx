@@ -1,15 +1,18 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { PublicClientApplication } from '@azure/msal-browser';
 import { MsalProvider } from '@azure/msal-react';
-import { msalConfig } from './authConfig';
+import { msalInstance } from './authConfig';
 import App from './App.jsx';
 import './index.css';
 
-const msalInstance = new PublicClientApplication(msalConfig);
-
 // Initialize MSAL before rendering
 msalInstance.initialize().then(() => {
+    // Si no hay cuenta activa pero existen cuentas en caché, seleccionar la primera
+    const accounts = msalInstance.getAllAccounts();
+    if (accounts.length > 0 && !msalInstance.getActiveAccount()) {
+        msalInstance.setActiveAccount(accounts[0]);
+    }
+
     createRoot(document.getElementById('root')).render(
       <StrictMode>
         <MsalProvider instance={msalInstance}>
@@ -18,3 +21,4 @@ msalInstance.initialize().then(() => {
       </StrictMode>,
     );
 });
+

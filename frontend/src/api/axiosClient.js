@@ -1,24 +1,24 @@
 import axios from 'axios';
-import { msalConfig, loginRequest } from '../authConfig';
-import { PublicClientApplication } from '@azure/msal-browser';
-
-// Crear una instancia de MSAL para el cliente de axios si no se pasa a través de react
-const msalInstance = new PublicClientApplication(msalConfig);
-msalInstance.initialize().then(() => {
-    // Listo
-});
+import { msalInstance, loginRequest } from '../authConfig';
 
 const axiosClient = axios.create({
-    baseURL: 'http://localhost:8080/api', // Puerto por defecto de Spring Boot
+    baseURL: import.meta.env?.VITE_API_URL || 'http://localhost:8080/api',
     headers: {
         'Content-Type': 'application/json'
     }
 });
 
-// Interceptor para peticiones (agregar token)
+// Interceptor para peticiones HTTP: adjuntar token JWT de Azure AD automáticamente
 axiosClient.interceptors.request.use(
     async (config) => {
-        const account = msalInstance.getActiveAccount() || msalInstance.getAllAccounts()[0];
+        let account = msalInstance.getActiveAccount();
+        if (!account) {
+            const accounts = msalInstance.getAllAccounts();
+            if (accounts.length > 0) {
+                account = accounts[0];
+                msalInstance.setActiveAccount(account);
+            }
+        }
 
         if (account) {
             try {
@@ -27,12 +27,12 @@ axiosClient.interceptors.request.use(
                     account: account
                 });
                 
-                // Agregar el token JWT al header Authorization
-                config.headers.Authorization = `Bearer ${response.accessToken}`;
+                if (response?.accessToken) {
+                    config.headers.Authorization = `Bearer ${response.accessToken}`;
+                }
             } catch (error) {
-                console.error('Error al obtener el token silenciosamente', error);
-                // Si falla el silent, quizás la sesión expiró.
-                // Idealmente, esto podría disparar un msalInstance.loginRedirect()
+                console.warn('No se pudo obtener el token silenciosamente:', error);
+                // Si la interacción es requerida, el flujo de UI puede manejar la reautenticación
             }
         }
         return config;
@@ -43,3 +43,4 @@ axiosClient.interceptors.request.use(
 );
 
 export default axiosClient;
+
