@@ -40,9 +40,11 @@ export default function Dashboard() {
       });
   }, []);
 
+  const [despensaItems, setDespensaItems] = useState([]);
+
   return (
     <div className="app-container">
-      <Sidebar />
+      <Sidebar onDespensaChange={(items) => setDespensaItems(items)} />
       
       <main className="main-content">
         <header className="top-nav">
@@ -75,7 +77,7 @@ export default function Dashboard() {
         <div>
           <h1 style={{ marginBottom: '8px' }}>Bienvenido a Qué hay pa' hacer</h1>
           <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>
-            Gestión inteligente de ingredientes, despensa y recetas automáticas.
+            Tienes <strong>{despensaItems.length}</strong> ingrediente{despensaItems.length === 1 ? '' : 's'} disponible{despensaItems.length === 1 ? '' : 's'} en tu despensa.
           </p>
 
           {/* Tarjeta de estado de autenticación y BFF */}

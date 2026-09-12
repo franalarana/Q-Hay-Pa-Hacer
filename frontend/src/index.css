@@ -161,3 +161,31 @@ body {
   margin-bottom: 32px;
   line-height: 1.5;
 }
+
+/* Utilities & Animations */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Custom Scrollbar */
+.sidebar ::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar ::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+}
+.sidebar ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+}
+
