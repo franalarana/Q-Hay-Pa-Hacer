@@ -1,6 +1,8 @@
 import { useMsal, useAccount } from '@azure/msal-react';
-import { LogOut, User, CheckCircle2, AlertCircle, ShieldCheck } from 'lucide-react';
+import { LogOut, User, CheckCircle2, AlertCircle, ShieldCheck, Search, Sparkles, Filter, Loader2, UtensilsCrossed } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
+import RecipeCard from '../components/RecipeCard';
+import RecipeDetailModal from '../components/RecipeDetailModal';
 import { useState, useEffect } from 'react';
 import axiosClient from '../api/axiosClient';
 
@@ -11,10 +13,31 @@ export default function Dashboard() {
   const [userData, setUserData] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
 
+  // Estados de recetas y despensa
+  const [recetas, setRecetas] = useState([]);
+  const [loadingRecetas, setLoadingRecetas] = useState(true);
+  const [filtroEstado, setFiltroEstado] = useState('TODAS'); // TODAS, VERDE, AMARILLO, ROJO
+  const [searchReceta, setSearchReceta] = useState('');
+  const [selectedReceta, setSelectedReceta] = useState(null);
+  const [despensaCount, setDespensaCount] = useState(0);
+
   const handleLogout = () => {
     instance.logoutRedirect({
       postLogoutRedirectUri: window.location.origin,
     });
+  };
+
+  // Función para cargar/recargar las recetas sugeridas comparadas con la despensa
+  const cargarRecetasSugeridas = async () => {
+    try {
+      setLoadingRecetas(true);
+      const res = await axiosClient.get('/recetas/sugeridas');
+      setRecetas(res.data);
+    } catch (err) {
+      console.error('Error al cargar recetas sugeridas:', err);
+    } finally {
+      setLoadingRecetas(false);
+    }
   };
 
   useEffect(() => {
@@ -38,13 +61,31 @@ export default function Dashboard() {
       .finally(() => {
         setLoadingUser(false);
       });
+
+    // 3. Carga inicial de recetas
+    cargarRecetasSugeridas();
   }, []);
 
-  const [despensaItems, setDespensaItems] = useState([]);
+  // Filtrado de recetas por estado y por texto de búsqueda
+  const recetasFiltradas = recetas.filter(r => {
+    const coincideEstado = (filtroEstado === 'TODAS') || (r.estadoGeneral === filtroEstado);
+    const coincideTexto = r.titulo.toLowerCase().includes(searchReceta.toLowerCase()) ||
+                          r.descripcion.toLowerCase().includes(searchReceta.toLowerCase());
+    return coincideEstado && coincideTexto;
+  });
+
+  const countVerdes = recetas.filter(r => r.estadoGeneral === 'VERDE').length;
+  const countAmarillos = recetas.filter(r => r.estadoGeneral === 'AMARILLO').length;
 
   return (
     <div className="app-container">
-      <Sidebar onDespensaChange={(items) => setDespensaItems(items)} />
+      {/* Sidebar de despensa que dispara recarga de recetas automáticamente al cambiar */}
+      <Sidebar 
+        onDespensaChange={(items) => {
+          setDespensaCount(items.length);
+          cargarRecetasSugeridas();
+        }} 
+      />
       
       <main className="main-content">
         <header className="top-nav">
@@ -75,66 +116,134 @@ export default function Dashboard() {
         </header>
 
         <div>
-          <h1 style={{ marginBottom: '8px' }}>Bienvenido a Qué hay pa' hacer</h1>
-          <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>
-            Tienes <strong>{despensaItems.length}</strong> ingrediente{despensaItems.length === 1 ? '' : 's'} disponible{despensaItems.length === 1 ? '' : 's'} en tu despensa.
-          </p>
-
-          {/* Tarjeta de estado de autenticación y BFF */}
-          <div style={{
-            backgroundColor: 'white',
-            borderRadius: 'var(--border-radius-md)',
-            padding: '20px 24px',
-            marginBottom: '32px',
-            boxShadow: 'var(--shadow-sm)',
-            border: '1px solid #E5E7EB',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '12px'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '600', color: 'var(--primary-dark)' }}>
-              <ShieldCheck size={22} />
-              <span>Estado de Autenticación & Conexión BFF</span>
+          {/* Header principal con resumen inteligente */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
+            <div>
+              <h1 style={{ marginBottom: '6px', fontSize: '2rem' }}>¿Qué hay pa' cocinar hoy?</h1>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
+                {countVerdes > 0 
+                  ? `🎉 ¡Tienes ${countVerdes} receta${countVerdes > 1 ? 's' : ''} lista${countVerdes > 1 ? 's' : ''} para preparar de inmediato con tus ingredientes!` 
+                  : (despensaCount === 0 
+                      ? 'Agrega ingredientes en el panel izquierdo para que el algoritmo busque qué puedes cocinar.' 
+                      : `Tienes ${despensaCount} ingredientes registrados. Te mostramos qué te falta para completar cada receta.`)}
+              </p>
             </div>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px', fontSize: '0.9rem' }}>
-              <div>
-                <strong style={{ color: 'var(--text-main)' }}>Usuario Entra ID:</strong>
-                <p style={{ margin: '4px 0 0', color: 'var(--text-muted)' }}>{account?.username || account?.name || 'Cargando...'}</p>
-              </div>
 
-              <div>
-                <strong style={{ color: 'var(--text-main)' }}>Backend (/public/health):</strong>
-                <p style={{ margin: '4px 0 0', color: backendStatus.includes('Error') ? '#EF4444' : '#10B981', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  {backendStatus.includes('Error') ? <AlertCircle size={16} /> : <CheckCircle2 size={16} />}
-                  {backendStatus}
-                </p>
-              </div>
-
-              <div>
-                <strong style={{ color: 'var(--text-main)' }}>Base de datos (/api/me):</strong>
-                <p style={{ margin: '4px 0 0', color: userData ? '#10B981' : (loadingUser ? 'var(--text-muted)' : '#F59E0B'), display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  {userData ? <CheckCircle2 size={16} /> : (loadingUser ? null : <AlertCircle size={16} />)}
-                  {userData ? `Sincronizado (ID local: ${userData.id})` : (loadingUser ? 'Validando JWT...' : 'Pendiente de conexión')}
-                </p>
-              </div>
+            {/* Barra de búsqueda de recetas */}
+            <div style={{ position: 'relative', minWidth: '260px' }}>
+              <input 
+                type="text" 
+                placeholder="Buscar recetas..."
+                value={searchReceta}
+                onChange={(e) => setSearchReceta(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px 38px 10px 14px',
+                  borderRadius: '50px',
+                  border: '1px solid #E5E7EB',
+                  outline: 'none',
+                  fontSize: '0.9rem',
+                  backgroundColor: '#F9FAFB'
+                }}
+              />
+              <Search size={18} color="#9CA3AF" style={{ position: 'absolute', right: '14px', top: '11px' }} />
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
-            <div style={{ 
-              width: '100%', maxWidth: '320px', height: '200px', 
-              backgroundColor: '#F9FAFB', borderRadius: 'var(--border-radius-md)',
-              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-              border: '2px dashed #D1D5DB', padding: '16px', textAlign: 'center'
-            }}>
-              <p style={{ color: '#9CA3AF', fontWeight: '500', marginBottom: '8px' }}>Recetas sugeridas</p>
-              <span style={{ fontSize: '0.8rem', color: '#9CA3AF' }}>Se activarán con la comparación de despensa</span>
+          {/* Filtros por estado semáforo */}
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '28px' }}>
+            <button 
+              onClick={() => setFiltroEstado('TODAS')}
+              className={`btn ${filtroEstado === 'TODAS' ? 'btn-primary' : 'btn-outline'}`}
+              style={{ fontSize: '0.85rem', padding: '6px 14px' }}
+            >
+              Todas ({recetas.length})
+            </button>
+            <button 
+              onClick={() => setFiltroEstado('VERDE')}
+              className={`btn ${filtroEstado === 'VERDE' ? 'btn-primary' : 'btn-outline'}`}
+              style={{ fontSize: '0.85rem', padding: '6px 14px', backgroundColor: filtroEstado === 'VERDE' ? '#10B981' : undefined, color: filtroEstado === 'VERDE' ? 'white' : undefined }}
+            >
+              🟢 Listas para cocinar ({countVerdes})
+            </button>
+            <button 
+              onClick={() => setFiltroEstado('AMARILLO')}
+              className={`btn ${filtroEstado === 'AMARILLO' ? 'btn-primary' : 'btn-outline'}`}
+              style={{ fontSize: '0.85rem', padding: '6px 14px', backgroundColor: filtroEstado === 'AMARILLO' ? '#F59E0B' : undefined, color: filtroEstado === 'AMARILLO' ? 'white' : undefined }}
+            >
+              🟡 Casi listas ({countAmarillos})
+            </button>
+            <button 
+              onClick={() => setFiltroEstado('ROJO')}
+              className={`btn ${filtroEstado === 'ROJO' ? 'btn-primary' : 'btn-outline'}`}
+              style={{ fontSize: '0.85rem', padding: '6px 14px', backgroundColor: filtroEstado === 'ROJO' ? '#EF4444' : undefined, color: filtroEstado === 'ROJO' ? 'white' : undefined }}
+            >
+              🔴 Faltan ingredientes ({recetas.filter(r => r.estadoGeneral === 'ROJO').length})
+            </button>
+          </div>
+
+          {/* Grid de Recetas Sugeridas */}
+          {loadingRecetas ? (
+            <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+              <Loader2 size={24} className="spin" color="var(--primary-dark)" />
+              <span>Comparando despensa y calculando mejores recetas...</span>
             </div>
+          ) : recetasFiltradas.length === 0 ? (
+            <div style={{
+              textAlign: 'center',
+              padding: '60px 20px',
+              backgroundColor: '#F9FAFB',
+              borderRadius: 'var(--border-radius-lg)',
+              border: '2px dashed #E5E7EB'
+            }}>
+              <UtensilsCrossed size={48} color="#9CA3AF" style={{ marginBottom: '12px' }} />
+              <h3 style={{ color: 'var(--text-main)', marginBottom: '8px' }}>No se encontraron recetas</h3>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                Prueba cambiando el filtro de estado o ajustando los ingredientes de tu despensa.
+              </p>
+            </div>
+          ) : (
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+              gap: '24px',
+              marginBottom: '32px'
+            }}>
+              {recetasFiltradas.map(receta => (
+                <RecipeCard 
+                  key={receta.id} 
+                  receta={receta} 
+                  onSelect={(r) => setSelectedReceta(r)} 
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Panel de estado de conexión con backend */}
+          <div style={{
+            backgroundColor: '#F9FAFB',
+            borderRadius: 'var(--border-radius-sm)',
+            padding: '12px 16px',
+            fontSize: '0.8rem',
+            color: 'var(--text-muted)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            borderTop: '1px solid #E5E7EB'
+          }}>
+            <span>Backend: {backendStatus}</span>
+            <span>Usuario autenticado: {account?.username || 'Invitado'}</span>
           </div>
         </div>
       </main>
+
+      {/* Modal de detalle y preparación */}
+      {selectedReceta && (
+        <RecipeDetailModal 
+          receta={selectedReceta} 
+          onClose={() => setSelectedReceta(null)} 
+        />
+      )}
     </div>
   );
 }
-
