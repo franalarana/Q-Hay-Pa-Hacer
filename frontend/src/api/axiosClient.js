@@ -20,7 +20,10 @@ axiosClient.interceptors.request.use(
             }
         }
 
-        if (account) {
+        // cambios aqui
+        const isPublicEndpoint = config.url && (config.url.includes('/public/') || config.url.includes('/public'));
+        if (account && !isPublicEndpoint) {
+        // hasta aqui
             try {
                 const response = await msalInstance.acquireTokenSilent({
                     ...loginRequest,

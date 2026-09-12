@@ -81,7 +81,9 @@ export default function Dashboard() {
   useEffect(() => {
     // 1. Probar salud pública del backend
     axiosClient.get('/public/health')
-      .then(res => setBackendStatus(res.data))
+      // cambios aqui
+      .then(res => setBackendStatus(res.data?.status === 'ok' ? 'Conectado (OK)' : (typeof res.data === 'string' ? res.data : JSON.stringify(res.data))))
+      // hasta aqui
       .catch(err => setBackendStatus('Error de conexión: ' + (err.response?.data || err.message)));
 
     // 2. Probar endpoint protegido /me
