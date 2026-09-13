@@ -28,6 +28,11 @@ export default function Sidebar({ onDespensaChange }) {
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
+  // Estado para crear un ingrediente propio (no está en el catálogo)
+  const [creandoNuevo, setCreandoNuevo] = useState(false);
+  const [nuevoNombre, setNuevoNombre] = useState('');
+  const [nuevoCategoria, setNuevoCategoria] = useState('');
+
   // Cargar catálogo de ingredientes y despensa del usuario
   const cargarDatos = async () => {
     try {
@@ -55,7 +60,13 @@ export default function Sidebar({ onDespensaChange }) {
   // Manejar adición o actualización en la despensa
   const handleGuardarIngrediente = async (e) => {
     e.preventDefault();
-    if (!selectedIngredienteId) {
+
+    if (creandoNuevo) {
+      if (!nuevoNombre.trim() || !nuevoCategoria.trim()) {
+        setErrorMsg('Ingresa el nombre y la categoría de tu nuevo ingrediente.');
+        return;
+      }
+    } else if (!selectedIngredienteId) {
       setErrorMsg('Por favor selecciona un ingrediente.');
       return;
     }
@@ -67,17 +78,31 @@ export default function Sidebar({ onDespensaChange }) {
     try {
       setSubmitting(true);
       setErrorMsg('');
+
+      let ingredienteId = selectedIngredienteId;
+      if (creandoNuevo) {
+        const resNuevo = await axiosClient.post('/ingredientes', {
+          nombre: nuevoNombre.trim(),
+          categoria: nuevoCategoria.trim(),
+          unidadBase: unidad
+        });
+        ingredienteId = resNuevo.data.id;
+      }
+
       await axiosClient.post('/despensa', {
-        ingredienteId: Number(selectedIngredienteId),
+        ingredienteId: Number(ingredienteId),
         cantidad: Number(cantidad),
         unidad: unidad
       });
-      
+
       // Limpiar y recargar
       setShowForm(false);
       setSelectedIngredienteId('');
       setCantidad(1);
       setUnidad('UNIDAD');
+      setCreandoNuevo(false);
+      setNuevoNombre('');
+      setNuevoCategoria('');
       await cargarDatos();
     } catch (err) {
       setErrorMsg(err.response?.data?.message || 'Error al guardar ingrediente.');
@@ -179,9 +204,15 @@ export default function Sidebar({ onDespensaChange }) {
           <form onSubmit={handleGuardarIngrediente} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <div>
               <label style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--text-muted)' }}>Ingrediente</label>
-              <select 
-                value={selectedIngredienteId}
+              <select
+                value={creandoNuevo ? '__nuevo__' : selectedIngredienteId}
                 onChange={(e) => {
+                  if (e.target.value === '__nuevo__') {
+                    setCreandoNuevo(true);
+                    setSelectedIngredienteId('');
+                    return;
+                  }
+                  setCreandoNuevo(false);
                   setSelectedIngredienteId(e.target.value);
                   const sel = catalogo.find(c => c.id === Number(e.target.value));
                   if (sel) setUnidad(sel.unidadBase);
@@ -201,8 +232,36 @@ export default function Sidebar({ onDespensaChange }) {
                     {ing.nombre}
                   </option>
                 ))}
+                <option value="__nuevo__">+ Agregar ingrediente propio...</option>
               </select>
             </div>
+
+            {creandoNuevo && (
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <div style={{ flex: 1.4 }}>
+                  <label style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--text-muted)' }}>Nombre nuevo ingrediente</label>
+                  <input
+                    type="text"
+                    placeholder="Ej. Palta"
+                    value={nuevoNombre}
+                    onChange={(e) => setNuevoNombre(e.target.value)}
+                    required
+                    style={{ width: '100%', padding: '8px', borderRadius: 'var(--border-radius-sm)', border: '1px solid #D1D5DB', fontSize: '0.85rem' }}
+                  />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--text-muted)' }}>Categoría</label>
+                  <input
+                    type="text"
+                    placeholder="Ej. Verduras"
+                    value={nuevoCategoria}
+                    onChange={(e) => setNuevoCategoria(e.target.value)}
+                    required
+                    style={{ width: '100%', padding: '8px', borderRadius: 'var(--border-radius-sm)', border: '1px solid #D1D5DB', fontSize: '0.85rem' }}
+                  />
+                </div>
+              </div>
+            )}
 
             <div style={{ display: 'flex', gap: '8px' }}>
               <div style={{ flex: 1 }}>
@@ -253,10 +312,15 @@ export default function Sidebar({ onDespensaChange }) {
               >
                 {submitting ? <Loader2 size={16} className="spin" /> : 'Guardar'}
               </button>
-              <button 
-                type="button" 
-                onClick={() => setShowForm(false)} 
-                className="btn btn-outline" 
+              <button
+                type="button"
+                onClick={() => {
+                  setShowForm(false);
+                  setCreandoNuevo(false);
+                  setNuevoNombre('');
+                  setNuevoCategoria('');
+                }}
+                className="btn btn-outline"
                 style={{ padding: '8px 12px', fontSize: '0.85rem' }}
               >
                 Cancelar
