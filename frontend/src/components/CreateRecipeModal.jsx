@@ -250,7 +250,7 @@ export default function CreateRecipeModal({ onClose, onRecipeCreated }) {
                   >
                     <option value="">Selecciona ingrediente...</option>
                     {catalogo.map(c => (
-                      <option key={c.id} value={c.id}>{c.nombre} ({c.categoria})</option>
+                      <option key={c.id} value={c.id}>{c.nombre}</option>
                     ))}
                   </select>
 

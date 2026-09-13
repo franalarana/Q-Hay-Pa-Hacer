@@ -198,7 +198,7 @@ export default function Sidebar({ onDespensaChange }) {
                 <option value="">Selecciona del catálogo...</option>
                 {catalogo.map(ing => (
                   <option key={ing.id} value={ing.id}>
-                    {ing.nombre} ({ing.categoria})
+                    {ing.nombre}
                   </option>
                 ))}
               </select>
