@@ -34,6 +34,7 @@ public class DataInitializer implements CommandLineRunner {
                         Map<String, Ingrediente> ings = inicializarIngredientes();
                         inicializarRecetas(ings);
                         inicializarRecetasExtra(ings);
+                        inicializarRecetasJovenes(ings);
                         log.info("Datos iniciales cargados con éxito ({} ingredientes, {} recetas).",
                                         ingredienteRepository.count(), recetaRepository.count());
                 }
@@ -168,7 +169,20 @@ public class DataInitializer implements CommandLineRunner {
                                                 .unidadBase(UnidadMedida.GRAMOS).build(),
 
                                 Ingrediente.builder().nombre("Crema de leche").categoria("Huevos y Lácteos")
-                                                .unidadBase(UnidadMedida.MILILITROS).build());
+                                                .unidadBase(UnidadMedida.MILILITROS).build(),
+
+                                // cambios aqui: ingredientes agregados para las 30 recetas de vida independiente/estudiante
+                                Ingrediente.builder().nombre("Vienesas").categoria("Carnes")
+                                                .unidadBase(UnidadMedida.UNIDAD).build(),
+                                Ingrediente.builder().nombre("Mermelada").categoria("Abarrotes")
+                                                .unidadBase(UnidadMedida.GRAMOS).build(),
+                                Ingrediente.builder().nombre("Yogurt").categoria("Huevos y Lácteos")
+                                                .unidadBase(UnidadMedida.MILILITROS).build(),
+                                Ingrediente.builder().nombre("Plátano").categoria("Frutas")
+                                                .unidadBase(UnidadMedida.UNIDAD).build(),
+                                Ingrediente.builder().nombre("Avena").categoria("Abarrotes")
+                                                .unidadBase(UnidadMedida.GRAMOS).build());
+                                // hasta aqui
                                 // hasta aqui
 
                 for (Ingrediente ing : lista) {
@@ -814,6 +828,288 @@ public class DataInitializer implements CommandLineRunner {
                                 ing("Crema de leche", 200, UnidadMedida.MILILITROS));
         }
 
+        /**
+         * 30 recetas pensadas para jóvenes que recién viven solos: rápidas,
+         * baratas, de pocos ingredientes y bajo nivel de técnica en la cocina.
+         */
+        private void inicializarRecetasJovenes(Map<String, Ingrediente> ings) {
+
+                // ---------- FÁCIL (20) ----------
+
+                receta(ings, "Arroz con Vienesas",
+                                "El clásico de emergencia: rápido, barato y siempre rinde.",
+                                "1. Cocina el arroz como de costumbre (agua, sal, 15-18 minutos tapado).\n2. Corta las vienesas en rodajas.\n3. Calienta un poco de aceite en un sartén y saltea las vienesas 3-4 minutos hasta que doren.\n4. Mezcla las vienesas con el arroz cocido o sírvelas encima.\n5. Agrega salsa de tomate por encima si quieres.",
+                                20, 2, "Fácil",
+                                ing("Arroz", 200, UnidadMedida.GRAMOS),
+                                ing("Vienesas", 4, UnidadMedida.UNIDAD),
+                                ing("Aceite", 10, UnidadMedida.MILILITROS),
+                                ing("Salsa de tomate", 60, UnidadMedida.GRAMOS));
+
+                receta(ings, "Completo Simple en Pan",
+                                "Vienesa en pan con lo básico, para el hambre de después de clases.",
+                                "1. Cocina las vienesas en agua hirviendo 5 minutos, o a la plancha si prefieres.\n2. Corta el pan de molde o marraqueta por la mitad.\n3. Coloca la vienesa dentro del pan.\n4. Agrega salsa de tomate y mayonesa a gusto.\n5. Sirve de inmediato.",
+                                10, 2, "Fácil",
+                                ing("Vienesas", 2, UnidadMedida.UNIDAD),
+                                ing("Marraqueta", 2, UnidadMedida.UNIDAD),
+                                ing("Salsa de tomate", 30, UnidadMedida.GRAMOS),
+                                ing("Mayonesa", 30, UnidadMedida.GRAMOS));
+
+                receta(ings, "Sándwich de Atún",
+                                "Proteína rápida sin encender casi nada.",
+                                "1. Escurre bien el atún en lata.\n2. Mezcla el atún con mayonesa en un bowl pequeño.\n3. Unta la mezcla sobre una rebanada de pan de molde.\n4. Cubre con la otra rebanada y corta por la mitad.\n5. Sirve frío, listo en minutos.",
+                                8, 1, "Fácil",
+                                ing("Atún en lata", 120, UnidadMedida.GRAMOS),
+                                ing("Pan de molde", 2, UnidadMedida.UNIDAD),
+                                ing("Mayonesa", 30, UnidadMedida.GRAMOS));
+
+                receta(ings, "Tostadas con Mermelada",
+                                "El desayuno más simple que existe.",
+                                "1. Tuesta las rebanadas de pan de molde hasta que estén doradas.\n2. Unta mantequilla mientras aún están calientes.\n3. Agrega mermelada por encima al gusto.\n4. Sirve de inmediato.",
+                                5, 1, "Fácil",
+                                ing("Pan de molde", 2, UnidadMedida.UNIDAD),
+                                ing("Mermelada", 30, UnidadMedida.GRAMOS),
+                                ing("Mantequilla", 10, UnidadMedida.GRAMOS));
+
+                receta(ings, "Porridge de Avena con Plátano",
+                                "Desayuno rápido, rendidor y que llena harto.",
+                                "1. Calienta la leche en una olla pequeña o en el microondas.\n2. Agrega la avena y cocina a fuego bajo 3-5 minutos, revolviendo, hasta que espese.\n3. Corta el plátano en rodajas.\n4. Sirve la avena en un bowl y agrega el plátano y azúcar a gusto por encima.",
+                                10, 1, "Fácil",
+                                ing("Avena", 50, UnidadMedida.GRAMOS),
+                                ing("Leche", 200, UnidadMedida.MILILITROS),
+                                ing("Plátano", 1, UnidadMedida.UNIDAD),
+                                ing("Azúcar", 10, UnidadMedida.GRAMOS));
+
+                receta(ings, "Batido de Plátano y Leche",
+                                "Para cuando no hay tiempo ni ganas de cocinar nada.",
+                                "1. Pela el plátano y córtalo en trozos.\n2. Coloca el plátano, la leche y el azúcar en una licuadora.\n3. Licua 30-40 segundos hasta que quede homogéneo.\n4. Sirve inmediatamente bien frío.",
+                                5, 1, "Fácil",
+                                ing("Plátano", 1, UnidadMedida.UNIDAD),
+                                ing("Leche", 250, UnidadMedida.MILILITROS),
+                                ing("Azúcar", 10, UnidadMedida.GRAMOS));
+
+                receta(ings, "Fideos con Atún",
+                                "Pasta rápida con lo que casi siempre hay en la despensa.",
+                                "1. Cocina los fideos en agua con sal según el tiempo del envase.\n2. Escurre el atún en lata.\n3. Escurre los fideos y vuelve a ponerlos en la olla.\n4. Agrega el atún y un chorrito de aceite, mezclando bien con el calor residual.\n5. Sazona con sal y pimienta a gusto y sirve.",
+                                15, 2, "Fácil",
+                                ing("Fideos / Pasta", 200, UnidadMedida.GRAMOS),
+                                ing("Atún en lata", 120, UnidadMedida.GRAMOS),
+                                ing("Aceite", 10, UnidadMedida.MILILITROS),
+                                ing("Sal", 3, UnidadMedida.GRAMOS));
+
+                receta(ings, "Ensalada Rápida de Atún y Tomate",
+                                "Ligera, fría y sin necesidad de prender la cocina.",
+                                "1. Escurre el atún en lata.\n2. Corta el tomate en cubos.\n3. Mezcla el atún con el tomate en un bowl.\n4. Agrega aceite y sal a gusto.\n5. Sirve fría, sola o con pan.",
+                                8, 1, "Fácil",
+                                ing("Atún en lata", 120, UnidadMedida.GRAMOS),
+                                ing("Tomate", 1, UnidadMedida.UNIDAD),
+                                ing("Aceite", 10, UnidadMedida.MILILITROS),
+                                ing("Sal", 2, UnidadMedida.GRAMOS));
+
+                receta(ings, "Arroz con Queso Derretido",
+                                "Arroz recién hecho con queso derretido encima, simple y rico.",
+                                "1. Cocina el arroz como de costumbre.\n2. Mientras el arroz está aún caliente, agrega el queso rallado por encima.\n3. Tapa la olla 1-2 minutos para que el queso se derrita con el vapor.\n4. Mezcla y sirve de inmediato.",
+                                20, 2, "Fácil",
+                                ing("Arroz", 200, UnidadMedida.GRAMOS),
+                                ing("Queso rallado", 60, UnidadMedida.GRAMOS),
+                                ing("Sal", 3, UnidadMedida.GRAMOS));
+
+                receta(ings, "Tostadas con Queso Derretido",
+                                "Pan tostado con queso fundido, listo en minutos.",
+                                "1. Coloca las rebanadas de pan de molde en un sartén a fuego bajo.\n2. Espolvorea queso rallado generosamente sobre cada una.\n3. Tapa el sartén 2-3 minutos hasta que el queso se derrita.\n4. Retira con cuidado y sirve caliente.",
+                                8, 1, "Fácil",
+                                ing("Pan de molde", 2, UnidadMedida.UNIDAD),
+                                ing("Queso rallado", 50, UnidadMedida.GRAMOS));
+
+                receta(ings, "Panqueques de Plátano",
+                                "Panqueques simples endulzados con plátano, sin necesitar mucho azúcar.",
+                                "1. Machaca el plátano con un tenedor en un bowl.\n2. Agrega los huevos y bate hasta integrar.\n3. Incorpora la harina poco a poco hasta formar una masa espesa.\n4. Calienta un poco de mantequilla en un sartén a fuego medio-bajo.\n5. Vierte porciones de masa y cocina 2 minutos por lado hasta dorar.\n6. Sirve calientes, solos o con mermelada.",
+                                20, 2, "Fácil",
+                                ing("Plátano", 2, UnidadMedida.UNIDAD),
+                                ing("Huevos", 2, UnidadMedida.UNIDAD),
+                                ing("Harina de trigo", 80, UnidadMedida.GRAMOS),
+                                ing("Mantequilla", 15, UnidadMedida.GRAMOS));
+
+                receta(ings, "Yogurt con Avena y Plátano",
+                                "Desayuno o colación sin cocinar nada.",
+                                "1. Corta el plátano en rodajas.\n2. Sirve el yogurt en un bowl o vaso.\n3. Agrega la avena por encima.\n4. Corona con las rodajas de plátano y sirve.",
+                                5, 1, "Fácil",
+                                ing("Yogurt", 200, UnidadMedida.MILILITROS),
+                                ing("Avena", 30, UnidadMedida.GRAMOS),
+                                ing("Plátano", 1, UnidadMedida.UNIDAD));
+
+                receta(ings, "Papas Cocidas con Mantequilla y Queso",
+                                "Papas simples pero reconfortantes, con mínimo esfuerzo.",
+                                "1. Pela las papas y córtalas en trozos medianos.\n2. Cocínalas en agua con sal 15-18 minutos hasta que estén blandas.\n3. Escurre bien.\n4. Agrega mantequilla y queso rallado mientras aún están calientes, mezclando hasta que se derritan.\n5. Sirve caliente.",
+                                20, 2, "Fácil",
+                                ing("Papas", 3, UnidadMedida.UNIDAD),
+                                ing("Mantequilla", 20, UnidadMedida.GRAMOS),
+                                ing("Queso rallado", 40, UnidadMedida.GRAMOS),
+                                ing("Sal", 5, UnidadMedida.GRAMOS));
+
+                receta(ings, "Huevo Revuelto Express con Queso",
+                                "Dos minutos, un sartén, y ya tienes proteína lista.",
+                                "1. Bate los huevos con una pizca de sal.\n2. Calienta un poco de aceite en un sartén a fuego medio.\n3. Vierte los huevos y revuelve constantemente.\n4. Cuando estén casi listos, agrega el queso rallado y sigue revolviendo hasta que se derrita.\n5. Sirve de inmediato.",
+                                6, 1, "Fácil",
+                                ing("Huevos", 2, UnidadMedida.UNIDAD),
+                                ing("Queso rallado", 30, UnidadMedida.GRAMOS),
+                                ing("Aceite", 5, UnidadMedida.MILILITROS),
+                                ing("Sal", 2, UnidadMedida.GRAMOS));
+
+                receta(ings, "Marraqueta con Mermelada",
+                                "Pan fresco con mermelada, para cuando hay poco tiempo en la mañana.",
+                                "1. Corta la marraqueta por la mitad.\n2. Unta mantequilla en cada mitad.\n3. Agrega mermelada por encima al gusto.\n4. Sirve de inmediato.",
+                                5, 1, "Fácil",
+                                ing("Marraqueta", 1, UnidadMedida.UNIDAD),
+                                ing("Mermelada", 30, UnidadMedida.GRAMOS),
+                                ing("Mantequilla", 10, UnidadMedida.GRAMOS));
+
+                receta(ings, "Sopa de Fideos con Huevo",
+                                "Sopa rápida con un huevo escalfado adentro para sumar proteína.",
+                                "1. Disuelve el caldo de verduras en agua hirviendo según la proporción del envase.\n2. Agrega los fideos y cocina 8-10 minutos.\n3. Con la sopa hirviendo suave, rompe el huevo directo dentro de la olla.\n4. Cocina 2-3 minutos más sin revolver mucho, hasta que el huevo cuaje.\n5. Sirve caliente.",
+                                15, 1, "Fácil",
+                                ing("Fideos / Pasta", 80, UnidadMedida.GRAMOS),
+                                ing("Caldo de verduras", 1, UnidadMedida.UNIDAD),
+                                ing("Huevos", 1, UnidadMedida.UNIDAD));
+
+                receta(ings, "Arroz con Salsa de Tomate y Queso",
+                                "Arroz simple con salsa y queso, para cuando no hay casi nada más.",
+                                "1. Cocina el arroz como de costumbre.\n2. Calienta la salsa de tomate en una olla pequeña o en el microondas.\n3. Sirve el arroz en un plato y baña con la salsa caliente.\n4. Espolvorea queso rallado por encima antes de servir.",
+                                20, 2, "Fácil",
+                                ing("Arroz", 200, UnidadMedida.GRAMOS),
+                                ing("Salsa de tomate", 100, UnidadMedida.GRAMOS),
+                                ing("Queso rallado", 40, UnidadMedida.GRAMOS));
+
+                receta(ings, "Sándwich de Palta y Queso",
+                                "Combinación cremosa, rápida y sin usar la cocina.",
+                                "1. Macháchala palta con un tenedor y sazona con sal.\n2. Unta la palta sobre una rebanada de pan de molde.\n3. Agrega queso rallado por encima.\n4. Cubre con la otra rebanada y sirve.",
+                                8, 1, "Fácil",
+                                ing("Palta", 1, UnidadMedida.UNIDAD),
+                                ing("Pan de molde", 2, UnidadMedida.UNIDAD),
+                                ing("Queso rallado", 30, UnidadMedida.GRAMOS),
+                                ing("Sal", 2, UnidadMedida.GRAMOS));
+
+                receta(ings, "Tostadas de Huevo Duro con Mayonesa",
+                                "Aprovecha huevos duros que sobraron para un sándwich rápido.",
+                                "1. Cocina los huevos en agua hirviendo 10 minutos hasta que estén duros.\n2. Enfría, pela y pica los huevos en cubos pequeños.\n3. Mezcla los huevos con mayonesa y sal.\n4. Tuesta el pan y unta la mezcla encima.\n5. Sirve de inmediato.",
+                                15, 1, "Fácil",
+                                ing("Huevos", 2, UnidadMedida.UNIDAD),
+                                ing("Pan de molde", 2, UnidadMedida.UNIDAD),
+                                ing("Mayonesa", 30, UnidadMedida.GRAMOS),
+                                ing("Sal", 2, UnidadMedida.GRAMOS));
+
+                receta(ings, "Vienesas a la Plancha con Puré",
+                                "Combo sencillo y rendidor para el almuerzo o la cena.",
+                                "1. Pela las papas, córtalas en trozos y cocínalas en agua con sal 15-18 minutos.\n2. Escurre y haz puré con leche y mantequilla.\n3. Cocina las vienesas en un sartén a fuego medio 5-6 minutos, dándoles vuelta.\n4. Sirve las vienesas sobre el puré.",
+                                25, 2, "Fácil",
+                                ing("Vienesas", 4, UnidadMedida.UNIDAD),
+                                ing("Papas", 3, UnidadMedida.UNIDAD),
+                                ing("Leche", 60, UnidadMedida.MILILITROS),
+                                ing("Mantequilla", 15, UnidadMedida.GRAMOS));
+
+                // ---------- MEDIA (8) ----------
+
+                receta(ings, "Arroz Frito con Huevo y Verduras",
+                                "Versión casera y rápida del arroz frito, usando arroz del día anterior.",
+                                "1. Bate los huevos aparte.\n2. Calienta aceite en un sartén o wok a fuego alto.\n3. Agrega la cebolla, la zanahoria y el pimentón picados en cubos pequeños y saltea 3-4 minutos.\n4. Empuja las verduras a un lado y vierte los huevos batidos, revolviendo hasta que cuajen.\n5. Agrega el arroz (idealmente frío) y mezcla todo bien, salteando 3-4 minutos más.\n6. Sazona con sal y sirve caliente.",
+                                25, 2, "Media",
+                                ing("Arroz", 250, UnidadMedida.GRAMOS),
+                                ing("Huevos", 2, UnidadMedida.UNIDAD),
+                                ing("Cebolla", 1, UnidadMedida.UNIDAD),
+                                ing("Zanahoria", 1, UnidadMedida.UNIDAD),
+                                ing("Pimentón", 1, UnidadMedida.UNIDAD),
+                                ing("Aceite", 15, UnidadMedida.MILILITROS));
+
+                receta(ings, "Salchipapas",
+                                "Papas fritas con vienesas doradas, ideal para compartir viendo una serie.",
+                                "1. Corta las papas en bastones y fríelas en aceite caliente hasta dorar. Escurre.\n2. Corta las vienesas en rodajas y fríelas en el mismo aceite 2-3 minutos hasta dorar.\n3. Mezcla las papas fritas con las vienesas en una fuente.\n4. Agrega salsa de tomate y mayonesa por encima.\n5. Sirve de inmediato bien caliente.",
+                                25, 2, "Media",
+                                ing("Papas", 4, UnidadMedida.UNIDAD),
+                                ing("Vienesas", 4, UnidadMedida.UNIDAD),
+                                ing("Aceite", 300, UnidadMedida.MILILITROS),
+                                ing("Salsa de tomate", 40, UnidadMedida.GRAMOS),
+                                ing("Mayonesa", 40, UnidadMedida.GRAMOS));
+
+                receta(ings, "Tortilla de Atún",
+                                "Como la tortilla de papas, pero con atún en vez de papas.",
+                                "1. Escurre el atún en lata.\n2. Pica la cebolla en cubos pequeños y sofríela en aceite 3-4 minutos hasta transparentar.\n3. Bate los huevos con sal en un bowl y agrega el atún y la cebolla salteada.\n4. Vierte la mezcla en el sartén con un poco de aceite a fuego medio-bajo.\n5. Cocina 3-4 minutos hasta que los bordes cuajen, luego dale vuelta con ayuda de un plato.\n6. Cocina 2-3 minutos más por el otro lado y sirve.",
+                                20, 2, "Media",
+                                ing("Atún en lata", 160, UnidadMedida.GRAMOS),
+                                ing("Huevos", 4, UnidadMedida.UNIDAD),
+                                ing("Cebolla", 1, UnidadMedida.UNIDAD),
+                                ing("Aceite", 15, UnidadMedida.MILILITROS),
+                                ing("Sal", 3, UnidadMedida.GRAMOS));
+
+                receta(ings, "Arroz con Pollo Exprés en Una Olla",
+                                "Todo en la misma olla, para lavar lo mínimo posible.",
+                                "1. Corta la pechuga de pollo en cubos y sazona con sal.\n2. Dora el pollo en una olla con aceite 4-5 minutos.\n3. Agrega la cebolla picada y sofríe 2-3 minutos más.\n4. Incorpora el arroz y el doble de agua que de arroz.\n5. Cocina tapado a fuego bajo 18-20 minutos sin destapar.\n6. Deja reposar 5 minutos y sirve.",
+                                35, 2, "Media",
+                                ing("Arroz", 200, UnidadMedida.GRAMOS),
+                                ing("Pechuga de pollo", 200, UnidadMedida.GRAMOS),
+                                ing("Cebolla", 1, UnidadMedida.UNIDAD),
+                                ing("Aceite", 15, UnidadMedida.MILILITROS),
+                                ing("Sal", 5, UnidadMedida.GRAMOS));
+
+                receta(ings, "Sándwich Caliente de Vienesa y Queso",
+                                "Vienesa y queso fundido entre pan tostado, para una cena rápida.",
+                                "1. Corta las vienesas por la mitad a lo largo.\n2. Cocínalas en un sartén 3-4 minutos hasta dorar.\n3. Arma el sándwich con las vienesas y queso rallado entre dos rebanadas de pan.\n4. Cocina el sándwich armado en el sartén con un poco de mantequilla, 2 minutos por lado, hasta que el queso se derrita.\n5. Corta por la mitad y sirve caliente.",
+                                20, 2, "Media",
+                                ing("Vienesas", 3, UnidadMedida.UNIDAD),
+                                ing("Pan de molde", 4, UnidadMedida.UNIDAD),
+                                ing("Queso rallado", 60, UnidadMedida.GRAMOS),
+                                ing("Mantequilla", 15, UnidadMedida.GRAMOS));
+
+                receta(ings, "Sopa Cremosa de Zapallo Rápida",
+                                "Cremosa y liviana, buena opción para las noches frías.",
+                                "1. Corta el zapallo en cubos y cocínalo en agua con sal 15-18 minutos hasta que esté muy blando.\n2. Sofríe la cebolla en aceite en una olla aparte hasta transparentar.\n3. Escurre el zapallo (reservando un poco del agua) y agrégalo a la olla con la cebolla.\n4. Licua o machaca todo junto con un poco de leche hasta lograr una crema suave.\n5. Vuelve a calentar a fuego bajo, ajusta la sal y sirve caliente.",
+                                30, 2, "Media",
+                                ing("Zapallo", 400, UnidadMedida.GRAMOS),
+                                ing("Cebolla", 1, UnidadMedida.UNIDAD),
+                                ing("Leche", 100, UnidadMedida.MILILITROS),
+                                ing("Aceite", 10, UnidadMedida.MILILITROS),
+                                ing("Sal", 5, UnidadMedida.GRAMOS));
+
+                receta(ings, "Arroz con Atún Gratinado al Horno",
+                                "Arroz con atún cubierto de queso, gratinado en el horno.",
+                                "1. Cocina el arroz como de costumbre.\n2. Escurre el atún y mézclalo con el arroz cocido y la salsa de tomate.\n3. Coloca la mezcla en una fuente para horno.\n4. Cubre con queso rallado por encima.\n5. Hornea a 200°C durante 10-12 minutos hasta que el queso esté dorado.\n6. Sirve caliente.",
+                                35, 2, "Media",
+                                ing("Arroz", 200, UnidadMedida.GRAMOS),
+                                ing("Atún en lata", 160, UnidadMedida.GRAMOS),
+                                ing("Salsa de tomate", 60, UnidadMedida.GRAMOS),
+                                ing("Queso rallado", 80, UnidadMedida.GRAMOS));
+
+                receta(ings, "Fideos con Salchichas y Salsa de Tomate",
+                                "Pasta con vienesas en salsa, rinde harto y gusta a todos.",
+                                "1. Cocina los fideos en agua con sal según el tiempo del envase.\n2. Corta las vienesas en rodajas y saltéalas en aceite 3-4 minutos.\n3. Agrega la salsa de tomate y cocina 5 minutos más a fuego bajo.\n4. Escurre los fideos y mézclalos con la salsa y las vienesas.\n5. Sirve caliente, con queso rallado por encima si quieres.",
+                                25, 2, "Media",
+                                ing("Fideos / Pasta", 250, UnidadMedida.GRAMOS),
+                                ing("Vienesas", 4, UnidadMedida.UNIDAD),
+                                ing("Salsa de tomate", 150, UnidadMedida.GRAMOS),
+                                ing("Aceite", 10, UnidadMedida.MILILITROS));
+
+                // ---------- DIFÍCIL (2) ----------
+
+                receta(ings, "Lasaña Exprés en Sartén (Individual)",
+                                "Una lasaña sin horno, hecha en capas dentro de un sartén con tapa.",
+                                "1. Sofríe la cebolla y el ajo en aceite hasta transparentar.\n2. Agrega la carne molida y cocina 6-8 minutos hasta dorar.\n3. Incorpora la salsa de tomate y cocina 10 minutos a fuego bajo.\n4. En el mismo sartén, arma capas alternando salsa, láminas de pasta (previamente hidratadas en agua caliente) y queso rallado.\n5. Tapa el sartén y cocina a fuego muy bajo 15-18 minutos hasta que la pasta esté blanda y el queso derretido.\n6. Deja reposar 5 minutos tapado antes de servir.",
+                                45, 2, "Difícil",
+                                ing("Fideos / Pasta", 120, UnidadMedida.GRAMOS),
+                                ing("Carne molida", 200, UnidadMedida.GRAMOS),
+                                ing("Salsa de tomate", 200, UnidadMedida.GRAMOS),
+                                ing("Queso rallado", 100, UnidadMedida.GRAMOS),
+                                ing("Cebolla", 1, UnidadMedida.UNIDAD),
+                                ing("Ajo", 1, UnidadMedida.UNIDAD));
+
+                receta(ings, "Pastel de Papas Individual al Horno",
+                                "Versión chica del pastel de papas, para una sola porción generosa.",
+                                "1. Pela y cocina las papas en agua con sal 15-18 minutos hasta que estén blandas.\n2. Haz puré con las papas, la leche y la mantequilla.\n3. Sofríe la cebolla en aceite y agrega la carne molida, cocinando 6-8 minutos.\n4. En un molde pequeño para horno, coloca la mitad del puré, luego la carne, y cubre con el resto del puré.\n5. Espolvorea queso rallado por encima.\n6. Hornea a 200°C durante 15-18 minutos hasta dorar la superficie.\n7. Deja reposar unos minutos antes de servir.",
+                                45, 1, "Difícil",
+                                ing("Papas", 3, UnidadMedida.UNIDAD),
+                                ing("Carne molida", 100, UnidadMedida.GRAMOS),
+                                ing("Cebolla", 1, UnidadMedida.UNIDAD),
+                                ing("Leche", 40, UnidadMedida.MILILITROS),
+                                ing("Mantequilla", 10, UnidadMedida.GRAMOS),
+                                ing("Queso rallado", 40, UnidadMedida.GRAMOS));
+        }
 
         private void agregarIngrediente(Receta receta, Ingrediente ingrediente, Double cantidad, UnidadMedida unidad) {
                 if (ingrediente == null)
