@@ -246,3 +246,27 @@ body {
     gap: 8px;
   }
 }
+
+/* Semaforo Card Hover Effects */
+.semaforo-card {
+    transition: all 0.3s ease;
+    border: 2px solid transparent !important;
+}
+
+.semaforo-card-green:hover {
+    border-color: #C1E9CC !important;
+    box-shadow: 0 8px 25px rgba(52, 211, 153, 0.2);
+    transform: translateY(-2px);
+}
+
+.semaforo-card-yellow:hover {
+    border-color: #FDE047 !important;
+    box-shadow: 0 8px 25px rgba(250, 204, 21, 0.2);
+    transform: translateY(-2px);
+}
+
+.semaforo-card-red:hover {
+    border-color: #FECACA !important;
+    box-shadow: 0 8px 25px rgba(248, 113, 113, 0.2);
+    transform: translateY(-2px);
+}

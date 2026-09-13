@@ -11,7 +11,7 @@ function App() {
     <Router>
       <Routes>
         {/* Ruta pública principal (Landing Page) */}
-        <Route path="/" element={<Landing />} />
+        <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" /> : <Landing />} />
         
         {/* Ruta de Login separada por si se necesita (aunque Landing ya tiene el botón) */}
         <Route 

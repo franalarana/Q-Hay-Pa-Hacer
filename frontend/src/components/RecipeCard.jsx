@@ -6,8 +6,8 @@ export default function RecipeCard({ receta, onSelect, isFavorito, onToggleFavor
   const isAmarillo = receta.estadoGeneral === 'AMARILLO';
 
   // Badge config según el semáforo
-  const badgeBg = isVerde ? '#DEF7EC' : isAmarillo ? '#FEF08A' : '#FDE8E8';
-  const badgeColor = isVerde ? '#03543F' : isAmarillo ? '#854D0E' : '#9B1C1C';
+  const badgeBg = isVerde ? '#D1F4E0' : isAmarillo ? '#FEF08A' : '#FBD5D5';
+  const badgeColor = isVerde ? '#22543D' : isAmarillo ? '#744210' : '#742A2A';
   const badgeLabel = isVerde ? '¡Listo para cocinar!' : isAmarillo ? 'Faltan cantidades' : 'Faltan ingredientes';
 
   return (
@@ -120,7 +120,7 @@ export default function RecipeCard({ receta, onSelect, isFavorito, onToggleFavor
             <div style={{
               width: `${receta.porcentajeCoincidencia}%`,
               height: '100%',
-              backgroundColor: isVerde ? '#10B981' : isAmarillo ? '#F59E0B' : '#EF4444',
+              backgroundColor: isVerde ? '#38A169' : isAmarillo ? '#D69E2E' : '#E53E3E',
               borderRadius: '4px',
               transition: 'width 0.4s ease'
             }} />
@@ -142,8 +142,8 @@ export default function RecipeCard({ receta, onSelect, isFavorito, onToggleFavor
                   display: 'flex',
                   alignItems: 'center',
                   gap: '4px',
-                  backgroundColor: ingVerde ? '#DEF7EC' : ingAmarillo ? '#FEF08A' : '#FDE8E8',
-                  color: ingVerde ? '#03543F' : ingAmarillo ? '#854D0E' : '#9B1C1C',
+                  backgroundColor: ingVerde ? '#D1F4E0' : ingAmarillo ? '#FEF08A' : '#FBD5D5',
+                  color: ingVerde ? '#22543D' : ingAmarillo ? '#744210' : '#742A2A',
                   fontWeight: '500'
                 }}
               >

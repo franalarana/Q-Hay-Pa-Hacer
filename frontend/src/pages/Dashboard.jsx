@@ -137,7 +137,8 @@ export default function Dashboard() {
         }} 
       />
       
-      <main className="main-content">
+      <main className="main-content" style={{ position: 'relative', overflow: 'hidden' }}>
+        
         {/* Barra superior de navegación */}
         <header className="top-nav">
           <button 
