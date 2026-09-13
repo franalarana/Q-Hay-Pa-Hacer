@@ -141,7 +141,7 @@ export default function Landing() {
                             </div>
                             <div>
                                 <h4 style={{ margin: '0 0 6px', fontSize: '1.15rem', color: '#1E293B', fontWeight: '700' }}>Despensa en Tiempo Real</h4>
-                                <p style={{ margin: 0, fontSize: '0.95rem', color: '#4A5568', lineHeight: '1.5' }}>Registra y ajusta cantidades con un solo clic (+/-) desde tu panel lateral intuitivo.</p>
+                                <p style={{ margin: 0, fontSize: '0.95rem', color: '#4A5568', lineHeight: '1.5' }}>Registra y ajusta cantidades con un solo clic desde tu panel lateral intuitivo.</p>
                             </div>
                         </div>
                         {/* Feature 2 */}
