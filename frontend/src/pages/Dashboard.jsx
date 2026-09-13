@@ -170,13 +170,13 @@ export default function Dashboard() {
               <Heart size={16} color="#EF4444" fill={activeTab === 'FAVORITOS' ? '#EF4444' : 'none'} /> Mis Favoritas
             </button>
 
-            <button 
+            <button
               onClick={() => setActiveTab('MIS_RECETAS')}
               style={{
                 background: 'none', border: 'none', cursor: 'pointer',
-                color: activeTab === 'MIS_RECETAS' ? 'var(--primary-dark)' : 'var(--text-main)',
+                color: activeTab === 'MIS_RECETAS' ? 'var(--accent-blue-dark)' : 'var(--text-main)',
                 fontWeight: activeTab === 'MIS_RECETAS' ? '700' : '500',
-                borderBottom: activeTab === 'MIS_RECETAS' ? '2px solid var(--primary-dark)' : 'none',
+                borderBottom: activeTab === 'MIS_RECETAS' ? '2px solid var(--accent-blue)' : 'none',
                 paddingBottom: '4px', fontSize: '0.95rem'
               }}
             >
@@ -200,7 +200,7 @@ export default function Dashboard() {
                 setEditingReceta(null);
                 setShowCreateModal(true);
               }}
-              className="btn btn-primary"
+              className="btn btn-gradient"
               style={{ padding: '8px 16px', fontSize: '0.85rem', gap: '6px' }}
             >
               <Plus size={16} /> Crear Receta

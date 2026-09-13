@@ -14,6 +14,8 @@
   --pastel-pink: #FCE7F3;
   --pastel-lavender: #EDE9FE;
   --pastel-blue: #E0F2FE;
+  --accent-blue: #7DD3FC;
+  --accent-blue-dark: #0369A1;
 
   /* Semáforos */
   --green-bg: #DEF7EC;
@@ -152,8 +154,33 @@ body {
 }
 
 .btn-outline:hover {
-  background-color: #F3F4F6;
-  border-color: #9CA3AF;
+  background-color: var(--pastel-blue);
+  border-color: var(--accent-blue);
+  color: var(--accent-blue-dark);
+}
+
+/* Marco combinado menta + azul pastel, para tarjetas/paneles destacados */
+.frame-pastel {
+  border: 1px solid var(--border-color);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.frame-pastel:hover {
+  border-color: var(--accent-blue);
+  box-shadow: 0 8px 20px rgba(125, 211, 252, 0.25), 0 0 0 3px var(--pastel-blue);
+}
+
+.btn-gradient {
+  background: linear-gradient(135deg, var(--pastel-blue) 0%, var(--primary-color) 100%);
+  color: var(--text-main);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-gradient:hover {
+  background: linear-gradient(135deg, var(--accent-blue) 0%, var(--primary-dark) 100%);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 /* Pantallas Auth */
