@@ -43,4 +43,18 @@ public class RecetaController {
         RecetaComparadaDTO creada = comparadorRecetasService.crearRecetaPropia(auth.getToken(), request, ingredienteRepository);
         return ResponseEntity.status(HttpStatus.CREATED).body(creada);
     }
+
+    @PutMapping("/{id}")
+    public RecetaComparadaDTO actualizarRecetaPropia(
+            JwtAuthenticationToken auth,
+            @PathVariable Long id,
+            @Valid @RequestBody CrearRecetaRequest request) {
+        return comparadorRecetasService.actualizarRecetaPropia(auth.getToken(), id, request, ingredienteRepository);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminarRecetaPropia(JwtAuthenticationToken auth, @PathVariable Long id) {
+        comparadorRecetasService.eliminarRecetaPropia(auth.getToken(), id);
+        return ResponseEntity.noContent().build();
+    }
 }

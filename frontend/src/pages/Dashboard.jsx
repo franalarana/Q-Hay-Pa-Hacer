@@ -21,6 +21,7 @@ export default function Dashboard() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [selectedReceta, setSelectedReceta] = useState(null);
+  const [editingReceta, setEditingReceta] = useState(null);
 
   // Estados de datos
   const [recetas, setRecetas] = useState([]);
@@ -57,6 +58,20 @@ export default function Dashboard() {
       }
     } catch (err) {
       console.error('Error al alternar favorito:', err);
+    }
+  };
+
+  // Eliminar una receta propia
+  const handleEliminarReceta = async (receta) => {
+    if (!window.confirm(`¿Seguro que quieres eliminar "${receta.titulo}"? Esta acción no se puede deshacer.`)) {
+      return;
+    }
+    try {
+      await axiosClient.delete(`/recetas/${receta.id}`);
+      setSelectedReceta(null);
+      cargarRecetas();
+    } catch (err) {
+      console.error('Error al eliminar receta:', err);
     }
   };
 
@@ -177,8 +192,11 @@ export default function Dashboard() {
             <History size={16} /> Historial
           </button>
 
-          <button 
-            onClick={() => setShowCreateModal(true)}
+          <button
+            onClick={() => {
+              setEditingReceta(null);
+              setShowCreateModal(true);
+            }}
             className="btn btn-primary"
             style={{ padding: '8px 16px', fontSize: '0.85rem', gap: '6px' }}
           >
@@ -343,21 +361,33 @@ export default function Dashboard() {
 
       {/* Modal de Detalle de Receta */}
       {selectedReceta && (
-        <RecipeDetailModal 
-          receta={selectedReceta} 
+        <RecipeDetailModal
+          receta={selectedReceta}
           isFavorito={favoritosIds.includes(selectedReceta.id)}
           onToggleFavorito={handleToggleFavorito}
           onCookingDone={cargarRecetas}
-          onClose={() => setSelectedReceta(null)} 
+          onClose={() => setSelectedReceta(null)}
+          esPropia={activeTab === 'MIS_RECETAS'}
+          onEditar={(receta) => {
+            setEditingReceta(receta);
+            setSelectedReceta(null);
+            setShowCreateModal(true);
+          }}
+          onEliminar={handleEliminarReceta}
         />
       )}
 
-      {/* Modal de Crear Receta */}
+      {/* Modal de Crear/Editar Receta */}
       {showCreateModal && (
-        <CreateRecipeModal 
-          onClose={() => setShowCreateModal(false)}
+        <CreateRecipeModal
+          recetaEditar={editingReceta}
+          onClose={() => {
+            setShowCreateModal(false);
+            setEditingReceta(null);
+          }}
           onRecipeCreated={() => {
             setActiveTab('MIS_RECETAS');
+            setEditingReceta(null);
             cargarRecetas();
           }}
         />

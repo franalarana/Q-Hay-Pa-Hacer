@@ -14,21 +14,29 @@ const UNIDADES_DISPONIBLES = [
   { value: 'PIZCA', label: 'Pizca' }
 ];
 
-export default function CreateRecipeModal({ onClose, onRecipeCreated }) {
+export default function CreateRecipeModal({ onClose, onRecipeCreated, recetaEditar }) {
+  const esEdicion = Boolean(recetaEditar);
   const [catalogo, setCatalogo] = useState([]);
   const [loadingCatalogo, setLoadingCatalogo] = useState(true);
 
-  const [titulo, setTitulo] = useState('');
-  const [descripcion, setDescripcion] = useState('');
-  const [instrucciones, setInstrucciones] = useState('');
-  const [tiempoMinutos, setTiempoMinutos] = useState(20);
-  const [porciones, setPorciones] = useState(2);
-  const [dificultad, setDificultad] = useState('Fácil');
-  const [imagenUrl, setImagenUrl] = useState('');
-  
-  const [ingredientes, setIngredientes] = useState([
-    { ingredienteId: '', cantidadRequerida: 1, unidad: 'UNIDAD', opcional: false }
-  ]);
+  const [titulo, setTitulo] = useState(recetaEditar?.titulo || '');
+  const [descripcion, setDescripcion] = useState(recetaEditar?.descripcion || '');
+  const [instrucciones, setInstrucciones] = useState(recetaEditar?.instrucciones || '');
+  const [tiempoMinutos, setTiempoMinutos] = useState(recetaEditar?.tiempoMinutos || 20);
+  const [porciones, setPorciones] = useState(recetaEditar?.porciones || 2);
+  const [dificultad, setDificultad] = useState(recetaEditar?.dificultad || 'Fácil');
+  const [imagenUrl, setImagenUrl] = useState(recetaEditar?.imagenUrl || '');
+
+  const [ingredientes, setIngredientes] = useState(
+    recetaEditar?.ingredientes?.length
+      ? recetaEditar.ingredientes.map(i => ({
+          ingredienteId: String(i.ingredienteId),
+          cantidadRequerida: i.cantidadRequerida,
+          unidad: i.unidadRequerida,
+          opcional: i.opcional || false
+        }))
+      : [{ ingredienteId: '', cantidadRequerida: 1, unidad: 'UNIDAD', opcional: false }]
+  );
 
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -79,7 +87,7 @@ export default function CreateRecipeModal({ onClose, onRecipeCreated }) {
     try {
       setSubmitting(true);
       setErrorMsg('');
-      await axiosClient.post('/recetas', {
+      const payload = {
         titulo,
         descripcion,
         instrucciones,
@@ -93,7 +101,13 @@ export default function CreateRecipeModal({ onClose, onRecipeCreated }) {
           unidad: i.unidad,
           opcional: i.opcional
         }))
-      });
+      };
+
+      if (esEdicion) {
+        await axiosClient.put(`/recetas/${recetaEditar.id}`, payload);
+      } else {
+        await axiosClient.post('/recetas', payload);
+      }
 
       if (onRecipeCreated) {
         onRecipeCreated();
@@ -128,7 +142,7 @@ export default function CreateRecipeModal({ onClose, onRecipeCreated }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Sparkles size={24} color="var(--primary-dark)" />
-            <h2 style={{ fontSize: '1.5rem', margin: 0, color: 'var(--text-main)' }}>Crear Nueva Receta</h2>
+            <h2 style={{ fontSize: '1.5rem', margin: 0, color: 'var(--text-main)' }}>{esEdicion ? 'Editar Receta' : 'Crear Nueva Receta'}</h2>
           </div>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#666' }}>
             <X size={22} />
@@ -310,7 +324,7 @@ export default function CreateRecipeModal({ onClose, onRecipeCreated }) {
               className="btn btn-primary"
               style={{ flex: 1, padding: '12px' }}
             >
-              {submitting ? <Loader2 size={18} className="spin" /> : 'Guardar y Publicar Receta'}
+              {submitting ? <Loader2 size={18} className="spin" /> : (esEdicion ? 'Guardar Cambios' : 'Guardar y Publicar Receta')}
             </button>
             <button 
               type="button" 

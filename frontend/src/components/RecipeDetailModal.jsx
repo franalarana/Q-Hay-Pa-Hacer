@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { X, Clock, Users, ChefHat, CheckCircle2, AlertTriangle, XCircle, Heart, Utensils, Loader2 } from 'lucide-react';
+import { X, Clock, Users, ChefHat, CheckCircle2, AlertTriangle, XCircle, Heart, Utensils, Loader2, Pencil, Trash2 } from 'lucide-react';
 import axiosClient from '../api/axiosClient';
 import SemaforoIcon from './SemaforoIcon';
 
-export default function RecipeDetailModal({ receta, onClose, isFavorito, onToggleFavorito, onCookingDone }) {
+export default function RecipeDetailModal({ receta, onClose, isFavorito, onToggleFavorito, onCookingDone, esPropia, onEditar, onEliminar }) {
   const [cooking, setCooking] = useState(false);
   const [cookedSuccess, setCookedSuccess] = useState(false);
   const [notas, setNotas] = useState('');
@@ -130,6 +130,25 @@ export default function RecipeDetailModal({ receta, onClose, isFavorito, onToggl
               {receta.estadoGeneral === 'VERDE' ? 'Listo para cocinar' : receta.estadoGeneral === 'AMARILLO' ? 'Faltan cantidades' : 'Faltan ingredientes'}
             </span>
           </div>
+
+          {esPropia && (
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+              <button
+                className="btn btn-outline"
+                onClick={() => onEditar && onEditar(receta)}
+                style={{ padding: '8px 14px', fontSize: '0.85rem', gap: '6px' }}
+              >
+                <Pencil size={15} /> Editar receta
+              </button>
+              <button
+                className="btn btn-outline"
+                onClick={() => onEliminar && onEliminar(receta)}
+                style={{ padding: '8px 14px', fontSize: '0.85rem', gap: '6px', color: '#DC2626', borderColor: '#FECACA' }}
+              >
+                <Trash2 size={15} /> Eliminar receta
+              </button>
+            </div>
+          )}
 
           <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', marginBottom: '20px', lineHeight: '1.5' }}>
             {receta.descripcion}

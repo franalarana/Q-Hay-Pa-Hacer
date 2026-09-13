@@ -12,9 +12,11 @@ import cl.quehaypahacer.backend.model.Usuario;
 import cl.quehaypahacer.backend.repository.IngredienteUsuarioRepository;
 import cl.quehaypahacer.backend.repository.RecetaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -112,6 +114,56 @@ public class ComparadorRecetasService {
         guardada = recetaRepository.save(guardada);
 
         return obtenerDetalleReceta(jwt, guardada.getId());
+    }
+
+    @Transactional
+    public RecetaComparadaDTO actualizarRecetaPropia(Jwt jwt, Long recetaId, cl.quehaypahacer.backend.dto.CrearRecetaRequest req, cl.quehaypahacer.backend.repository.IngredienteRepository ingredienteRepository) {
+        Usuario usuario = usuarioService.obtenerOCrear(jwt);
+        Receta receta = obtenerRecetaPropiaOrThrow(recetaId, usuario);
+
+        receta.setTitulo(req.getTitulo());
+        receta.setDescripcion(req.getDescripcion());
+        receta.setInstrucciones(req.getInstrucciones());
+        receta.setTiempoMinutos(req.getTiempoMinutos());
+        receta.setPorciones(req.getPorciones());
+        receta.setDificultad(req.getDificultad() != null ? req.getDificultad() : "Fácil");
+        if (req.getImagenUrl() != null && !req.getImagenUrl().isBlank()) {
+            receta.setImagenUrl(req.getImagenUrl());
+        }
+
+        // Reemplaza los ingredientes en la misma colección para que el orphanRemoval borre los anteriores
+        receta.getIngredientes().clear();
+        for (cl.quehaypahacer.backend.dto.IngredienteRecetaRequest irr : req.getIngredientes()) {
+            cl.quehaypahacer.backend.model.Ingrediente ing = ingredienteRepository.findById(irr.getIngredienteId())
+                    .orElseThrow(() -> new IllegalArgumentException("Ingrediente no encontrado con id: " + irr.getIngredienteId()));
+
+            receta.getIngredientes().add(IngredienteReceta.builder()
+                    .receta(receta)
+                    .ingrediente(ing)
+                    .cantidadRequerida(irr.getCantidadRequerida())
+                    .unidad(irr.getUnidad())
+                    .opcional(irr.getOpcional() != null ? irr.getOpcional() : false)
+                    .build());
+        }
+
+        recetaRepository.save(receta);
+        return obtenerDetalleReceta(jwt, receta.getId());
+    }
+
+    @Transactional
+    public void eliminarRecetaPropia(Jwt jwt, Long recetaId) {
+        Usuario usuario = usuarioService.obtenerOCrear(jwt);
+        Receta receta = obtenerRecetaPropiaOrThrow(recetaId, usuario);
+        recetaRepository.delete(receta);
+    }
+
+    private Receta obtenerRecetaPropiaOrThrow(Long recetaId, Usuario usuario) {
+        Receta receta = recetaRepository.findById(recetaId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Receta no encontrada con id: " + recetaId));
+        if (receta.getCreador() == null || !receta.getCreador().getId().equals(usuario.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Solo puedes editar o eliminar recetas creadas por ti");
+        }
+        return receta;
     }
 
     @Transactional(readOnly = true)
