@@ -117,11 +117,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // allowedOriginPatterns("*") permite cualquier origen sin necesidad de
-        // conocer el DNS del EC2, que cambia con cada sesión de laboratorio.
-        // Es compatible con el JWT porque éste viaja en el header Authorization,
-        // no como cookie — por lo tanto allowCredentials no es necesario.
-        configuration.setAllowedOriginPatterns(List.of("*"));
+        // Orígenes tomados de app.cors.allowed-origins (env CORS_ALLOWED_ORIGINS),
+        // separados por coma. Es compatible con el JWT porque éste viaja en el
+        // header Authorization, no como cookie — por lo tanto allowCredentials
+        // no es necesario aunque se use "*".
+        configuration.setAllowedOriginPatterns(List.of(allowedOrigins.split("\\s*,\\s*")));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setExposedHeaders(List.of("Authorization"));
