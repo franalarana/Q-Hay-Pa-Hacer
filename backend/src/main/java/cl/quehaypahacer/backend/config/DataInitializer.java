@@ -134,7 +134,6 @@ public class DataInitializer implements CommandLineRunner {
                                 .tiempoMinutos(25)
                                 .porciones(2)
                                 .dificultad("Fácil")
-                                .imagenUrl("https://images.unsplash.com/photo-1621996346565-e3d5d6281691?w=600&auto=format&fit=crop&q=60")
                                 .build();
                 r3 = recetaRepository.save(r3);
 
