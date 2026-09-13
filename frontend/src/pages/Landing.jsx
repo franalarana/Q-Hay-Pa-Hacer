@@ -49,7 +49,6 @@ export default function Landing() {
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>EP1 DSY1107</span>
                     {!isAuthenticated ? (
                         <button 
                             className="btn btn-primary" 
@@ -177,7 +176,7 @@ export default function Landing() {
                                     <CheckCircle2 size={24} />
                                 </div>
                                 <div>
-                                    <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#166534' }}>🟢 Verde: ¡Listo!</h3>
+                                    <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#166534' }}>Verde: ¡Listo!</h3>
                                     <span style={{ fontSize: '0.8rem', color: '#15803D' }}>Cantidad suficiente</span>
                                 </div>
                             </div>
@@ -201,7 +200,7 @@ export default function Landing() {
                                     <AlertTriangle size={24} />
                                 </div>
                                 <div>
-                                    <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#854D0E' }}>🟡 Amarillo: Falta poco</h3>
+                                    <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#854D0E' }}>Amarillo: Falta poco</h3>
                                     <span style={{ fontSize: '0.8rem', color: '#A16207' }}>Faltan cantidades</span>
                                 </div>
                             </div>
@@ -225,7 +224,7 @@ export default function Landing() {
                                     <XCircle size={24} />
                                 </div>
                                 <div>
-                                    <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#991B1B' }}>🔴 Rojo: No disponible</h3>
+                                    <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#991B1B' }}>Rojo: No disponible</h3>
                                     <span style={{ fontSize: '0.8rem', color: '#B91C1C' }}>No está en despensa</span>
                                 </div>
                             </div>
@@ -310,11 +309,8 @@ export default function Landing() {
                 color: 'var(--text-muted)',
                 fontSize: '0.85rem'
             }}>
-                <p style={{ margin: '0 0 6px 0', fontWeight: '600', color: 'var(--text-main)' }}>
-                    ¿Qué hay pa' hacer? — Evaluación Práctica 1 (EP1 DSY1107)
-                </p>
-                <p style={{ margin: 0 }}>
-                    Desarrollado con React 19, Spring Boot (Java 21), MySQL, Azure Entra ID y AWS.
+                <p style={{ margin: 0, fontWeight: '600', color: 'var(--text-main)' }}>
+                    ¿Qué hay pa' hacer?
                 </p>
             </footer>
         </div>

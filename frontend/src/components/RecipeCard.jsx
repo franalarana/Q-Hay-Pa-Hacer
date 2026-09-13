@@ -1,4 +1,5 @@
 import { Clock, Users, ArrowRight, Heart } from 'lucide-react';
+import SemaforoIcon from './SemaforoIcon';
 
 export default function RecipeCard({ receta, onSelect, isFavorito, onToggleFavorito }) {
   const isVerde = receta.estadoGeneral === 'VERDE';
@@ -7,7 +8,7 @@ export default function RecipeCard({ receta, onSelect, isFavorito, onToggleFavor
   // Badge config según el semáforo
   const badgeBg = isVerde ? '#DEF7EC' : isAmarillo ? '#FEF08A' : '#FDE8E8';
   const badgeColor = isVerde ? '#03543F' : isAmarillo ? '#854D0E' : '#9B1C1C';
-  const badgeLabel = isVerde ? '🟢 ¡Listo para cocinar!' : isAmarillo ? '🟡 Faltan cantidades' : '🔴 Faltan ingredientes';
+  const badgeLabel = isVerde ? '¡Listo para cocinar!' : isAmarillo ? 'Faltan cantidades' : 'Faltan ingredientes';
 
   return (
     <div style={{
@@ -79,9 +80,12 @@ export default function RecipeCard({ receta, onSelect, isFavorito, onToggleFavor
           borderRadius: '20px',
           fontSize: '0.75rem',
           fontWeight: '700',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '5px'
         }}>
-          {badgeLabel}
+          <SemaforoIcon estado={receta.estadoGeneral} size={9} /> {badgeLabel}
         </div>
       </div>
 
@@ -143,7 +147,7 @@ export default function RecipeCard({ receta, onSelect, isFavorito, onToggleFavor
                   fontWeight: '500'
                 }}
               >
-                {ingVerde ? '🟢' : ingAmarillo ? '🟡' : '🔴'} {ing.nombreIngrediente}
+                <SemaforoIcon estado={ing.estado} size={8} /> {ing.nombreIngrediente}
               </span>
             );
           })}

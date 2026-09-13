@@ -5,6 +5,7 @@ import RecipeCard from '../components/RecipeCard';
 import RecipeDetailModal from '../components/RecipeDetailModal';
 import CreateRecipeModal from '../components/CreateRecipeModal';
 import HistoryModal from '../components/HistoryModal';
+import SemaforoIcon from '../components/SemaforoIcon';
 import { useState, useEffect } from 'react';
 import axiosClient from '../api/axiosClient';
 
@@ -210,15 +211,15 @@ export default function Dashboard() {
           {/* Header principal con resumen inteligente */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
             <div>
-              <h1 style={{ marginBottom: '6px', fontSize: '1.9rem' }}>
+              <h1 style={{ marginBottom: '6px', fontSize: '1.9rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
                 {activeTab === 'EXPLORAR' && "¿Qué hay pa' cocinar hoy?"}
-                {activeTab === 'FAVORITOS' && "Tus Recetas Favoritas ❤️"}
-                {activeTab === 'MIS_RECETAS' && "Recetas Creadas por Ti 👨‍🍳"}
+                {activeTab === 'FAVORITOS' && (<>Tus Recetas Favoritas <Heart size={22} color="#EF4444" fill="#EF4444" /></>)}
+                {activeTab === 'MIS_RECETAS' && (<>Recetas Creadas por Ti <ChefHat size={22} color="var(--primary-dark)" /></>)}
               </h1>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 {activeTab === 'EXPLORAR' && (
-                  countVerdes > 0 
-                    ? `🎉 ¡Tienes ${countVerdes} receta${countVerdes > 1 ? 's' : ''} lista${countVerdes > 1 ? 's' : ''} para preparar ahora mismo con tu despensa!` 
+                  countVerdes > 0
+                    ? (<><Sparkles size={16} color="var(--primary-dark)" /> ¡Tienes {countVerdes} receta{countVerdes > 1 ? 's' : ''} lista{countVerdes > 1 ? 's' : ''} para preparar ahora mismo con tu despensa!</>)
                     : `Tienes ${despensaCount} ingredientes registrados. Comparamos tu despensa contra todas las recetas disponibles.`
                 )}
                 {activeTab === 'FAVORITOS' && "Guarda tus preparaciones preferidas y comprueba si tienes los ingredientes a mano."}
@@ -259,23 +260,23 @@ export default function Dashboard() {
             <button 
               onClick={() => setFiltroEstado('VERDE')}
               className={`btn ${filtroEstado === 'VERDE' ? 'btn-primary' : 'btn-outline'}`}
-              style={{ fontSize: '0.85rem', padding: '6px 14px', backgroundColor: filtroEstado === 'VERDE' ? '#10B981' : undefined, color: filtroEstado === 'VERDE' ? 'white' : undefined }}
+              style={{ fontSize: '0.85rem', padding: '6px 14px', gap: '6px', backgroundColor: filtroEstado === 'VERDE' ? '#10B981' : undefined, color: filtroEstado === 'VERDE' ? 'white' : undefined }}
             >
-              🟢 Listas para cocinar ({countVerdes})
+              <SemaforoIcon estado="VERDE" size={9} /> Listas para cocinar ({countVerdes})
             </button>
             <button 
               onClick={() => setFiltroEstado('AMARILLO')}
               className={`btn ${filtroEstado === 'AMARILLO' ? 'btn-primary' : 'btn-outline'}`}
-              style={{ fontSize: '0.85rem', padding: '6px 14px', backgroundColor: filtroEstado === 'AMARILLO' ? '#F59E0B' : undefined, color: filtroEstado === 'AMARILLO' ? 'white' : undefined }}
+              style={{ fontSize: '0.85rem', padding: '6px 14px', gap: '6px', backgroundColor: filtroEstado === 'AMARILLO' ? '#F59E0B' : undefined, color: filtroEstado === 'AMARILLO' ? 'white' : undefined }}
             >
-              🟡 Casi listas ({countAmarillos})
+              <SemaforoIcon estado="AMARILLO" size={9} /> Casi listas ({countAmarillos})
             </button>
-            <button 
+            <button
               onClick={() => setFiltroEstado('ROJO')}
               className={`btn ${filtroEstado === 'ROJO' ? 'btn-primary' : 'btn-outline'}`}
-              style={{ fontSize: '0.85rem', padding: '6px 14px', backgroundColor: filtroEstado === 'ROJO' ? '#EF4444' : undefined, color: filtroEstado === 'ROJO' ? 'white' : undefined }}
+              style={{ fontSize: '0.85rem', padding: '6px 14px', gap: '6px', backgroundColor: filtroEstado === 'ROJO' ? '#EF4444' : undefined, color: filtroEstado === 'ROJO' ? 'white' : undefined }}
             >
-              🔴 Faltan ingredientes ({recetas.filter(r => r.estadoGeneral === 'ROJO').length})
+              <SemaforoIcon estado="ROJO" size={9} /> Faltan ingredientes ({recetas.filter(r => r.estadoGeneral === 'ROJO').length})
             </button>
           </div>
 
@@ -296,9 +297,9 @@ export default function Dashboard() {
               <UtensilsCrossed size={48} color="#9CA3AF" style={{ marginBottom: '12px' }} />
               <h3 style={{ color: 'var(--text-main)', marginBottom: '8px' }}>No se encontraron recetas</h3>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                {activeTab === 'FAVORITOS' 
-                  ? 'Aún no has marcado recetas como favoritas. Haz clic en el corazón ❤️ de cualquier receta.' 
-                  : (activeTab === 'MIS_RECETAS' 
+                {activeTab === 'FAVORITOS'
+                  ? (<>Aún no has marcado recetas como favoritas. Haz clic en el corazón <Heart size={14} color="#EF4444" fill="#EF4444" style={{ display: 'inline', verticalAlign: 'middle' }} /> de cualquier receta.</>)
+                  : (activeTab === 'MIS_RECETAS'
                       ? 'No has creado recetas aún. ¡Haz clic en "+ Crear Receta" para agregar la tuya!' 
                       : 'Prueba cambiando el filtro o agregando ingredientes a tu despensa.')}
               </p>

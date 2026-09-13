@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { X, Clock, Users, ChefHat, CheckCircle2, AlertTriangle, XCircle, Heart, Utensils, Loader2 } from 'lucide-react';
 import axiosClient from '../api/axiosClient';
+import SemaforoIcon from './SemaforoIcon';
 
 export default function RecipeDetailModal({ receta, onClose, isFavorito, onToggleFavorito, onCookingDone }) {
   const [cooking, setCooking] = useState(false);
@@ -119,10 +120,14 @@ export default function RecipeDetailModal({ receta, onClose, isFavorito, onToggl
               borderRadius: '20px',
               fontSize: '0.85rem',
               fontWeight: '600',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
               backgroundColor: receta.estadoGeneral === 'VERDE' ? '#DEF7EC' : receta.estadoGeneral === 'AMARILLO' ? '#FEF08A' : '#FDE8E8',
               color: receta.estadoGeneral === 'VERDE' ? '#03543F' : receta.estadoGeneral === 'AMARILLO' ? '#854D0E' : '#9B1C1C'
             }}>
-              {receta.estadoGeneral === 'VERDE' ? '🟢 Listo para cocinar' : receta.estadoGeneral === 'AMARILLO' ? '🟡 Faltan cantidades' : '🔴 Faltan ingredientes'}
+              <SemaforoIcon estado={receta.estadoGeneral} size={10} />
+              {receta.estadoGeneral === 'VERDE' ? 'Listo para cocinar' : receta.estadoGeneral === 'AMARILLO' ? 'Faltan cantidades' : 'Faltan ingredientes'}
             </span>
           </div>
 
