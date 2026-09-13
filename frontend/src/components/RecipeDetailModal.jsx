@@ -56,7 +56,7 @@ export default function RecipeDetailModal({ receta, onClose, isFavorito, onToggl
         flexDirection: 'column'
       }}>
         {/* Imagen y botones de acción superior */}
-        <div style={{ position: 'relative', height: '240px', width: '100%', overflow: 'hidden' }}>
+        <div style={{ position: 'sticky', top: 0, zIndex: 10, height: '240px', width: '100%', overflow: 'hidden', flexShrink: 0 }}>
           <img 
             src={receta.imagenUrl || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800&auto=format&fit=crop&q=60'} 
             alt={receta.titulo}

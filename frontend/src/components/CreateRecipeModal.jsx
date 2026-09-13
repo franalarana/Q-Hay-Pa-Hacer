@@ -139,7 +139,11 @@ export default function CreateRecipeModal({ onClose, onRecipeCreated, recetaEdit
         boxShadow: 'var(--shadow-md)',
         position: 'relative'
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <div style={{
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          marginBottom: '20px', position: 'sticky', top: '-32px', zIndex: 10,
+          backgroundColor: 'white', paddingTop: '32px', marginTop: '-32px'
+        }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Sparkles size={24} color="var(--primary-dark)" />
             <h2 style={{ fontSize: '1.5rem', margin: 0, color: 'var(--text-main)' }}>{esEdicion ? 'Editar Receta' : 'Crear Nueva Receta'}</h2>

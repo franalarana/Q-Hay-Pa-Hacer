@@ -44,7 +44,11 @@ export default function HistoryModal({ onClose }) {
         boxShadow: 'var(--shadow-md)',
         position: 'relative'
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <div style={{
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          marginBottom: '20px', position: 'sticky', top: '-28px', zIndex: 10,
+          backgroundColor: 'white', paddingTop: '28px', marginTop: '-28px'
+        }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <ChefHat size={24} color="var(--primary-dark)" />
             <h2 style={{ fontSize: '1.4rem', margin: 0, color: 'var(--text-main)' }}>Historial de Preparaciones</h2>
