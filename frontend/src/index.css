@@ -57,13 +57,18 @@ body {
   min-height: 100vh;
   padding: 24px;
   gap: 24px;
-  max-width: 1440px;
+  /* cambios aqui */
+  max-width: 1600px;
+  width: 100%;
+  /* hasta aqui */
   margin: 0 auto;
 }
 
 /* Sidebar Despensa */
 .sidebar {
-  width: 330px;
+  /* cambios aqui */
+  width: 380px;
+  /* hasta aqui */
   background-color: var(--primary-color);
   border-radius: var(--border-radius-lg);
   padding: 28px 22px;
@@ -102,9 +107,13 @@ body {
 .top-nav {
   display: flex;
   align-items: center;
-  gap: 20px;
-  margin-bottom: 28px;
-  padding-bottom: 16px;
+  /* cambios aqui */
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-bottom: 18px;
+  margin-bottom: 24px;
+  /* hasta aqui */
   border-bottom: 1px solid var(--border-color);
 }
 

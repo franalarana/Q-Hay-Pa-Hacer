@@ -141,77 +141,91 @@ export default function Dashboard() {
         
         {/* Barra superior de navegación */}
         <header className="top-nav">
-          <button 
-            onClick={() => setActiveTab('EXPLORAR')}
-            style={{
-              background: 'none', border: 'none', cursor: 'pointer',
-              color: activeTab === 'EXPLORAR' ? 'var(--primary-dark)' : 'var(--text-main)',
-              fontWeight: activeTab === 'EXPLORAR' ? '700' : '500',
-              borderBottom: activeTab === 'EXPLORAR' ? '2px solid var(--primary-dark)' : 'none',
-              paddingBottom: '4px', fontSize: '0.95rem'
-            }}
-          >
-            Explorar
-          </button>
+          {/* cambios aqui */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '22px', flexWrap: 'wrap' }}>
+            <button 
+              onClick={() => setActiveTab('EXPLORAR')}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                color: activeTab === 'EXPLORAR' ? 'var(--primary-dark)' : 'var(--text-main)',
+                fontWeight: activeTab === 'EXPLORAR' ? '700' : '500',
+                borderBottom: activeTab === 'EXPLORAR' ? '2px solid var(--primary-dark)' : 'none',
+                paddingBottom: '4px', fontSize: '0.95rem'
+              }}
+            >
+              Explorar
+            </button>
 
-          <button 
-            onClick={() => setActiveTab('FAVORITOS')}
-            style={{
-              background: 'none', border: 'none', cursor: 'pointer',
-              color: activeTab === 'FAVORITOS' ? 'var(--primary-dark)' : 'var(--text-main)',
-              fontWeight: activeTab === 'FAVORITOS' ? '700' : '500',
-              borderBottom: activeTab === 'FAVORITOS' ? '2px solid var(--primary-dark)' : 'none',
-              paddingBottom: '4px', fontSize: '0.95rem',
-              display: 'flex', alignItems: 'center', gap: '4px'
-            }}
-          >
-            <Heart size={16} color="#EF4444" fill={activeTab === 'FAVORITOS' ? '#EF4444' : 'none'} /> Mis Favoritas
-          </button>
+            <button 
+              onClick={() => setActiveTab('FAVORITOS')}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                color: activeTab === 'FAVORITOS' ? 'var(--primary-dark)' : 'var(--text-main)',
+                fontWeight: activeTab === 'FAVORITOS' ? '700' : '500',
+                borderBottom: activeTab === 'FAVORITOS' ? '2px solid var(--primary-dark)' : 'none',
+                paddingBottom: '4px', fontSize: '0.95rem',
+                display: 'flex', alignItems: 'center', gap: '4px'
+              }}
+            >
+              <Heart size={16} color="#EF4444" fill={activeTab === 'FAVORITOS' ? '#EF4444' : 'none'} /> Mis Favoritas
+            </button>
 
-          <button 
-            onClick={() => setActiveTab('MIS_RECETAS')}
-            style={{
-              background: 'none', border: 'none', cursor: 'pointer',
-              color: activeTab === 'MIS_RECETAS' ? 'var(--primary-dark)' : 'var(--text-main)',
-              fontWeight: activeTab === 'MIS_RECETAS' ? '700' : '500',
-              borderBottom: activeTab === 'MIS_RECETAS' ? '2px solid var(--primary-dark)' : 'none',
-              paddingBottom: '4px', fontSize: '0.95rem'
-            }}
-          >
-            Mis Recetas
-          </button>
+            <button 
+              onClick={() => setActiveTab('MIS_RECETAS')}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                color: activeTab === 'MIS_RECETAS' ? 'var(--primary-dark)' : 'var(--text-main)',
+                fontWeight: activeTab === 'MIS_RECETAS' ? '700' : '500',
+                borderBottom: activeTab === 'MIS_RECETAS' ? '2px solid var(--primary-dark)' : 'none',
+                paddingBottom: '4px', fontSize: '0.95rem'
+              }}
+            >
+              Mis Recetas
+            </button>
 
-          <button 
-            onClick={() => setShowHistoryModal(true)}
-            style={{
-              background: 'none', border: 'none', cursor: 'pointer',
-              color: 'var(--text-main)', fontWeight: '500',
-              paddingBottom: '4px', fontSize: '0.95rem',
-              display: 'flex', alignItems: 'center', gap: '4px'
-            }}
-          >
-            <History size={16} /> Historial
-          </button>
+            <button 
+              onClick={() => setShowHistoryModal(true)}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                color: 'var(--text-main)', fontWeight: '500',
+                paddingBottom: '4px', fontSize: '0.95rem',
+                display: 'flex', alignItems: 'center', gap: '4px'
+              }}
+            >
+              <History size={16} /> Historial
+            </button>
 
-          <button
-            onClick={() => {
-              setEditingReceta(null);
-              setShowCreateModal(true);
-            }}
-            className="btn btn-primary"
-            style={{ padding: '8px 16px', fontSize: '0.85rem', gap: '6px' }}
-          >
-            <Plus size={16} /> Crear Receta
-          </button>
+            <button
+              onClick={() => {
+                setEditingReceta(null);
+                setShowCreateModal(true);
+              }}
+              className="btn btn-primary"
+              style={{ padding: '8px 16px', fontSize: '0.85rem', gap: '6px' }}
+            >
+              <Plus size={16} /> Crear Receta
+            </button>
+          </div>
           
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginLeft: 'auto' }}>
-            <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-              Hola, {userData?.nombre || account?.name || 'Usuario'}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <span 
+              style={{ 
+                fontSize: '0.9rem', 
+                color: 'var(--text-muted)',
+                maxWidth: '220px',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}
+              title={userData?.nombre || account?.name || 'Usuario'}
+            >
+              Hola, {((userData?.nombre || account?.name || 'Usuario').split(' ')[0])}
             </span>
             <div style={{
               width: '38px', height: '38px', borderRadius: '50%', 
               backgroundColor: '#E0E0E0', display: 'flex', 
-              alignItems: 'center', justifyContent: 'center'
+              alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0
             }}>
               <User size={18} color="#666" />
             </div>
@@ -219,11 +233,12 @@ export default function Dashboard() {
               className="btn btn-outline" 
               onClick={handleLogout} 
               title="Cerrar sesión" 
-              style={{ padding: '8px 12px', borderRadius: 'var(--border-radius-sm)', display: 'flex', alignItems: 'center', gap: '6px' }}
+              style={{ padding: '8px 12px', borderRadius: 'var(--border-radius-sm)', display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}
             >
               <LogOut size={16} /> Salir
             </button>
           </div>
+          {/* hasta aqui */}
         </header>
 
         <div>
