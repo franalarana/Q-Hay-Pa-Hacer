@@ -203,6 +203,9 @@ export default function Sidebar({ onDespensaChange }) {
     }
   };
 
+  // Categorías únicas del catálogo, para el selector de "ingrediente propio"
+  const categoriasExistentes = [...new Set(catalogo.map(ing => ing.categoria))].sort();
+
   // Filtrado de ingredientes en la despensa según el buscador
   const ingredientesFiltrados = despensa.filter(item =>
     item.nombreIngrediente.toLowerCase().includes(searchTerm.toLowerCase())
@@ -295,6 +298,7 @@ export default function Sidebar({ onDespensaChange }) {
                 }}
               >
                 <option value="">Selecciona del catálogo...</option>
+                <option value="__nuevo__">+ Agregar ingrediente propio...</option>
                 {/* cambios aqui */}
                 {catalogo.map(ing => (
                   <option key={ing.id} value={ing.id}>
@@ -302,7 +306,6 @@ export default function Sidebar({ onDespensaChange }) {
                   </option>
                 ))}
                 {/* hasta aqui */}
-                <option value="__nuevo__">+ Agregar ingrediente propio...</option>
               </select>
             </div>
 
@@ -321,14 +324,17 @@ export default function Sidebar({ onDespensaChange }) {
                 </div>
                 <div style={{ flex: 1 }}>
                   <label style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--text-muted)' }}>Categoría</label>
-                  <input
-                    type="text"
-                    placeholder="Ej. Verduras"
+                  <select
                     value={nuevoCategoria}
                     onChange={(e) => setNuevoCategoria(e.target.value)}
                     required
                     style={{ width: '100%', padding: '8px', borderRadius: 'var(--border-radius-sm)', border: '1px solid #D1D5DB', fontSize: '0.85rem' }}
-                  />
+                  >
+                    <option value="">Selecciona...</option>
+                    {categoriasExistentes.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
             )}
