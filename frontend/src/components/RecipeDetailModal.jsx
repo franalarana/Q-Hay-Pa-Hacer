@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { X, Clock, Users, ChefHat, CheckCircle2, AlertTriangle, XCircle, Heart, Utensils, Loader2, Pencil, Trash2 } from 'lucide-react';
 import axiosClient from '../api/axiosClient';
 import SemaforoIcon from './SemaforoIcon';
+// cambios aqui
+import { getIngredienteEmoji } from './Sidebar';
+// hasta aqui
 
 export default function RecipeDetailModal({ receta, onClose, isFavorito, onToggleFavorito, onCookingDone, esPropia, onEditar, onEliminar }) {
   const [cooking, setCooking] = useState(false);
@@ -193,9 +196,11 @@ export default function RecipeDetailModal({ receta, onClose, isFavorito, onToggl
                       {isVerde && <CheckCircle2 size={18} color="#16A34A" />}
                       {isAmarillo && <AlertTriangle size={18} color="#CA8A04" />}
                       {!isVerde && !isAmarillo && <XCircle size={18} color="#DC2626" />}
+                      {/* cambios aqui */}
                       <span style={{ fontWeight: '500', color: 'var(--text-main)', fontSize: '0.9rem' }}>
-                        {ing.nombreIngrediente}
+                        {getIngredienteEmoji(ing.nombreIngrediente)} {ing.nombreIngrediente}
                       </span>
+                      {/* hasta aqui */}
                     </div>
 
                     <div style={{ textAlign: 'right' }}>

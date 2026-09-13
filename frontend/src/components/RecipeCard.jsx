@@ -1,5 +1,8 @@
 import { Clock, Users, ArrowRight, Heart } from 'lucide-react';
 import SemaforoIcon from './SemaforoIcon';
+// cambios aqui
+import { getIngredienteEmoji } from './Sidebar';
+// hasta aqui
 
 export default function RecipeCard({ receta, onSelect, isFavorito, onToggleFavorito }) {
   const isVerde = receta.estadoGeneral === 'VERDE';
@@ -147,7 +150,9 @@ export default function RecipeCard({ receta, onSelect, isFavorito, onToggleFavor
                   fontWeight: '500'
                 }}
               >
-                <SemaforoIcon estado={ing.estado} size={8} /> {ing.nombreIngrediente}
+                {/* cambios aqui */}
+                <SemaforoIcon estado={ing.estado} size={8} /> {getIngredienteEmoji(ing.nombreIngrediente)} {ing.nombreIngrediente}
+                {/* hasta aqui */}
               </span>
             );
           })}

@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { X, Plus, Trash2, Loader2, Sparkles, AlertCircle } from 'lucide-react';
 import axiosClient from '../api/axiosClient';
+// cambios aqui
+import { getIngredienteEmoji } from './Sidebar';
+// hasta aqui
 
 const UNIDADES_DISPONIBLES = [
   { value: 'UNIDAD', label: 'Unidades (ud)' },
@@ -267,9 +270,11 @@ export default function CreateRecipeModal({ onClose, onRecipeCreated, recetaEdit
                     style={{ flex: 2, padding: '8px', borderRadius: 'var(--border-radius-sm)', border: '1px solid #D1D5DB', fontSize: '0.85rem' }}
                   >
                     <option value="">Selecciona ingrediente...</option>
+                    {/* cambios aqui */}
                     {catalogo.map(c => (
-                      <option key={c.id} value={c.id}>{c.nombre}</option>
+                      <option key={c.id} value={c.id}>{getIngredienteEmoji(c.nombre)} {c.nombre}</option>
                     ))}
+                    {/* hasta aqui */}
                   </select>
 
                   <input 
