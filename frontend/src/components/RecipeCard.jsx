@@ -1,8 +1,5 @@
 import { Clock, Users, ArrowRight, Heart } from 'lucide-react';
 import SemaforoIcon from './SemaforoIcon';
-// cambios aqui
-import { getIngredienteEmoji } from './Sidebar';
-// hasta aqui
 
 export default function RecipeCard({ receta, onSelect, isFavorito, onToggleFavorito }) {
   const isVerde = receta.estadoGeneral === 'VERDE';
@@ -14,26 +11,23 @@ export default function RecipeCard({ receta, onSelect, isFavorito, onToggleFavor
   const badgeLabel = isVerde ? '¡Listo para cocinar!' : isAmarillo ? 'Faltan cantidades' : 'Faltan ingredientes';
 
   return (
-    <div style={{
+    <div className="frame-pastel" style={{
       backgroundColor: 'white',
       borderRadius: 'var(--border-radius-md)',
       overflow: 'hidden',
       boxShadow: 'var(--shadow-sm)',
-      border: '1px solid #E5E7EB',
       display: 'flex',
       flexDirection: 'column',
-      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+      transition: 'transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease',
       cursor: 'pointer',
       position: 'relative'
     }}
     onClick={() => onSelect(receta)}
     onMouseEnter={(e) => {
       e.currentTarget.style.transform = 'translateY(-4px)';
-      e.currentTarget.style.boxShadow = 'var(--shadow-md)';
     }}
     onMouseLeave={(e) => {
       e.currentTarget.style.transform = 'translateY(0)';
-      e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
     }}
     >
       {/* Imagen con Badge de estado y Botón de Favorito */}
@@ -133,10 +127,8 @@ export default function RecipeCard({ receta, onSelect, isFavorito, onToggleFavor
         {/* Badges de ingredientes semáforo rápidos */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '16px' }}>
           {receta.ingredientes.map(ing => {
-            const ingVerde = ing.estado === 'VERDE';
-            const ingAmarillo = ing.estado === 'AMARILLO';
             return (
-              <span 
+              <span
                 key={ing.ingredienteId}
                 style={{
                   padding: '3px 8px',
@@ -145,13 +137,13 @@ export default function RecipeCard({ receta, onSelect, isFavorito, onToggleFavor
                   display: 'flex',
                   alignItems: 'center',
                   gap: '4px',
-                  backgroundColor: ingVerde ? '#D1F4E0' : ingAmarillo ? '#FEF08A' : '#FBD5D5',
-                  color: ingVerde ? '#22543D' : ingAmarillo ? '#744210' : '#742A2A',
+                  backgroundColor: '#F3F4F6',
+                  color: '#4B5563',
                   fontWeight: '500'
                 }}
               >
-                {/* cambios aqui */}
-                <SemaforoIcon estado={ing.estado} size={8} /> {getIngredienteEmoji(ing.nombreIngrediente)} {ing.nombreIngrediente}
+                {/* cambios aqui: sin emoji, fondo neutro gris en vez de semaforo */}
+                <SemaforoIcon estado={ing.estado} size={8} /> {ing.nombreIngrediente}
                 {/* hasta aqui */}
               </span>
             );
