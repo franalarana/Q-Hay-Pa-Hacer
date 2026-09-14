@@ -119,7 +119,7 @@ public class ComparadorRecetasService {
     @Transactional
     public RecetaComparadaDTO actualizarRecetaPropia(Jwt jwt, Long recetaId, cl.quehaypahacer.backend.dto.CrearRecetaRequest req, cl.quehaypahacer.backend.repository.IngredienteRepository ingredienteRepository) {
         Usuario usuario = usuarioService.obtenerOCrear(jwt);
-        Receta receta = obtenerRecetaPropiaOrThrow(recetaId, usuario);
+        Receta receta = obtenerRecetaEditableOrThrow(recetaId, usuario, jwt);
 
         receta.setTitulo(req.getTitulo());
         receta.setDescripcion(req.getDescripcion());
@@ -153,14 +153,25 @@ public class ComparadorRecetasService {
     @Transactional
     public void eliminarRecetaPropia(Jwt jwt, Long recetaId) {
         Usuario usuario = usuarioService.obtenerOCrear(jwt);
-        Receta receta = obtenerRecetaPropiaOrThrow(recetaId, usuario);
+        Receta receta = obtenerRecetaEditableOrThrow(recetaId, usuario, jwt);
         recetaRepository.delete(receta);
     }
 
-    private Receta obtenerRecetaPropiaOrThrow(Long recetaId, Usuario usuario) {
+    /**
+     * Un usuario con App Role "Admin" en Azure Entra ID puede editar/eliminar
+     * cualquier receta (propia, de otro usuario, o del catálogo base). Un
+     * usuario normal ("Usuario") solo puede editar/eliminar las suyas propias
+     * — permite demostrar 403 (Usuario sobre receta ajena) vs 200 (Admin).
+     */
+    private Receta obtenerRecetaEditableOrThrow(Long recetaId, Usuario usuario, Jwt jwt) {
         Receta receta = recetaRepository.findById(recetaId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Receta no encontrada con id: " + recetaId));
-        if (receta.getCreador() == null || !receta.getCreador().getId().equals(usuario.getId())) {
+
+        boolean esAdmin = jwt.getClaimAsStringList("roles") != null
+                && jwt.getClaimAsStringList("roles").contains("Admin");
+        boolean esPropia = receta.getCreador() != null && receta.getCreador().getId().equals(usuario.getId());
+
+        if (!esAdmin && !esPropia) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Solo puedes editar o eliminar recetas creadas por ti");
         }
         return receta;
