@@ -37,6 +37,13 @@ services:
       - backend
     ports:
       - "80:80"
+      # cambios aqui: 443 para servir HTTPS (Azure Entra ID exige https:// o
+      # http://localhost como Redirect URI). Certificado self-signed montado
+      # desde ~/certs en la EC2 (ver nginx.conf para el comando de generacion).
+      - "443:443"
+    volumes:
+      - ~/certs:/etc/nginx/certs:ro
+      # hasta aqui
     networks:
       - quehaypahacer_net
 
