@@ -12,7 +12,8 @@ import java.util.List;
 public interface RecetaRepository extends JpaRepository<Receta, Long> {
     List<Receta> findByCreadorIsNullOrderByTituloAsc();
     List<Receta> findByCreadorOrderByTituloAsc(Usuario creador);
+    boolean existsByTitulo(String titulo);
 
-    @Query("SELECT r FROM Receta r LEFT JOIN FETCH r.ingredientes ir LEFT JOIN FETCH ir.ingrediente")
+    @Query("SELECT DISTINCT r FROM Receta r LEFT JOIN FETCH r.ingredientes ir LEFT JOIN FETCH ir.ingrediente")
     List<Receta> findAllWithIngredientes();
 }
