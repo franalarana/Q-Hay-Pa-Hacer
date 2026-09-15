@@ -238,6 +238,7 @@ public class DataInitializer implements CommandLineRunner {
                                         .tiempoMinutos(25)
                                         .porciones(2)
                                         .dificultad("Fácil")
+                                        .imagenUrl("https://images.unsplash.com/photo-1528207776546-365bb710ee93?w=600&auto=format&fit=crop&q=60")
                                         .build();
                         r3 = recetaRepository.save(r3);
                         agregarIngrediente(r3, ings.get("Fideos / Pasta"), 200.0, UnidadMedida.GRAMOS);
