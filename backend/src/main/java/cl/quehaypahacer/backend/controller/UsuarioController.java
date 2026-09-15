@@ -4,10 +4,13 @@ import cl.quehaypahacer.backend.dto.UsuarioResponse;
 import cl.quehaypahacer.backend.model.Usuario;
 import cl.quehaypahacer.backend.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,5 +31,18 @@ public class UsuarioController {
         boolean esAdmin = jwt.getClaimAsStringList("roles") != null
                 && jwt.getClaimAsStringList("roles").contains("Admin");
         return UsuarioResponse.fromEntity(usuario, esAdmin);
+    }
+
+    /**
+     * Endpoint exclusivo para el rol Admin (App Role de Entra ID): lista
+     * todos los usuarios registrados. Un token válido con rol Usuario
+     * recibe 403 acá, sin depender de ownership.
+     */
+    @GetMapping("/api/usuarios")
+    @PreAuthorize("hasRole('Admin')")
+    public List<UsuarioResponse> listarTodos() {
+        return usuarioService.listarTodos().stream()
+                .map(u -> UsuarioResponse.fromEntity(u, false))
+                .toList();
     }
 }

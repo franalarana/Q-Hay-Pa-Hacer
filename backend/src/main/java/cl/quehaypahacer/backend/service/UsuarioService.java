@@ -6,11 +6,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+
+    public List<Usuario> listarTodos() {
+        return usuarioRepository.findAll();
+    }
 
     /**
      * Provisioning "just in time": la primera vez que un usuario autenticado
