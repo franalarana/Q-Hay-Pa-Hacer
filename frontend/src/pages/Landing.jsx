@@ -22,7 +22,7 @@ export default function Landing() {
         <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-color)' }}>
             {/* Navbar */}
             <header style={{
-                padding: '20px 48px',
+                padding: '6px 48px',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
@@ -33,20 +33,20 @@ export default function Landing() {
                 zIndex: 100,
                 borderBottom: '1px solid rgba(0,0,0,0.05)'
             }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '14px', color: 'var(--primary-dark)', fontWeight: '800', fontSize: '2rem', fontFamily: '"Nunito", "Quicksand", "Arial Rounded MT Bold", sans-serif', letterSpacing: '-0.5px' }}>
-                    <div style={{
-                        backgroundColor: 'var(--primary-color)',
-                        padding: '10px',
-                        borderRadius: '16px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: 'white',
-                        boxShadow: '0 4px 10px rgba(16, 185, 129, 0.3)'
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <img 
+                        src="/logo-bowl.png?v=4" 
+                        alt="Logo" 
+                        style={{ height: '90px', objectFit: 'contain', filter: 'drop-shadow(0 3px 2px rgba(0, 0, 0, 0.3))', borderRadius: '50%' }} 
+                    />
+                    <span style={{
+                        fontFamily: '"Caveat", cursive',
+                        fontSize: '2.4rem',
+                        fontWeight: '700',
+                        color: '#155D40'
                     }}>
-                        <ChefHat size={36} />
-                    </div>
-                    <span>¿Qué hay pa' hacer?</span>
+                        ¿Qué hay pa' hacer?
+                    </span>
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
