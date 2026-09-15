@@ -1,10 +1,9 @@
 export const asideRoot = {
   backgroundColor: '#C0E4DC',
-  border: '20px solid #82B3A4', // Bi-color frame effect wider
+  border: '20px solid #82B3A4',
   borderRadius: '44px',
   padding: '24px 20px',
   position: 'relative',
-  overflow: 'hidden',
   display: 'flex',
   flexDirection: 'column',
   height: 'fit-content',

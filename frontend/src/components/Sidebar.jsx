@@ -391,7 +391,11 @@ export default function Sidebar({ onDespensaChange }) {
           ingredientesFiltrados.map((item) => (
             <div
               key={item.id}
-              style={styles.itemRow}
+              style={{
+                ...styles.itemRow,
+                zIndex: editingId === item.id ? 20 : 1,
+                position: editingId === item.id ? 'relative' : 'static'
+              }}
             >
               {/* cambios aqui */}
               {editingId === item.id ? (
