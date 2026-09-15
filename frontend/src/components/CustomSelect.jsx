@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
-import * as styles from '../styles/customSelect.styles';
+import '../styles/customSelect.css';
 
 export default function CustomSelect({ value, onChange, options, placeholder = "Selecciona..." }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,20 +19,19 @@ export default function CustomSelect({ value, onChange, options, placeholder = "
   const selectedOption = options.find(opt => opt.value === value);
 
   return (
-    <div ref={dropdownRef} style={styles.wrapper}>
+    <div ref={dropdownRef} className="select-wrapper">
       <div
-        className={`pastel-input ${isOpen ? 'open' : ''}`}
-        style={styles.getTrigger(isOpen)}
+        className={`pastel-input select-trigger ${isOpen ? 'open' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span style={styles.getLabel(selectedOption)}>
+        <span className={`select-label ${selectedOption ? 'has-value' : ''}`}>
           {selectedOption ? selectedOption.label : placeholder}
         </span>
-        <ChevronDown size={16} color="var(--text-muted)" style={styles.getChevron(isOpen)} />
+        <ChevronDown size={16} color="var(--text-muted)" className={`select-chevron ${isOpen ? 'open' : ''}`} />
       </div>
 
       {isOpen && (
-        <div style={styles.dropdown} className="custom-scrollbar">
+        <div className="select-dropdown custom-scrollbar">
           {options.map((opt, idx) => (
             <div
               key={idx}
@@ -40,8 +39,7 @@ export default function CustomSelect({ value, onChange, options, placeholder = "
                 onChange(opt.value);
                 setIsOpen(false);
               }}
-              className="custom-select-option"
-              style={styles.getOption(opt, value)}
+              className={`custom-select-option select-option ${opt.value === value ? 'selected' : ''} ${opt.isDivider ? 'divider' : ''}`}
             >
               {opt.label}
             </div>

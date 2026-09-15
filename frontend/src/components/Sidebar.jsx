@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Search, Plus, Trash2, Edit2, Check, X, AlertCircle, Loader2 } from 'lucide-react';
 import axiosClient from '../api/axiosClient';
 import CustomSelect from './CustomSelect';
-import * as styles from '../styles/sidebar.styles';
+import '../styles/sidebar.css';
 
 const UNIDADES_DISPONIBLES = [
   { value: 'UNIDAD', label: 'Unidades (ud)' },
@@ -214,30 +214,29 @@ export default function Sidebar({ onDespensaChange }) {
   );
 
   return (
-    <aside className="sidebar" style={styles.asideRoot}>
+    <aside className="sidebar sidebar-aside">
 
-      <h2 style={styles.title}>
+      <h2 className="sidebar-title">
         Tu Despensa
       </h2>
 
       {/* Buscador dentro de tu despensa */}
-      <div style={styles.searchWrapper}>
+      <div className="sidebar-search-wrapper">
         <input
           type="text"
           placeholder="Buscar en tu despensa..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          style={styles.searchInput}
+          className="sidebar-search-input"
         />
-        <Search size={18} color="#666" style={styles.searchIcon} />
+        <Search size={18} color="#666" className="sidebar-search-icon" />
       </div>
 
       {/* Botón para abrir formulario de agregar */}
       {!showForm && (
         <button
-          className="btn btn-primary"
+          className="btn btn-primary sidebar-add-button"
           onClick={() => setShowForm(true)}
-          style={styles.addButton}
         >
           <Plus size={18} /> Agregar Ingrediente
         </button>
@@ -245,26 +244,26 @@ export default function Sidebar({ onDespensaChange }) {
 
       {/* Formulario / Panel para agregar ingrediente */}
       {showForm && (
-        <div style={styles.formPanel}>
-          <div style={styles.formHeader}>
-            <strong style={styles.formHeaderTitle}>Añadir a Despensa</strong>
+        <div className="sidebar-form-panel">
+          <div className="sidebar-form-header">
+            <strong className="sidebar-form-header-title">Añadir a Despensa</strong>
             <button
               onClick={() => setShowForm(false)}
-              style={styles.closeFormButton}
+              className="sidebar-close-form-button"
             >
               <X size={18} />
             </button>
           </div>
 
           {errorMsg && (
-            <div style={styles.errorBox}>
+            <div className="sidebar-error-box">
               <AlertCircle size={14} /> {errorMsg}
             </div>
           )}
 
-          <form onSubmit={handleGuardarIngrediente} style={styles.form}>
+          <form onSubmit={handleGuardarIngrediente} className="sidebar-form">
             <div>
-              <label style={styles.fieldLabel}>Ingrediente</label>
+              <label className="sidebar-field-label">Ingrediente</label>
               <CustomSelect
                 value={creandoNuevo ? '__nuevo__' : String(selectedIngredienteId)}
                 onChange={(val) => {
@@ -290,7 +289,7 @@ export default function Sidebar({ onDespensaChange }) {
                     value: String(ing.id),
                     label: (
                       <>
-                        <span style={styles.emojiOptionText}>{getIngredienteEmoji(ing.nombre)}</span>
+                        <span className="sidebar-emoji-option-text">{getIngredienteEmoji(ing.nombre)}</span>
                         <span>{ing.nombre}</span>
                       </>
                     )
@@ -300,9 +299,9 @@ export default function Sidebar({ onDespensaChange }) {
             </div>
 
             {creandoNuevo && (
-              <div style={styles.inlineRow}>
-                <div style={styles.flexFieldWide}>
-                  <label style={styles.fieldLabel}>Nombre nuevo ingrediente</label>
+              <div className="sidebar-inline-row">
+                <div className="sidebar-flex-field-wide">
+                  <label className="sidebar-field-label">Nombre nuevo ingrediente</label>
                   <input
                     type="text"
                     placeholder="Ej. Palta"
@@ -312,8 +311,8 @@ export default function Sidebar({ onDespensaChange }) {
                     className="pastel-input"
                   />
                 </div>
-                <div style={styles.flexField}>
-                  <label style={styles.fieldLabel}>Categoría</label>
+                <div className="sidebar-flex-field">
+                  <label className="sidebar-field-label">Categoría</label>
                   <CustomSelect
                     value={nuevoCategoria}
                     onChange={setNuevoCategoria}
@@ -326,9 +325,9 @@ export default function Sidebar({ onDespensaChange }) {
               </div>
             )}
 
-            <div style={styles.inlineRow}>
-              <div style={styles.flexField}>
-                <label style={styles.fieldLabel}>Cantidad</label>
+            <div className="sidebar-inline-row">
+              <div className="sidebar-flex-field">
+                <label className="sidebar-field-label">Cantidad</label>
                 <input
                   type="number"
                   step="0.1"
@@ -340,8 +339,8 @@ export default function Sidebar({ onDespensaChange }) {
                 />
               </div>
 
-              <div style={styles.flexFieldMedium}>
-                <label style={styles.fieldLabel}>Unidad</label>
+              <div className="sidebar-flex-field-medium">
+                <label className="sidebar-field-label">Unidad</label>
                 <CustomSelect
                   value={unidad}
                   onChange={setUnidad}
@@ -350,12 +349,11 @@ export default function Sidebar({ onDespensaChange }) {
               </div>
             </div>
 
-            <div style={styles.formActionsRow}>
+            <div className="sidebar-form-actions-row">
               <button
                 type="submit"
                 disabled={submitting}
-                className="btn btn-primary"
-                style={styles.submitButton}
+                className="btn btn-primary sidebar-submit-button"
               >
                 {submitting ? <Loader2 size={16} className="spin" /> : 'Guardar'}
               </button>
@@ -367,8 +365,7 @@ export default function Sidebar({ onDespensaChange }) {
                   setNuevoNombre('');
                   setNuevoCategoria('');
                 }}
-                className="btn btn-outline"
-                style={styles.cancelButton}
+                className="btn btn-outline sidebar-cancel-button"
               >
                 Cancelar
               </button>
@@ -378,43 +375,38 @@ export default function Sidebar({ onDespensaChange }) {
       )}
 
       {/* Lista de ingredientes registrados en la despensa */}
-      <div style={styles.listWrapper}>
+      <div className="sidebar-list-wrapper">
         {loading ? (
-          <div style={styles.loadingRow}>
+          <div className="sidebar-loading-row">
             <Loader2 size={18} className="spin" /> Cargando despensa...
           </div>
         ) : ingredientesFiltrados.length === 0 ? (
-          <div style={styles.emptyListBox}>
+          <div className="sidebar-empty-list-box">
             {searchTerm ? 'No se encontraron ingredientes con ese nombre.' : 'Tu despensa está vacía. ¡Agrega tus primeros ingredientes arriba!'}
           </div>
         ) : (
           ingredientesFiltrados.map((item) => (
             <div
               key={item.id}
-              style={{
-                ...styles.itemRow,
-                zIndex: editingId === item.id ? 20 : 1,
-                position: editingId === item.id ? 'relative' : 'static'
-              }}
+              className={`sidebar-item-row ${editingId === item.id ? 'editing' : ''}`}
             >
               {/* cambios aqui */}
               {editingId === item.id ? (
-                <div style={styles.editColumn}>
-                  <div style={styles.editNameRow}>
+                <div className="sidebar-edit-column">
+                  <div className="sidebar-edit-name-row">
                     <span>{getIngredienteEmoji(item.nombreIngrediente)}</span>
                     <span>{item.nombreIngrediente}</span>
                   </div>
-                  <div style={styles.editControlsRow}>
+                  <div className="sidebar-edit-controls-row">
                     <input
                       type="number"
                       step="0.1"
                       min="0.1"
                       value={editCantidad}
                       onChange={(e) => setEditCantidad(e.target.value)}
-                      className="pastel-input"
-                      style={styles.editQuantityInput}
+                      className="pastel-input sidebar-edit-quantity-input"
                     />
-                    <div style={styles.editUnitWrapper}>
+                    <div className="sidebar-edit-unit-wrapper">
                       <CustomSelect
                         value={editUnidad}
                         onChange={setEditUnidad}
@@ -425,14 +417,14 @@ export default function Sidebar({ onDespensaChange }) {
                       onClick={() => handleGuardarEdicion(item.id)}
                       disabled={savingEdit}
                       title="Guardar cambios"
-                      style={styles.roundIconButton('var(--primary-dark)', 'white')}
+                      className="sidebar-icon-button sidebar-icon-button--save"
                     >
                       {savingEdit ? <Loader2 size={14} className="spin" /> : <Check size={14} />}
                     </button>
                     <button
                       onClick={() => setEditingId(null)}
                       title="Cancelar"
-                      style={styles.roundIconButton('#E5E7EB', '#4B5563')}
+                      className="sidebar-icon-button sidebar-icon-button--cancel"
                     >
                       <X size={14} />
                     </button>
@@ -440,30 +432,30 @@ export default function Sidebar({ onDespensaChange }) {
                 </div>
               ) : (
                 <>
-                  <div style={styles.itemViewRow}>
-                    <span style={styles.itemEmoji}>{getIngredienteEmoji(item.nombreIngrediente)}</span>
+                  <div className="sidebar-item-view-row">
+                    <span className="sidebar-item-emoji">{getIngredienteEmoji(item.nombreIngrediente)}</span>
                     <div>
-                      <div style={styles.itemName}>
+                      <div className="sidebar-item-name">
                         {item.nombreIngrediente}
                       </div>
-                      <div style={styles.itemQuantity}>
+                      <div className="sidebar-item-quantity">
                         {item.cantidad} {item.unidad.toLowerCase()}
                       </div>
                     </div>
                   </div>
 
-                  <div style={styles.itemActionsRow}>
+                  <div className="sidebar-item-actions-row">
                     <button
                       onClick={() => handleIniciarEdicion(item)}
                       title="Editar ingrediente"
-                      style={styles.editIconButton}
+                      className="sidebar-edit-icon-button"
                     >
                       <Edit2 size={14} color="var(--text-main)" />
                     </button>
                     <button
                       onClick={() => handleEliminar(item.id)}
                       title="Eliminar de la despensa"
-                      style={styles.deleteIconButton}
+                      className="sidebar-delete-icon-button"
                     >
                       <Trash2 size={15} />
                     </button>
@@ -476,7 +468,7 @@ export default function Sidebar({ onDespensaChange }) {
         )}
       </div>
 
-      <div style={styles.footerCount}>
+      <div className="sidebar-footer-count">
         {despensa.length} ingrediente{despensa.length === 1 ? '' : 's'} disponible{despensa.length === 1 ? '' : 's'}
       </div>
     </aside>

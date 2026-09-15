@@ -1,0 +1,28 @@
+.login-logo-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.login-logo-img {
+  height: 105px;
+  object-fit: contain;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 4px 3px rgba(0, 0, 0, 0.3));
+  border-radius: 50%;
+}
+
+.login-title {
+  font-family: "Caveat", cursive;
+  font-size: 2.8rem;
+  color: #155D40;
+  margin: 0;
+  font-weight: 700;
+}
+
+.login-button {
+  width: 100%;
+  padding: 12px;
+  font-size: 1rem;
+}

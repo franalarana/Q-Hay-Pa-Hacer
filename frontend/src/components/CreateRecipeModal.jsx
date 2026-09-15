@@ -4,7 +4,7 @@ import axiosClient from '../api/axiosClient';
 // cambios aqui
 import { getIngredienteEmoji } from './Sidebar';
 // hasta aqui
-import * as styles from '../styles/createRecipeModal.styles';
+import '../styles/createRecipeModal.css';
 
 const UNIDADES_DISPONIBLES = [
   { value: 'UNIDAD', label: 'Unidades (ud)' },
@@ -125,27 +125,27 @@ export default function CreateRecipeModal({ onClose, onRecipeCreated, recetaEdit
   };
 
   return (
-    <div style={styles.overlay}>
-      <div style={styles.panel}>
-        <div style={styles.header}>
-          <div style={styles.headerTitleGroup}>
+    <div className="create-overlay">
+      <div className="create-panel">
+        <div className="create-header">
+          <div className="create-header-title-group">
             <Sparkles size={24} color="var(--primary-dark)" />
-            <h2 style={styles.headerTitle}>{esEdicion ? 'Editar Receta' : 'Crear Nueva Receta'}</h2>
+            <h2 className="create-header-title">{esEdicion ? 'Editar Receta' : 'Crear Nueva Receta'}</h2>
           </div>
-          <button onClick={onClose} style={styles.closeButton}>
+          <button onClick={onClose} className="create-close-button">
             <X size={22} />
           </button>
         </div>
 
         {errorMsg && (
-          <div style={styles.errorBox}>
+          <div className="create-error-box">
             <AlertCircle size={16} /> {errorMsg}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} style={styles.form}>
+        <form onSubmit={handleSubmit} className="create-form">
           <div>
-            <label style={styles.fieldLabel}>
+            <label className="create-field-label">
               Título de la Receta *
             </label>
             <input
@@ -154,12 +154,12 @@ export default function CreateRecipeModal({ onClose, onRecipeCreated, recetaEdit
               value={titulo}
               onChange={(e) => setTitulo(e.target.value)}
               required
-              style={styles.textInput}
+              className="create-text-input"
             />
           </div>
 
           <div>
-            <label style={styles.fieldLabel}>
+            <label className="create-field-label">
               Descripción breve
             </label>
             <input
@@ -167,13 +167,13 @@ export default function CreateRecipeModal({ onClose, onRecipeCreated, recetaEdit
               placeholder="Ej. Una preparación ligera y deliciosa para cualquier hora."
               value={descripcion}
               onChange={(e) => setDescripcion(e.target.value)}
-              style={styles.textInput}
+              className="create-text-input"
             />
           </div>
 
-          <div style={styles.threeColGrid}>
+          <div className="create-three-col-grid">
             <div>
-              <label style={styles.fieldLabel}>
+              <label className="create-field-label">
                 Tiempo (min)
               </label>
               <input
@@ -181,11 +181,11 @@ export default function CreateRecipeModal({ onClose, onRecipeCreated, recetaEdit
                 min="1"
                 value={tiempoMinutos}
                 onChange={(e) => setTiempoMinutos(e.target.value)}
-                style={styles.smallInput}
+                className="create-small-input"
               />
             </div>
             <div>
-              <label style={styles.fieldLabel}>
+              <label className="create-field-label">
                 Porciones
               </label>
               <input
@@ -193,17 +193,17 @@ export default function CreateRecipeModal({ onClose, onRecipeCreated, recetaEdit
                 min="1"
                 value={porciones}
                 onChange={(e) => setPorciones(e.target.value)}
-                style={styles.smallInput}
+                className="create-small-input"
               />
             </div>
             <div>
-              <label style={styles.fieldLabel}>
+              <label className="create-field-label">
                 Dificultad
               </label>
               <select
                 value={dificultad}
                 onChange={(e) => setDificultad(e.target.value)}
-                style={styles.smallInput}
+                className="create-small-input"
               >
                 <option value="Fácil">Fácil</option>
                 <option value="Media">Media</option>
@@ -213,7 +213,7 @@ export default function CreateRecipeModal({ onClose, onRecipeCreated, recetaEdit
           </div>
 
           <div>
-            <label style={styles.fieldLabel}>
+            <label className="create-field-label">
               URL de imagen (opcional)
             </label>
             <input
@@ -221,34 +221,33 @@ export default function CreateRecipeModal({ onClose, onRecipeCreated, recetaEdit
               placeholder="https://..."
               value={imagenUrl}
               onChange={(e) => setImagenUrl(e.target.value)}
-              style={styles.textInput}
+              className="create-text-input"
             />
           </div>
 
           {/* Lista de ingredientes */}
           <div>
-            <div style={styles.ingredientesHeaderRow}>
-              <label style={styles.ingredientesHeaderLabel}>
+            <div className="create-ingredientes-header-row">
+              <label className="create-ingredientes-header-label">
                 Ingredientes requeridos *
               </label>
               <button
                 type="button"
                 onClick={handleAddIngredienteRow}
-                className="btn btn-outline"
-                style={styles.addIngredienteButton}
+                className="btn btn-outline create-add-ingrediente-button"
               >
                 <Plus size={14} /> Añadir ingrediente
               </button>
             </div>
 
-            <div style={styles.ingredientesList}>
+            <div className="create-ingredientes-list">
               {ingredientes.map((row, index) => (
-                <div key={index} style={styles.ingredienteRow}>
+                <div key={index} className="create-ingrediente-row">
                   <select
                     value={row.ingredienteId}
                     onChange={(e) => handleIngredienteChange(index, 'ingredienteId', e.target.value)}
                     required
-                    style={styles.ingredienteSelect}
+                    className="create-ingrediente-select"
                   >
                     <option value="">Selecciona ingrediente...</option>
                     {/* cambios aqui */}
@@ -266,13 +265,13 @@ export default function CreateRecipeModal({ onClose, onRecipeCreated, recetaEdit
                     value={row.cantidadRequerida}
                     onChange={(e) => handleIngredienteChange(index, 'cantidadRequerida', e.target.value)}
                     required
-                    style={styles.ingredienteCantidadInput}
+                    className="create-ingrediente-cantidad-input"
                   />
 
                   <select
                     value={row.unidad}
                     onChange={(e) => handleIngredienteChange(index, 'unidad', e.target.value)}
-                    style={styles.ingredienteUnidadSelect}
+                    className="create-ingrediente-unidad-select"
                   >
                     {UNIDADES_DISPONIBLES.map(u => (
                       <option key={u.value} value={u.value}>{u.label}</option>
@@ -283,7 +282,7 @@ export default function CreateRecipeModal({ onClose, onRecipeCreated, recetaEdit
                     <button
                       type="button"
                       onClick={() => handleRemoveIngredienteRow(index)}
-                      style={styles.removeIngredienteButton}
+                      className="create-remove-ingrediente-button"
                     >
                       <Trash2 size={16} />
                     </button>
@@ -294,7 +293,7 @@ export default function CreateRecipeModal({ onClose, onRecipeCreated, recetaEdit
           </div>
 
           <div>
-            <label style={styles.fieldLabel}>
+            <label className="create-field-label">
               Instrucciones paso a paso *
             </label>
             <textarea
@@ -303,24 +302,22 @@ export default function CreateRecipeModal({ onClose, onRecipeCreated, recetaEdit
               value={instrucciones}
               onChange={(e) => setInstrucciones(e.target.value)}
               required
-              style={styles.textarea}
+              className="create-textarea"
             />
           </div>
 
-          <div style={styles.formActionsRow}>
+          <div className="create-form-actions-row">
             <button
               type="submit"
               disabled={submitting}
-              className="btn btn-primary"
-              style={styles.submitButton}
+              className="btn btn-primary create-submit-button"
             >
               {submitting ? <Loader2 size={18} className="spin" /> : (esEdicion ? 'Guardar Cambios' : 'Guardar y Publicar Receta')}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="btn btn-outline"
-              style={styles.cancelButton}
+              className="btn btn-outline create-cancel-button"
             >
               Cancelar
             </button>

@@ -1,0 +1,186 @@
+.recipe-card {
+  background-color: white;
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.recipe-card-image-wrapper {
+  position: relative;
+  height: 170px;
+  width: 100%;
+}
+
+.recipe-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.recipe-card-favorito-button {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  transition: transform 0.2s;
+}
+
+.recipe-card-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.recipe-card-badge[data-estado="VERDE"] { background-color: #D1F4E0; color: #22543D; }
+.recipe-card-badge[data-estado="AMARILLO"] { background-color: #FEF08A; color: #744210; }
+.recipe-card-badge[data-estado="ROJO"] { background-color: #FBD5D5; color: #742A2A; }
+
+.recipe-card-body {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.recipe-card-title {
+  font-size: 1.15rem;
+  color: var(--text-main);
+  margin-bottom: 16px;
+  font-weight: 700;
+  line-height: 1.4;
+  min-height: 2.8em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.recipe-card-progress-section {
+  margin-bottom: 0;
+  transition: margin 0.3s ease;
+}
+
+.recipe-card.hovered .recipe-card-progress-section {
+  margin-bottom: 16px;
+}
+
+.recipe-card-progress-label-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.recipe-card-progress-label-text {
+  color: var(--text-muted);
+}
+
+.recipe-card-progress-percent[data-estado="VERDE"] { color: #16A34A; }
+.recipe-card-progress-percent[data-estado="AMARILLO"] { color: #CA8A04; }
+.recipe-card-progress-percent[data-estado="ROJO"] { color: #DC2626; }
+
+.recipe-card-progress-track {
+  width: 100%;
+  height: 8px;
+  background-color: #E5E7EB;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.recipe-card-progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
+.recipe-card-progress-fill[data-estado="VERDE"] { background-color: #38A169; }
+.recipe-card-progress-fill[data-estado="AMARILLO"] { background-color: #D69E2E; }
+.recipe-card-progress-fill[data-estado="ROJO"] { background-color: #E53E3E; }
+
+.recipe-card-hover-content {
+  max-height: 0px;
+  opacity: 0;
+  overflow: hidden;
+  transition: all 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+}
+
+.recipe-card.hovered .recipe-card-hover-content {
+  max-height: 300px;
+  opacity: 1;
+}
+
+.recipe-card-ingredient-badges-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+  margin-top: 16px;
+}
+
+.recipe-card-ingredient-badge {
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background-color: #F3F4F6;
+  color: #4B5563;
+  font-weight: 500;
+}
+
+.recipe-card-footer {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid #F3F4F6;
+}
+
+.recipe-card-footer-meta-group {
+  display: flex;
+  gap: 12px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.recipe-card-footer-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.recipe-card-footer-link {
+  font-size: 0.85rem;
+  color: var(--primary-dark);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}

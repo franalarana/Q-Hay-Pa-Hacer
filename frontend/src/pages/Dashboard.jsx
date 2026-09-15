@@ -8,7 +8,7 @@ import HistoryModal from '../components/HistoryModal';
 import SemaforoIcon from '../components/SemaforoIcon';
 import { useState, useEffect } from 'react';
 import axiosClient from '../api/axiosClient';
-import * as styles from '../styles/dashboard.styles';
+import '../styles/dashboard.css';
 
 export default function Dashboard() {
   const { instance, accounts } = useMsal();
@@ -138,36 +138,36 @@ export default function Dashboard() {
         }}
       />
 
-      <main className="main-content" style={styles.mainContent}>
+      <main className="main-content dash-main-content">
 
         {/* Barra superior de navegación */}
         <header className="top-nav">
           {/* cambios aqui */}
-          <div style={styles.navTabsGroup}>
+          <div className="dash-nav-tabs-group">
             <button
               onClick={() => setActiveTab('EXPLORAR')}
-              style={styles.getTabButton(activeTab === 'EXPLORAR')}
+              className={`dash-tab-button ${activeTab === 'EXPLORAR' ? 'active' : ''}`}
             >
               Explorar
             </button>
 
             <button
               onClick={() => setActiveTab('FAVORITOS')}
-              style={styles.getTabButtonWithIcon(activeTab === 'FAVORITOS')}
+              className={`dash-tab-button dash-tab-button--icon ${activeTab === 'FAVORITOS' ? 'active' : ''}`}
             >
               <Heart size={16} color="#EF4444" fill={activeTab === 'FAVORITOS' ? '#EF4444' : 'none'} /> Mis Favoritas
             </button>
 
             <button
               onClick={() => setActiveTab('MIS_RECETAS')}
-              style={styles.getTabButton(activeTab === 'MIS_RECETAS')}
+              className={`dash-tab-button ${activeTab === 'MIS_RECETAS' ? 'active' : ''}`}
             >
               Mis Recetas
             </button>
 
             <button
               onClick={() => setShowHistoryModal(true)}
-              style={styles.historyButton}
+              className="dash-history-button"
             >
               <History size={16} /> Historial
             </button>
@@ -177,28 +177,26 @@ export default function Dashboard() {
                 setEditingReceta(null);
                 setShowCreateModal(true);
               }}
-              className="btn btn-gradient"
-              style={styles.createButton}
+              className="btn btn-gradient dash-create-button"
             >
               <Plus size={16} /> Crear Receta
             </button>
           </div>
 
-          <div style={styles.userGroup}>
+          <div className="dash-user-group">
             <span
-              style={styles.userName}
+              className="dash-user-name"
               title={userData?.nombre || account?.name || 'Usuario'}
             >
               Hola, {((userData?.nombre || account?.name || 'Usuario').split(' ')[0])}
             </span>
-            <div style={styles.userAvatar}>
+            <div className="dash-user-avatar">
               <User size={18} color="#666" />
             </div>
             <button
-              className="btn btn-outline"
+              className="btn btn-outline dash-logout-button"
               onClick={handleLogout}
               title="Cerrar sesión"
-              style={styles.logoutButton}
             >
               <LogOut size={16} /> Salir
             </button>
@@ -208,14 +206,14 @@ export default function Dashboard() {
 
         <div>
           {/* Header principal con resumen inteligente */}
-          <div style={styles.summaryHeaderRow}>
+          <div className="dash-summary-header-row">
             <div>
-              <h1 style={styles.summaryTitle}>
+              <h1 className="dash-summary-title">
                 {activeTab === 'EXPLORAR' && "¿Qué hay pa' cocinar hoy?"}
                 {activeTab === 'FAVORITOS' && (<>Tus Recetas Favoritas <Heart size={22} color="#EF4444" fill="#EF4444" /></>)}
                 {activeTab === 'MIS_RECETAS' && (<>Recetas Creadas por Ti <ChefHat size={22} color="var(--primary-dark)" /></>)}
               </h1>
-              <p style={styles.summarySubtitle}>
+              <p className="dash-summary-subtitle">
                 {activeTab === 'EXPLORAR' && (
                   countVerdes > 0
                     ? (<><Sparkles size={16} color="var(--primary-dark)" /> ¡Tienes {countVerdes} receta{countVerdes > 1 ? 's' : ''} lista{countVerdes > 1 ? 's' : ''} para preparar ahora mismo con tu despensa!</>)
@@ -227,45 +225,41 @@ export default function Dashboard() {
             </div>
 
             {/* Buscador de recetas */}
-            <div style={styles.searchWrapper}>
+            <div className="dash-search-wrapper">
               <input
                 type="text"
                 placeholder="Buscar recetas..."
                 value={searchReceta}
                 onChange={(e) => setSearchReceta(e.target.value)}
-                style={styles.searchInput}
+                className="dash-search-input"
               />
-              <Search size={18} color="#9CA3AF" style={styles.searchIcon} />
+              <Search size={18} color="#9CA3AF" className="dash-search-icon" />
             </div>
           </div>
 
           {/* Filtros por estado semáforo */}
-          <div style={styles.filtersRow}>
+          <div className="dash-filters-row">
             <button
               onClick={() => setFiltroEstado('TODAS')}
-              className={`btn ${filtroEstado === 'TODAS' ? 'btn-primary' : 'btn-outline'}`}
-              style={styles.filterButtonBase}
+              className={`btn ${filtroEstado === 'TODAS' ? 'btn-primary' : 'btn-outline'} dash-filter-button`}
             >
               Todas ({recetas.length})
             </button>
             <button
               onClick={() => setFiltroEstado('VERDE')}
-              className={`btn ${filtroEstado === 'VERDE' ? 'btn-primary' : 'btn-outline'}`}
-              style={styles.getFilterButtonWithIcon(filtroEstado === 'VERDE', '#10B981')}
+              className={`btn ${filtroEstado === 'VERDE' ? 'btn-primary' : 'btn-outline'} dash-filter-button dash-filter-button--icon ${filtroEstado === 'VERDE' ? 'active-verde' : ''}`}
             >
               <SemaforoIcon estado="VERDE" size={9} /> Listas para cocinar ({countVerdes})
             </button>
             <button
               onClick={() => setFiltroEstado('AMARILLO')}
-              className={`btn ${filtroEstado === 'AMARILLO' ? 'btn-primary' : 'btn-outline'}`}
-              style={styles.getFilterButtonWithIcon(filtroEstado === 'AMARILLO', '#F59E0B')}
+              className={`btn ${filtroEstado === 'AMARILLO' ? 'btn-primary' : 'btn-outline'} dash-filter-button dash-filter-button--icon ${filtroEstado === 'AMARILLO' ? 'active-amarillo' : ''}`}
             >
               <SemaforoIcon estado="AMARILLO" size={9} /> Casi listas ({countAmarillos})
             </button>
             <button
               onClick={() => setFiltroEstado('ROJO')}
-              className={`btn ${filtroEstado === 'ROJO' ? 'btn-primary' : 'btn-outline'}`}
-              style={styles.getFilterButtonWithIcon(filtroEstado === 'ROJO', '#EF4444')}
+              className={`btn ${filtroEstado === 'ROJO' ? 'btn-primary' : 'btn-outline'} dash-filter-button dash-filter-button--icon ${filtroEstado === 'ROJO' ? 'active-rojo' : ''}`}
             >
               <SemaforoIcon estado="ROJO" size={9} /> Faltan ingredientes ({recetas.filter(r => r.estadoGeneral === 'ROJO').length})
             </button>
@@ -273,24 +267,24 @@ export default function Dashboard() {
 
           {/* Grid de Recetas */}
           {loadingRecetas ? (
-            <div style={styles.loadingBlock}>
+            <div className="dash-loading-block">
               <Loader2 size={24} className="spin" color="var(--primary-dark)" />
               <span>Calculando coincidencias con tu despensa...</span>
             </div>
           ) : recetasFiltradas.length === 0 ? (
-            <div style={styles.emptyBlock}>
-              <UtensilsCrossed size={48} color="#9CA3AF" style={styles.emptyIcon} />
-              <h3 style={styles.emptyTitle}>No se encontraron recetas</h3>
-              <p style={styles.emptySubtitle}>
+            <div className="dash-empty-block">
+              <UtensilsCrossed size={48} color="#9CA3AF" className="dash-empty-icon" />
+              <h3 className="dash-empty-title">No se encontraron recetas</h3>
+              <p className="dash-empty-subtitle">
                 {activeTab === 'FAVORITOS'
-                  ? (<>Aún no has marcado recetas como favoritas. Haz clic en el corazón <Heart size={14} color="#EF4444" fill="#EF4444" style={styles.inlineHeartIcon} /> de cualquier receta.</>)
+                  ? (<>Aún no has marcado recetas como favoritas. Haz clic en el corazón <Heart size={14} color="#EF4444" fill="#EF4444" className="dash-inline-heart-icon" /> de cualquier receta.</>)
                   : (activeTab === 'MIS_RECETAS'
                       ? 'No has creado recetas aún. ¡Haz clic en "+ Crear Receta" para agregar la tuya!'
                       : 'Prueba cambiando el filtro o agregando ingredientes a tu despensa.')}
               </p>
             </div>
           ) : (
-            <div style={styles.recipesGrid}>
+            <div className="dash-recipes-grid">
               {recetasFiltradas.map(receta => (
                 <RecipeCard
                   key={receta.id}
@@ -304,7 +298,7 @@ export default function Dashboard() {
           )}
 
           {/* Panel de estado de conexión con backend */}
-          <div style={styles.backendStatusBar}>
+          <div className="dash-backend-status-bar">
             <span>Backend: {backendStatus}</span>
             <span>Usuario: {account?.username || 'Invitado'}</span>
           </div>

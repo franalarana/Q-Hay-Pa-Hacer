@@ -1,7 +1,7 @@
 import { useMsal } from '@azure/msal-react';
 import { loginRequest } from '../authConfig';
 import { Utensils } from 'lucide-react';
-import * as styles from '../styles/login.styles';
+import '../styles/login.css';
 
 export default function Login() {
     const { instance } = useMsal();
@@ -15,19 +15,19 @@ export default function Login() {
     return (
         <div className="auth-container">
             <div className="auth-card">
-                <div style={styles.logoWrapper}>
+                <div className="login-logo-wrapper">
                     <img
                         src="/logo-bowl.png?v=4"
                         alt="Logo"
-                        style={styles.logoImg}
+                        className="login-logo-img"
                     />
-                    <h1 style={styles.title}>
+                    <h1 className="login-title">
                         Qué hay pa' hacer
                     </h1>
                 </div>
                 <p>Descubre qué cocinar con los ingredientes que ya tienes en casa. Inicia sesión para acceder a tu despensa inteligente.</p>
 
-                <button className="btn btn-primary" onClick={handleLogin} style={styles.loginButton}>
+                <button className="btn btn-primary login-button" onClick={handleLogin}>
                     Iniciar sesión con Microsoft
                 </button>
             </div>

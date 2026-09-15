@@ -1,0 +1,289 @@
+.sidebar-aside {
+  background-color: #C0E4DC;
+  border: 20px solid #82B3A4;
+  border-radius: 44px;
+  padding: 24px 20px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
+  align-self: flex-start;
+}
+
+.sidebar-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1F2937;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.sidebar-search-wrapper {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.sidebar-search-input {
+  width: 100%;
+  padding: 10px 38px 10px 14px;
+  border-radius: 50px;
+  border: none;
+  outline: none;
+  font-size: 0.9rem;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.sidebar-search-icon {
+  position: absolute;
+  right: 14px;
+  top: 10px;
+}
+
+.sidebar-add-button {
+  width: 100%;
+  margin-bottom: 20px;
+  background-color: white;
+  color: var(--primary-dark);
+  gap: 6px;
+}
+
+.sidebar-form-panel {
+  background-color: white;
+  padding: 16px;
+  border-radius: var(--border-radius-md);
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.sidebar-form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.sidebar-form-header-title {
+  font-size: 0.95rem;
+  color: var(--text-main);
+}
+
+.sidebar-close-form-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888;
+}
+
+.sidebar-error-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #EF4444;
+  font-size: 0.8rem;
+  margin-bottom: 10px;
+}
+
+.sidebar-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebar-field-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.sidebar-emoji-option-text {
+  font-size: 1.1rem;
+}
+
+.sidebar-inline-row {
+  display: flex;
+  gap: 8px;
+}
+
+.sidebar-flex-field {
+  flex: 1;
+}
+
+.sidebar-flex-field-wide {
+  flex: 1.4;
+}
+
+.sidebar-flex-field-medium {
+  flex: 1.5;
+}
+
+.sidebar-form-actions-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.sidebar-submit-button {
+  flex: 1;
+  padding: 8px;
+  font-size: 0.85rem;
+}
+
+.sidebar-cancel-button {
+  padding: 8px 12px;
+  font-size: 0.85rem;
+}
+
+.sidebar-list-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar-loading-row {
+  text-align: center;
+  padding: 24px 0;
+  color: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.sidebar-empty-list-box {
+  background-color: rgba(255,255,255,0.4);
+  border-radius: var(--border-radius-md);
+  padding: 20px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: rgba(0,0,0,0.7);
+}
+
+.sidebar-item-row {
+  background-color: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(4px);
+  border-radius: var(--border-radius-sm);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+  position: static;
+  z-index: 1;
+}
+
+.sidebar-item-row.editing {
+  position: relative;
+  z-index: 20;
+}
+
+.sidebar-edit-column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.sidebar-edit-name-row {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sidebar-edit-controls-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.sidebar-edit-quantity-input {
+  padding: 6px 12px;
+  width: 90px;
+}
+
+.sidebar-edit-unit-wrapper {
+  flex: 1;
+}
+
+.sidebar-icon-button {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sidebar-icon-button--save {
+  background-color: var(--primary-dark);
+  color: white;
+}
+
+.sidebar-icon-button--cancel {
+  background-color: #E5E7EB;
+  color: #4B5563;
+}
+
+.sidebar-item-view-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sidebar-item-emoji {
+  font-size: 1.25rem;
+}
+
+.sidebar-item-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-main);
+}
+
+.sidebar-item-quantity {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.sidebar-item-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sidebar-edit-icon-button {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background-color: rgba(0,0,0,0.06);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-delete-icon-button {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background-color: rgba(239, 68, 68, 0.08);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #DC2626;
+}
+
+.sidebar-footer-count {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: rgba(0,0,0,0.6);
+}

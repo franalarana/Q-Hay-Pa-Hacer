@@ -1,22 +1,16 @@
 import { useState } from 'react';
 import { Clock, Users, ArrowRight, Heart } from 'lucide-react';
 import SemaforoIcon from './SemaforoIcon';
-import * as styles from '../styles/recipeCard.styles';
+import '../styles/recipeCard.css';
 
 export default function RecipeCard({ receta, onSelect, isFavorito, onToggleFavorito }) {
   const [isHovered, setIsHovered] = useState(false);
   const isVerde = receta.estadoGeneral === 'VERDE';
   const isAmarillo = receta.estadoGeneral === 'AMARILLO';
-
-  // Badge config según el semáforo
-  const badgeBg = isVerde ? '#D1F4E0' : isAmarillo ? '#FEF08A' : '#FBD5D5';
-  const badgeColor = isVerde ? '#22543D' : isAmarillo ? '#744210' : '#742A2A';
   const badgeLabel = isVerde ? '¡Listo para cocinar!' : isAmarillo ? 'Faltan cantidades' : 'Faltan ingredientes';
-  const progressColor = isVerde ? '#16A34A' : isAmarillo ? '#CA8A04' : '#DC2626';
-  const progressFillColor = isVerde ? '#38A169' : isAmarillo ? '#D69E2E' : '#E53E3E';
 
   return (
-    <div className="frame-pastel" style={styles.card}
+    <div className={`frame-pastel recipe-card ${isHovered ? 'hovered' : ''}`}
     onClick={() => onSelect(receta)}
     onMouseEnter={(e) => {
       setIsHovered(true);
@@ -30,7 +24,7 @@ export default function RecipeCard({ receta, onSelect, isFavorito, onToggleFavor
     }}
     >
       {/* Imagen con Badge de estado y Botón de Favorito */}
-      <div style={styles.imageWrapper}>
+      <div className="recipe-card-image-wrapper">
         <img
           src={receta.imagenUrl || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=600&auto=format&fit=crop&q=60'}
           alt={receta.titulo}
@@ -38,7 +32,7 @@ export default function RecipeCard({ receta, onSelect, isFavorito, onToggleFavor
             e.currentTarget.onerror = null;
             e.currentTarget.src = 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=600&auto=format&fit=crop&q=60';
           }}
-          style={styles.image}
+          className="recipe-card-image"
         />
 
         {/* Botón Favorito */}
@@ -48,46 +42,50 @@ export default function RecipeCard({ receta, onSelect, isFavorito, onToggleFavor
             if (onToggleFavorito) onToggleFavorito(receta.id);
           }}
           title={isFavorito ? 'Quitar de favoritos' : 'Guardar en favoritos'}
-          style={styles.favoritoButton}
+          className="recipe-card-favorito-button"
           onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
           onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
         >
           <Heart size={18} color={isFavorito ? '#EF4444' : '#666'} fill={isFavorito ? '#EF4444' : 'none'} />
         </button>
 
-        <div style={styles.getBadge(badgeBg, badgeColor)}>
+        <div className="recipe-card-badge" data-estado={receta.estadoGeneral}>
           <SemaforoIcon estado={receta.estadoGeneral} size={9} /> {badgeLabel}
         </div>
       </div>
 
       {/* Contenido de la tarjeta */}
-      <div style={styles.body}>
-        <h3 style={styles.title}>
+      <div className="recipe-card-body">
+        <h3 className="recipe-card-title">
           {receta.titulo}
         </h3>
 
         {/* Barra de progreso de ingredientes disponibles */}
-        <div style={styles.getProgressSection(isHovered)}>
-          <div style={styles.progressLabelRow}>
-            <span style={styles.progressLabelText}>Compatibilidad</span>
-            <span style={styles.getProgressPercentText(progressColor)}>
+        <div className="recipe-card-progress-section">
+          <div className="recipe-card-progress-label-row">
+            <span className="recipe-card-progress-label-text">Compatibilidad</span>
+            <span className="recipe-card-progress-percent" data-estado={receta.estadoGeneral}>
               {receta.porcentajeCoincidencia}% ({receta.ingredientesVerdes}/{receta.totalIngredientes} ingredientes)
             </span>
           </div>
-          <div style={styles.progressTrack}>
-            <div style={styles.getProgressFill(receta.porcentajeCoincidencia, progressFillColor)} />
+          <div className="recipe-card-progress-track">
+            <div
+              className="recipe-card-progress-fill"
+              data-estado={receta.estadoGeneral}
+              style={{ width: `${receta.porcentajeCoincidencia}%` }}
+            />
           </div>
         </div>
 
         {/* Contenido que se despliega on hover */}
-        <div style={styles.getHoverContent(isHovered)}>
+        <div className="recipe-card-hover-content">
           {/* Badges de ingredientes semáforo rápidos */}
-          <div style={styles.ingredientBadgesRow}>
+          <div className="recipe-card-ingredient-badges-row">
             {receta.ingredientes.map(ing => {
               return (
                 <span
                   key={ing.ingredienteId}
-                  style={styles.ingredientBadge}
+                  className="recipe-card-ingredient-badge"
                 >
                   <SemaforoIcon estado={ing.estado} size={8} /> {ing.nombreIngrediente}
                 </span>
@@ -96,17 +94,17 @@ export default function RecipeCard({ receta, onSelect, isFavorito, onToggleFavor
           </div>
 
           {/* Footer con tiempo, porciones y botón ver */}
-          <div style={styles.footer}>
-            <div style={styles.footerMetaGroup}>
-              <span style={styles.footerMetaItem}>
+          <div className="recipe-card-footer">
+            <div className="recipe-card-footer-meta-group">
+              <span className="recipe-card-footer-meta-item">
                 <Clock size={14} /> {receta.tiempoMinutos}m
               </span>
-              <span style={styles.footerMetaItem}>
+              <span className="recipe-card-footer-meta-item">
                 <Users size={14} /> {receta.porciones}
               </span>
             </div>
 
-            <span style={styles.footerLink}>
+            <span className="recipe-card-footer-link">
               Ver receta <ArrowRight size={14} />
             </span>
           </div>
