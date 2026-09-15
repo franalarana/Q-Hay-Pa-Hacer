@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Caveat:wght@600;700&family=Pacifico&display=swap');
 
 :root {
   /* Paleta Pastel Principal */
@@ -157,6 +157,64 @@ body {
   background-color: var(--pastel-blue);
   border-color: var(--accent-blue);
   color: var(--accent-blue-dark);
+}
+
+/* Inputs y Selects */
+.pastel-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 2px solid #C0E4DC;
+  background-color: #ffffff;
+  color: var(--text-main);
+  font-size: 0.85rem;
+  outline: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  cursor: pointer;
+}
+
+.pastel-input:focus {
+  border-color: var(--primary-dark);
+  box-shadow: 0 0 0 3px rgba(108, 175, 161, 0.2);
+}
+
+.pastel-input option {
+  background-color: white;
+  color: var(--text-main);
+  padding: 8px;
+}
+
+/* Custom Select & Scrollbar */
+.custom-select-option {
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--text-main);
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.custom-select-option:hover {
+  background-color: var(--pastel-mint);
+  color: var(--primary-dark);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #C0E4DC;
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-dark);
 }
 
 /* Marco combinado menta + azul pastel, para tarjetas/paneles destacados */

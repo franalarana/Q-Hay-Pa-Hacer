@@ -94,7 +94,18 @@ export default function RecipeCard({ receta, onSelect, isFavorito, onToggleFavor
 
       {/* Contenido de la tarjeta */}
       <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-        <h3 style={{ fontSize: '1.15rem', color: 'var(--text-main)', marginBottom: '16px', fontWeight: '700' }}>
+        <h3 style={{ 
+          fontSize: '1.15rem', 
+          color: 'var(--text-main)', 
+          marginBottom: '16px', 
+          fontWeight: '700',
+          lineHeight: '1.4',
+          minHeight: '2.8em',
+          display: '-webkit-box',
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden'
+        }}>
           {receta.titulo}
         </h3>
 

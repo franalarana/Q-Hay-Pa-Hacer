@@ -188,8 +188,8 @@ export default function RecipeDetailModal({ receta, onClose, isFavorito, onToggl
                       justifyContent: 'space-between',
                       padding: '10px 14px',
                       borderRadius: 'var(--border-radius-sm)',
-                      backgroundColor: isVerde ? '#F0FDFA' : isAmarillo ? '#F0F9FF' : '#F9FAFB',
-                      border: `1px solid ${isVerde ? '#99F6E4' : isAmarillo ? '#BAE6FD' : '#E5E7EB'}`
+                      backgroundColor: isVerde ? '#F3F4F6' : isAmarillo ? '#F0F9FF' : '#F9FAFB',
+                      border: `1px solid ${isVerde ? '#E5E7EB' : isAmarillo ? '#BAE6FD' : '#E5E7EB'}`
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

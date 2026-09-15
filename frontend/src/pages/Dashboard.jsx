@@ -174,9 +174,9 @@ export default function Dashboard() {
               onClick={() => setActiveTab('MIS_RECETAS')}
               style={{
                 background: 'none', border: 'none', cursor: 'pointer',
-                color: activeTab === 'MIS_RECETAS' ? 'var(--accent-blue-dark)' : 'var(--text-main)',
+                color: activeTab === 'MIS_RECETAS' ? 'var(--primary-dark)' : 'var(--text-main)',
                 fontWeight: activeTab === 'MIS_RECETAS' ? '700' : '500',
-                borderBottom: activeTab === 'MIS_RECETAS' ? '2px solid var(--accent-blue)' : 'none',
+                borderBottom: activeTab === 'MIS_RECETAS' ? '2px solid var(--primary-dark)' : 'none',
                 paddingBottom: '4px', fontSize: '0.95rem'
               }}
             >
@@ -342,6 +342,7 @@ export default function Dashboard() {
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+              alignItems: 'start',
               gap: '24px',
               marginBottom: '32px'
             }}>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Search, Plus, Trash2, Edit2, Check, X, AlertCircle, Loader2 } from 'lucide-react';
 import axiosClient from '../api/axiosClient';
+import CustomSelect from './CustomSelect';
 
 const UNIDADES_DISPONIBLES = [
   { value: 'UNIDAD', label: 'Unidades (ud)' },
@@ -288,36 +289,38 @@ export default function Sidebar({ onDespensaChange }) {
           <form onSubmit={handleGuardarIngrediente} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <div>
               <label style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--text-muted)' }}>Ingrediente</label>
-              <select
-                value={creandoNuevo ? '__nuevo__' : selectedIngredienteId}
-                onChange={(e) => {
-                  if (e.target.value === '__nuevo__') {
+              <CustomSelect
+                value={creandoNuevo ? '__nuevo__' : String(selectedIngredienteId)}
+                onChange={(val) => {
+                  if (val === '__nuevo__') {
                     setCreandoNuevo(true);
                     setSelectedIngredienteId('');
                     return;
                   }
+                  if (val === '') {
+                    setCreandoNuevo(false);
+                    setSelectedIngredienteId('');
+                    return;
+                  }
                   setCreandoNuevo(false);
-                  setSelectedIngredienteId(e.target.value);
-                  const sel = catalogo.find(c => c.id === Number(e.target.value));
+                  setSelectedIngredienteId(val);
+                  const sel = catalogo.find(c => String(c.id) === String(val));
                   if (sel) setUnidad(sel.unidadBase);
                 }}
-                required
-                style={{
-                  width: '100%',
-                  padding: '8px',
-                  borderRadius: 'var(--border-radius-sm)',
-                  border: '1px solid #D1D5DB',
-                  fontSize: '0.85rem'
-                }}
-              >
-                <option value="">Selecciona del catálogo...</option>
-                <option value="__nuevo__">+ Agregar ingrediente propio...</option>
-                {catalogo.map(ing => (
-                  <option key={ing.id} value={ing.id}>
-                    {getIngredienteEmoji(ing.nombre)} {ing.nombre}
-                  </option>
-                ))}
-              </select>
+                options={[
+                  { value: '', label: 'Selecciona del catálogo...' },
+                  { value: '__nuevo__', label: '+ Agregar ingrediente propio...', isDivider: true },
+                  ...catalogo.map(ing => ({
+                    value: String(ing.id),
+                    label: (
+                      <>
+                        <span style={{ fontSize: '1.1rem' }}>{getIngredienteEmoji(ing.nombre)}</span>
+                        <span>{ing.nombre}</span>
+                      </>
+                    )
+                  }))
+                ]}
+              />
             </div>
 
             {creandoNuevo && (
@@ -330,22 +333,19 @@ export default function Sidebar({ onDespensaChange }) {
                     value={nuevoNombre}
                     onChange={(e) => setNuevoNombre(e.target.value)}
                     required
-                    style={{ width: '100%', padding: '8px', borderRadius: 'var(--border-radius-sm)', border: '1px solid #D1D5DB', fontSize: '0.85rem' }}
+                    className="pastel-input"
                   />
                 </div>
                 <div style={{ flex: 1 }}>
                   <label style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--text-muted)' }}>Categoría</label>
-                  <select
+                  <CustomSelect
                     value={nuevoCategoria}
-                    onChange={(e) => setNuevoCategoria(e.target.value)}
-                    required
-                    style={{ width: '100%', padding: '8px', borderRadius: 'var(--border-radius-sm)', border: '1px solid #D1D5DB', fontSize: '0.85rem' }}
-                  >
-                    <option value="">Selecciona...</option>
-                    {categoriasExistentes.map(cat => (
-                      <option key={cat} value={cat}>{cat}</option>
-                    ))}
-                  </select>
+                    onChange={setNuevoCategoria}
+                    options={[
+                      { value: '', label: 'Selecciona...', isDivider: true },
+                      ...categoriasExistentes.map(cat => ({ value: cat, label: cat }))
+                    ]}
+                  />
                 </div>
               </div>
             )}
@@ -360,33 +360,17 @@ export default function Sidebar({ onDespensaChange }) {
                   value={cantidad}
                   onChange={(e) => setCantidad(e.target.value)}
                   required
-                  style={{
-                    width: '100%',
-                    padding: '8px',
-                    borderRadius: 'var(--border-radius-sm)',
-                    border: '1px solid #D1D5DB',
-                    fontSize: '0.85rem'
-                  }}
+                  className="pastel-input"
                 />
               </div>
 
               <div style={{ flex: 1.5 }}>
                 <label style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--text-muted)' }}>Unidad</label>
-                <select
+                <CustomSelect
                   value={unidad}
-                  onChange={(e) => setUnidad(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '8px',
-                    borderRadius: 'var(--border-radius-sm)',
-                    border: '1px solid #D1D5DB',
-                    fontSize: '0.85rem'
-                  }}
-                >
-                  {UNIDADES_DISPONIBLES.map(u => (
-                    <option key={u.value} value={u.value}>{u.label}</option>
-                  ))}
-                </select>
+                  onChange={setUnidad}
+                  options={UNIDADES_DISPONIBLES}
+                />
               </div>
             </div>
 
@@ -463,29 +447,16 @@ export default function Sidebar({ onDespensaChange }) {
                       min="0.1"
                       value={editCantidad}
                       onChange={(e) => setEditCantidad(e.target.value)}
-                      style={{
-                        width: '75px',
-                        padding: '6px 8px',
-                        borderRadius: 'var(--border-radius-sm)',
-                        border: '1px solid #D1D5DB',
-                        fontSize: '0.85rem'
-                      }}
+                      className="pastel-input"
+                      style={{ padding: '6px 12px', width: '90px' }}
                     />
-                    <select
-                      value={editUnidad}
-                      onChange={(e) => setEditUnidad(e.target.value)}
-                      style={{
-                        flex: 1,
-                        padding: '6px 8px',
-                        borderRadius: 'var(--border-radius-sm)',
-                        border: '1px solid #D1D5DB',
-                        fontSize: '0.8rem'
-                      }}
-                    >
-                      {UNIDADES_DISPONIBLES.map(u => (
-                        <option key={u.value} value={u.value}>{u.label}</option>
-                      ))}
-                    </select>
+                    <div style={{ flex: 1 }}>
+                      <CustomSelect
+                        value={editUnidad}
+                        onChange={setEditUnidad}
+                        options={UNIDADES_DISPONIBLES}
+                      />
+                    </div>
                     <button
                       onClick={() => handleGuardarEdicion(item.id)}
                       disabled={savingEdit}
