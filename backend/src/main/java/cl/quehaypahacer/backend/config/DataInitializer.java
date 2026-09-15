@@ -34,6 +34,7 @@ public class DataInitializer implements CommandLineRunner {
                 inicializarRecetas(ings);
                 inicializarRecetasExtra(ings);
                 inicializarRecetasJovenes(ings);
+                inicializarRecetasPremioMascotas(ings);
                 log.info("Catálogo sincronizado con éxito ({} ingredientes, {} recetas en base de datos).",
                                 ingredienteRepository.count(), recetaRepository.count());
         }
@@ -1115,6 +1116,43 @@ public class DataInitializer implements CommandLineRunner {
                                 ing("Leche", 40, UnidadMedida.MILILITROS),
                                 ing("Mantequilla", 10, UnidadMedida.GRAMOS),
                                 ing("Queso rallado", 40, UnidadMedida.GRAMOS));
+        }
+
+        // cambios aqui: 2 recetas de premio para perrito/gatito, agregadas al final del catálogo
+        private void inicializarRecetasPremioMascotas(Map<String, Ingrediente> ings) {
+
+                if (!recetaRepository.existsByTitulo("Galletas al Estilo Cheto")) {
+                        Receta premio1 = Receta.builder()
+                                        .titulo("Galletas al Estilo Cheto")
+                                        .descripcion("Premio casero con sabor a queso para el mejor amigo peludo de la casa.")
+                                        .instrucciones("1. En un bowl, mezcla la harina de trigo con el queso rallado hasta integrar.\n2. Agrega el huevo y la mantequilla derretida, y amasa hasta formar una masa firme.\n3. Estira la masa sobre una superficie enharinada y corta galletas pequeñas con la forma que prefieras.\n4. Ponlas en una bandeja para horno separadas entre sí.\n5. Hornea a 180°C durante 15-18 minutos hasta que estén doradas y firmes.\n6. Deja enfriar por completo antes de premiar a tu perrito.")
+                                        .tiempoMinutos(30)
+                                        .porciones(1)
+                                        .dificultad("Fácil")
+                                        .imagenUrl("/recetas/galletas-estilo-cheto.jpg")
+                                        .build();
+                        premio1 = recetaRepository.save(premio1);
+                        agregarIngrediente(premio1, ings.get("Harina de trigo"), 150.0, UnidadMedida.GRAMOS);
+                        agregarIngrediente(premio1, ings.get("Queso rallado"), 80.0, UnidadMedida.GRAMOS);
+                        agregarIngrediente(premio1, ings.get("Huevos"), 1.0, UnidadMedida.UNIDAD);
+                        agregarIngrediente(premio1, ings.get("Mantequilla"), 20.0, UnidadMedida.GRAMOS);
+                }
+
+                if (!recetaRepository.existsByTitulo("Galletas de Atún")) {
+                        Receta premio2 = Receta.builder()
+                                        .titulo("Galletas de Atún")
+                                        .descripcion("Premio casero con atún, ideal para consentir a tu gatito.")
+                                        .instrucciones("1. Escurre bien el atún en lata para retirar el exceso de líquido.\n2. En un bowl, mezcla el atún desmenuzado con la harina de trigo y el huevo hasta formar una masa uniforme.\n3. Forma bolitas pequeñas o aplasta la masa y corta galletas chicas.\n4. Colócalas en una bandeja para horno separadas entre sí.\n5. Hornea a 180°C durante 12-15 minutos hasta que estén firmes.\n6. Deja enfriar por completo antes de servírselas a tu gatito.")
+                                        .tiempoMinutos(25)
+                                        .porciones(1)
+                                        .dificultad("Fácil")
+                                        .imagenUrl("/recetas/galletas-de-atun.jpg")
+                                        .build();
+                        premio2 = recetaRepository.save(premio2);
+                        agregarIngrediente(premio2, ings.get("Atún en lata"), 100.0, UnidadMedida.GRAMOS);
+                        agregarIngrediente(premio2, ings.get("Harina de trigo"), 100.0, UnidadMedida.GRAMOS);
+                        agregarIngrediente(premio2, ings.get("Huevos"), 1.0, UnidadMedida.UNIDAD);
+                }
         }
 
         private void agregarIngrediente(Receta receta, Ingrediente ingrediente, Double cantidad, UnidadMedida unidad) {
