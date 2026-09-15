@@ -57,7 +57,7 @@ export default function Sidebar({ onDespensaChange }) {
   const [catalogo, setCatalogo] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  
+
   // Estado para el modal/formulario de agregar/editar
   const [showForm, setShowForm] = useState(false);
   const [selectedIngredienteId, setSelectedIngredienteId] = useState('');
@@ -212,15 +212,28 @@ export default function Sidebar({ onDespensaChange }) {
   );
 
   return (
-    <aside className="sidebar">
-      <h2>Tu Despensa</h2>
-      <p className="subtitle">(Ingredientes que tienes en casa)</p>
+    <aside className="sidebar" style={{ 
+      backgroundColor: '#C0E4DC', 
+      border: '20px solid #82B3A4', // Bi-color frame effect wider
+      borderRadius: '44px', 
+      padding: '24px 20px', 
+      position: 'relative', 
+      overflow: 'hidden',
+      display: 'flex',
+      flexDirection: 'column',
+      height: 'fit-content',
+      alignSelf: 'flex-start'
+    }}>
+      
+      <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1F2937', marginTop: '10px', marginBottom: '20px' }}>
+        Tu Despensa
+      </h2>
 
       {/* Buscador dentro de tu despensa */}
       <div style={{ position: 'relative', marginBottom: '16px' }}>
-        <input 
-          type="text" 
-          placeholder="Buscar en tu despensa..." 
+        <input
+          type="text"
+          placeholder="Buscar en tu despensa..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{
@@ -238,8 +251,8 @@ export default function Sidebar({ onDespensaChange }) {
 
       {/* Botón para abrir formulario de agregar */}
       {!showForm && (
-        <button 
-          className="btn btn-primary" 
+        <button
+          className="btn btn-primary"
           onClick={() => setShowForm(true)}
           style={{ width: '100%', marginBottom: '20px', backgroundColor: 'white', color: 'var(--primary-dark)', gap: '6px' }}
         >
@@ -258,8 +271,8 @@ export default function Sidebar({ onDespensaChange }) {
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
             <strong style={{ fontSize: '0.95rem', color: 'var(--text-main)' }}>Añadir a Despensa</strong>
-            <button 
-              onClick={() => setShowForm(false)} 
+            <button
+              onClick={() => setShowForm(false)}
               style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888' }}
             >
               <X size={18} />
@@ -299,13 +312,11 @@ export default function Sidebar({ onDespensaChange }) {
               >
                 <option value="">Selecciona del catálogo...</option>
                 <option value="__nuevo__">+ Agregar ingrediente propio...</option>
-                {/* cambios aqui */}
                 {catalogo.map(ing => (
                   <option key={ing.id} value={ing.id}>
                     {getIngredienteEmoji(ing.nombre)} {ing.nombre}
                   </option>
                 ))}
-                {/* hasta aqui */}
               </select>
             </div>
 
@@ -342,11 +353,11 @@ export default function Sidebar({ onDespensaChange }) {
             <div style={{ display: 'flex', gap: '8px' }}>
               <div style={{ flex: 1 }}>
                 <label style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--text-muted)' }}>Cantidad</label>
-                <input 
-                  type="number" 
-                  step="0.1" 
+                <input
+                  type="number"
+                  step="0.1"
                   min="0.1"
-                  value={cantidad} 
+                  value={cantidad}
                   onChange={(e) => setCantidad(e.target.value)}
                   required
                   style={{
@@ -361,7 +372,7 @@ export default function Sidebar({ onDespensaChange }) {
 
               <div style={{ flex: 1.5 }}>
                 <label style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--text-muted)' }}>Unidad</label>
-                <select 
+                <select
                   value={unidad}
                   onChange={(e) => setUnidad(e.target.value)}
                   style={{
@@ -380,10 +391,10 @@ export default function Sidebar({ onDespensaChange }) {
             </div>
 
             <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={submitting}
-                className="btn btn-primary" 
+                className="btn btn-primary"
                 style={{ flex: 1, padding: '8px', fontSize: '0.85rem' }}
               >
                 {submitting ? <Loader2 size={16} className="spin" /> : 'Guardar'}
@@ -407,7 +418,7 @@ export default function Sidebar({ onDespensaChange }) {
       )}
 
       {/* Lista de ingredientes registrados en la despensa */}
-      <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', paddingRight: '4px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {loading ? (
           <div style={{ textAlign: 'center', padding: '24px 0', color: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
             <Loader2 size={18} className="spin" /> Cargando despensa...
@@ -425,7 +436,7 @@ export default function Sidebar({ onDespensaChange }) {
           </div>
         ) : (
           ingredientesFiltrados.map((item) => (
-            <div 
+            <div
               key={item.id}
               style={{
                 backgroundColor: 'rgba(255, 255, 255, 0.75)',
@@ -515,7 +526,7 @@ export default function Sidebar({ onDespensaChange }) {
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <button 
+                    <button
                       onClick={() => handleIniciarEdicion(item)}
                       title="Editar ingrediente"
                       style={{
@@ -526,7 +537,7 @@ export default function Sidebar({ onDespensaChange }) {
                     >
                       <Edit2 size={14} color="var(--text-main)" />
                     </button>
-                    <button 
+                    <button
                       onClick={() => handleEliminar(item.id)}
                       title="Eliminar de la despensa"
                       style={{

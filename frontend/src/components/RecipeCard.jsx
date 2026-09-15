@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { Clock, Users, ArrowRight, Heart } from 'lucide-react';
 import SemaforoIcon from './SemaforoIcon';
 
 export default function RecipeCard({ receta, onSelect, isFavorito, onToggleFavorito }) {
+  const [isHovered, setIsHovered] = useState(false);
   const isVerde = receta.estadoGeneral === 'VERDE';
   const isAmarillo = receta.estadoGeneral === 'AMARILLO';
 
@@ -24,10 +26,14 @@ export default function RecipeCard({ receta, onSelect, isFavorito, onToggleFavor
     }}
     onClick={() => onSelect(receta)}
     onMouseEnter={(e) => {
+      setIsHovered(true);
       e.currentTarget.style.transform = 'translateY(-4px)';
+      e.currentTarget.style.boxShadow = 'var(--shadow-md)';
     }}
     onMouseLeave={(e) => {
+      setIsHovered(false);
       e.currentTarget.style.transform = 'translateY(0)';
+      e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
     }}
     >
       {/* Imagen con Badge de estado y Botón de Favorito */}
@@ -88,25 +94,12 @@ export default function RecipeCard({ receta, onSelect, isFavorito, onToggleFavor
 
       {/* Contenido de la tarjeta */}
       <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-        <h3 style={{ fontSize: '1.15rem', color: 'var(--text-main)', marginBottom: '6px', fontWeight: '700' }}>
+        <h3 style={{ fontSize: '1.15rem', color: 'var(--text-main)', marginBottom: '16px', fontWeight: '700' }}>
           {receta.titulo}
         </h3>
-        
-        <p style={{
-          fontSize: '0.85rem',
-          color: 'var(--text-muted)',
-          marginBottom: '16px',
-          lineHeight: '1.4',
-          display: '-webkit-box',
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: 'vertical',
-          overflow: 'hidden'
-        }}>
-          {receta.descripcion}
-        </p>
 
         {/* Barra de progreso de ingredientes disponibles */}
-        <div style={{ marginBottom: '16px' }}>
+        <div style={{ marginBottom: isHovered ? '16px' : '0', transition: 'margin 0.3s ease' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: '600', marginBottom: '4px' }}>
             <span style={{ color: 'var(--text-muted)' }}>Compatibilidad</span>
             <span style={{ color: isVerde ? '#16A34A' : isAmarillo ? '#CA8A04' : '#DC2626' }}>
@@ -124,60 +117,68 @@ export default function RecipeCard({ receta, onSelect, isFavorito, onToggleFavor
           </div>
         </div>
 
-        {/* Badges de ingredientes semáforo rápidos */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '16px' }}>
-          {receta.ingredientes.map(ing => {
-            return (
-              <span
-                key={ing.ingredienteId}
-                style={{
-                  padding: '3px 8px',
-                  borderRadius: '12px',
-                  fontSize: '0.75rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  backgroundColor: '#F3F4F6',
-                  color: '#4B5563',
-                  fontWeight: '500'
-                }}
-              >
-                {/* cambios aqui: sin emoji, fondo neutro gris en vez de semaforo */}
-                <SemaforoIcon estado={ing.estado} size={8} /> {ing.nombreIngrediente}
-                {/* hasta aqui */}
-              </span>
-            );
-          })}
-        </div>
-
-        {/* Footer con tiempo, porciones y botón ver */}
+        {/* Contenido que se despliega on hover */}
         <div style={{
-          marginTop: 'auto',
+          maxHeight: isHovered ? '300px' : '0px',
+          opacity: isHovered ? 1 : 0,
+          overflow: 'hidden',
+          transition: 'all 0.3s ease-in-out',
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingTop: '12px',
-          borderTop: '1px solid #F3F4F6'
+          flexDirection: 'column'
         }}>
-          <div style={{ display: 'flex', gap: '12px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <Clock size={14} /> {receta.tiempoMinutos}m
-            </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <Users size={14} /> {receta.porciones}
-            </span>
+          {/* Badges de ingredientes semáforo rápidos */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '16px', marginTop: '16px' }}>
+            {receta.ingredientes.map(ing => {
+              return (
+                <span
+                  key={ing.ingredienteId}
+                  style={{
+                    padding: '3px 8px',
+                    borderRadius: '12px',
+                    fontSize: '0.75rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    backgroundColor: '#F3F4F6',
+                    color: '#4B5563',
+                    fontWeight: '500'
+                  }}
+                >
+                  <SemaforoIcon estado={ing.estado} size={8} /> {ing.nombreIngrediente}
+                </span>
+              );
+            })}
           </div>
 
-          <span style={{
-            fontSize: '0.85rem',
-            color: 'var(--primary-dark)',
-            fontWeight: '600',
+          {/* Footer con tiempo, porciones y botón ver */}
+          <div style={{
+            marginTop: 'auto',
             display: 'flex',
             alignItems: 'center',
-            gap: '4px'
+            justifyContent: 'space-between',
+            paddingTop: '12px',
+            borderTop: '1px solid #F3F4F6'
           }}>
-            Ver receta <ArrowRight size={14} />
-          </span>
+            <div style={{ display: 'flex', gap: '12px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Clock size={14} /> {receta.tiempoMinutos}m
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Users size={14} /> {receta.porciones}
+              </span>
+            </div>
+
+            <span style={{
+              fontSize: '0.85rem',
+              color: 'var(--primary-dark)',
+              fontWeight: '600',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}>
+              Ver receta <ArrowRight size={14} />
+            </span>
+          </div>
         </div>
       </div>
     </div>
