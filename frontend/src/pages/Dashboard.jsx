@@ -8,6 +8,7 @@ import HistoryModal from '../components/HistoryModal';
 import SemaforoIcon from '../components/SemaforoIcon';
 import { useState, useEffect } from 'react';
 import axiosClient from '../api/axiosClient';
+import * as styles from '../styles/dashboard.styles';
 
 export default function Dashboard() {
   const { instance, accounts } = useMsal();
@@ -130,67 +131,43 @@ export default function Dashboard() {
   return (
     <div className="app-container">
       {/* Sidebar de despensa */}
-      <Sidebar 
+      <Sidebar
         onDespensaChange={(items) => {
           setDespensaCount(items.length);
           cargarRecetas();
-        }} 
+        }}
       />
-      
-      <main className="main-content" style={{ position: 'relative', overflow: 'hidden' }}>
-        
+
+      <main className="main-content" style={styles.mainContent}>
+
         {/* Barra superior de navegación */}
         <header className="top-nav">
           {/* cambios aqui */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '22px', flexWrap: 'wrap' }}>
-            <button 
+          <div style={styles.navTabsGroup}>
+            <button
               onClick={() => setActiveTab('EXPLORAR')}
-              style={{
-                background: 'none', border: 'none', cursor: 'pointer',
-                color: activeTab === 'EXPLORAR' ? 'var(--primary-dark)' : 'var(--text-main)',
-                fontWeight: activeTab === 'EXPLORAR' ? '700' : '500',
-                borderBottom: activeTab === 'EXPLORAR' ? '2px solid var(--primary-dark)' : 'none',
-                paddingBottom: '4px', fontSize: '0.95rem'
-              }}
+              style={styles.getTabButton(activeTab === 'EXPLORAR')}
             >
               Explorar
             </button>
 
-            <button 
+            <button
               onClick={() => setActiveTab('FAVORITOS')}
-              style={{
-                background: 'none', border: 'none', cursor: 'pointer',
-                color: activeTab === 'FAVORITOS' ? 'var(--primary-dark)' : 'var(--text-main)',
-                fontWeight: activeTab === 'FAVORITOS' ? '700' : '500',
-                borderBottom: activeTab === 'FAVORITOS' ? '2px solid var(--primary-dark)' : 'none',
-                paddingBottom: '4px', fontSize: '0.95rem',
-                display: 'flex', alignItems: 'center', gap: '4px'
-              }}
+              style={styles.getTabButtonWithIcon(activeTab === 'FAVORITOS')}
             >
               <Heart size={16} color="#EF4444" fill={activeTab === 'FAVORITOS' ? '#EF4444' : 'none'} /> Mis Favoritas
             </button>
 
             <button
               onClick={() => setActiveTab('MIS_RECETAS')}
-              style={{
-                background: 'none', border: 'none', cursor: 'pointer',
-                color: activeTab === 'MIS_RECETAS' ? 'var(--primary-dark)' : 'var(--text-main)',
-                fontWeight: activeTab === 'MIS_RECETAS' ? '700' : '500',
-                borderBottom: activeTab === 'MIS_RECETAS' ? '2px solid var(--primary-dark)' : 'none',
-                paddingBottom: '4px', fontSize: '0.95rem'
-              }}
+              style={styles.getTabButton(activeTab === 'MIS_RECETAS')}
             >
               Mis Recetas
             </button>
 
-            <button 
+            <button
               onClick={() => setShowHistoryModal(true)}
-              style={{
-                background: 'none', border: 'none', cursor: 'pointer',
-                color: 'var(--text-main)', fontWeight: '500',
-                paddingBottom: '4px', fontSize: '0.95rem',
-                display: 'flex', alignItems: 'center', gap: '4px'
-              }}
+              style={styles.historyButton}
             >
               <History size={16} /> Historial
             </button>
@@ -201,39 +178,27 @@ export default function Dashboard() {
                 setShowCreateModal(true);
               }}
               className="btn btn-gradient"
-              style={{ padding: '8px 16px', fontSize: '0.85rem', gap: '6px' }}
+              style={styles.createButton}
             >
               <Plus size={16} /> Crear Receta
             </button>
           </div>
-          
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <span 
-              style={{ 
-                fontSize: '0.9rem', 
-                color: 'var(--text-muted)',
-                maxWidth: '220px',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap'
-              }}
+
+          <div style={styles.userGroup}>
+            <span
+              style={styles.userName}
               title={userData?.nombre || account?.name || 'Usuario'}
             >
               Hola, {((userData?.nombre || account?.name || 'Usuario').split(' ')[0])}
             </span>
-            <div style={{
-              width: '38px', height: '38px', borderRadius: '50%', 
-              backgroundColor: '#E0E0E0', display: 'flex', 
-              alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0
-            }}>
+            <div style={styles.userAvatar}>
               <User size={18} color="#666" />
             </div>
-            <button 
-              className="btn btn-outline" 
-              onClick={handleLogout} 
-              title="Cerrar sesión" 
-              style={{ padding: '8px 12px', borderRadius: 'var(--border-radius-sm)', display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}
+            <button
+              className="btn btn-outline"
+              onClick={handleLogout}
+              title="Cerrar sesión"
+              style={styles.logoutButton}
             >
               <LogOut size={16} /> Salir
             </button>
@@ -243,14 +208,14 @@ export default function Dashboard() {
 
         <div>
           {/* Header principal con resumen inteligente */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
+          <div style={styles.summaryHeaderRow}>
             <div>
-              <h1 style={{ marginBottom: '6px', fontSize: '1.9rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <h1 style={styles.summaryTitle}>
                 {activeTab === 'EXPLORAR' && "¿Qué hay pa' cocinar hoy?"}
                 {activeTab === 'FAVORITOS' && (<>Tus Recetas Favoritas <Heart size={22} color="#EF4444" fill="#EF4444" /></>)}
                 {activeTab === 'MIS_RECETAS' && (<>Recetas Creadas por Ti <ChefHat size={22} color="var(--primary-dark)" /></>)}
               </h1>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <p style={styles.summarySubtitle}>
                 {activeTab === 'EXPLORAR' && (
                   countVerdes > 0
                     ? (<><Sparkles size={16} color="var(--primary-dark)" /> ¡Tienes {countVerdes} receta{countVerdes > 1 ? 's' : ''} lista{countVerdes > 1 ? 's' : ''} para preparar ahora mismo con tu despensa!</>)
@@ -262,53 +227,45 @@ export default function Dashboard() {
             </div>
 
             {/* Buscador de recetas */}
-            <div style={{ position: 'relative', minWidth: '260px' }}>
-              <input 
-                type="text" 
+            <div style={styles.searchWrapper}>
+              <input
+                type="text"
                 placeholder="Buscar recetas..."
                 value={searchReceta}
                 onChange={(e) => setSearchReceta(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px 38px 10px 14px',
-                  borderRadius: '50px',
-                  border: '1px solid #E5E7EB',
-                  outline: 'none',
-                  fontSize: '0.9rem',
-                  backgroundColor: '#F9FAFB'
-                }}
+                style={styles.searchInput}
               />
-              <Search size={18} color="#9CA3AF" style={{ position: 'absolute', right: '14px', top: '11px' }} />
+              <Search size={18} color="#9CA3AF" style={styles.searchIcon} />
             </div>
           </div>
 
           {/* Filtros por estado semáforo */}
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '28px' }}>
-            <button 
+          <div style={styles.filtersRow}>
+            <button
               onClick={() => setFiltroEstado('TODAS')}
               className={`btn ${filtroEstado === 'TODAS' ? 'btn-primary' : 'btn-outline'}`}
-              style={{ fontSize: '0.85rem', padding: '6px 14px' }}
+              style={styles.filterButtonBase}
             >
               Todas ({recetas.length})
             </button>
-            <button 
+            <button
               onClick={() => setFiltroEstado('VERDE')}
               className={`btn ${filtroEstado === 'VERDE' ? 'btn-primary' : 'btn-outline'}`}
-              style={{ fontSize: '0.85rem', padding: '6px 14px', gap: '6px', backgroundColor: filtroEstado === 'VERDE' ? '#10B981' : undefined, color: filtroEstado === 'VERDE' ? 'white' : undefined }}
+              style={styles.getFilterButtonWithIcon(filtroEstado === 'VERDE', '#10B981')}
             >
               <SemaforoIcon estado="VERDE" size={9} /> Listas para cocinar ({countVerdes})
             </button>
-            <button 
+            <button
               onClick={() => setFiltroEstado('AMARILLO')}
               className={`btn ${filtroEstado === 'AMARILLO' ? 'btn-primary' : 'btn-outline'}`}
-              style={{ fontSize: '0.85rem', padding: '6px 14px', gap: '6px', backgroundColor: filtroEstado === 'AMARILLO' ? '#F59E0B' : undefined, color: filtroEstado === 'AMARILLO' ? 'white' : undefined }}
+              style={styles.getFilterButtonWithIcon(filtroEstado === 'AMARILLO', '#F59E0B')}
             >
               <SemaforoIcon estado="AMARILLO" size={9} /> Casi listas ({countAmarillos})
             </button>
             <button
               onClick={() => setFiltroEstado('ROJO')}
               className={`btn ${filtroEstado === 'ROJO' ? 'btn-primary' : 'btn-outline'}`}
-              style={{ fontSize: '0.85rem', padding: '6px 14px', gap: '6px', backgroundColor: filtroEstado === 'ROJO' ? '#EF4444' : undefined, color: filtroEstado === 'ROJO' ? 'white' : undefined }}
+              style={styles.getFilterButtonWithIcon(filtroEstado === 'ROJO', '#EF4444')}
             >
               <SemaforoIcon estado="ROJO" size={9} /> Faltan ingredientes ({recetas.filter(r => r.estadoGeneral === 'ROJO').length})
             </button>
@@ -316,60 +273,38 @@ export default function Dashboard() {
 
           {/* Grid de Recetas */}
           {loadingRecetas ? (
-            <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+            <div style={styles.loadingBlock}>
               <Loader2 size={24} className="spin" color="var(--primary-dark)" />
               <span>Calculando coincidencias con tu despensa...</span>
             </div>
           ) : recetasFiltradas.length === 0 ? (
-            <div style={{
-              textAlign: 'center',
-              padding: '60px 20px',
-              backgroundColor: '#F9FAFB',
-              borderRadius: 'var(--border-radius-lg)',
-              border: '2px dashed #E5E7EB'
-            }}>
-              <UtensilsCrossed size={48} color="#9CA3AF" style={{ marginBottom: '12px' }} />
-              <h3 style={{ color: 'var(--text-main)', marginBottom: '8px' }}>No se encontraron recetas</h3>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+            <div style={styles.emptyBlock}>
+              <UtensilsCrossed size={48} color="#9CA3AF" style={styles.emptyIcon} />
+              <h3 style={styles.emptyTitle}>No se encontraron recetas</h3>
+              <p style={styles.emptySubtitle}>
                 {activeTab === 'FAVORITOS'
-                  ? (<>Aún no has marcado recetas como favoritas. Haz clic en el corazón <Heart size={14} color="#EF4444" fill="#EF4444" style={{ display: 'inline', verticalAlign: 'middle' }} /> de cualquier receta.</>)
+                  ? (<>Aún no has marcado recetas como favoritas. Haz clic en el corazón <Heart size={14} color="#EF4444" fill="#EF4444" style={styles.inlineHeartIcon} /> de cualquier receta.</>)
                   : (activeTab === 'MIS_RECETAS'
-                      ? 'No has creado recetas aún. ¡Haz clic en "+ Crear Receta" para agregar la tuya!' 
+                      ? 'No has creado recetas aún. ¡Haz clic en "+ Crear Receta" para agregar la tuya!'
                       : 'Prueba cambiando el filtro o agregando ingredientes a tu despensa.')}
               </p>
             </div>
           ) : (
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-              alignItems: 'start',
-              gap: '24px',
-              marginBottom: '32px'
-            }}>
+            <div style={styles.recipesGrid}>
               {recetasFiltradas.map(receta => (
-                <RecipeCard 
-                  key={receta.id} 
-                  receta={receta} 
+                <RecipeCard
+                  key={receta.id}
+                  receta={receta}
                   isFavorito={favoritosIds.includes(receta.id)}
                   onToggleFavorito={handleToggleFavorito}
-                  onSelect={(r) => setSelectedReceta(r)} 
+                  onSelect={(r) => setSelectedReceta(r)}
                 />
               ))}
             </div>
           )}
 
           {/* Panel de estado de conexión con backend */}
-          <div style={{
-            backgroundColor: '#F9FAFB',
-            borderRadius: 'var(--border-radius-sm)',
-            padding: '12px 16px',
-            fontSize: '0.8rem',
-            color: 'var(--text-muted)',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            borderTop: '1px solid #E5E7EB'
-          }}>
+          <div style={styles.backendStatusBar}>
             <span>Backend: {backendStatus}</span>
             <span>Usuario: {account?.username || 'Invitado'}</span>
           </div>
@@ -412,7 +347,7 @@ export default function Dashboard() {
 
       {/* Modal de Historial de Cocina */}
       {showHistoryModal && (
-        <HistoryModal 
+        <HistoryModal
           onClose={() => setShowHistoryModal(false)}
         />
       )}

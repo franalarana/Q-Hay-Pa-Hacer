@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Clock, Users, ArrowRight, Heart } from 'lucide-react';
 import SemaforoIcon from './SemaforoIcon';
+import * as styles from '../styles/recipeCard.styles';
 
 export default function RecipeCard({ receta, onSelect, isFavorito, onToggleFavorito }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -11,19 +12,11 @@ export default function RecipeCard({ receta, onSelect, isFavorito, onToggleFavor
   const badgeBg = isVerde ? '#D1F4E0' : isAmarillo ? '#FEF08A' : '#FBD5D5';
   const badgeColor = isVerde ? '#22543D' : isAmarillo ? '#744210' : '#742A2A';
   const badgeLabel = isVerde ? '¡Listo para cocinar!' : isAmarillo ? 'Faltan cantidades' : 'Faltan ingredientes';
+  const progressColor = isVerde ? '#16A34A' : isAmarillo ? '#CA8A04' : '#DC2626';
+  const progressFillColor = isVerde ? '#38A169' : isAmarillo ? '#D69E2E' : '#E53E3E';
 
   return (
-    <div className="frame-pastel" style={{
-      backgroundColor: 'white',
-      borderRadius: 'var(--border-radius-md)',
-      overflow: 'hidden',
-      boxShadow: 'var(--shadow-sm)',
-      display: 'flex',
-      flexDirection: 'column',
-      transition: 'transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease',
-      cursor: 'pointer',
-      position: 'relative'
-    }}
+    <div className="frame-pastel" style={styles.card}
     onClick={() => onSelect(receta)}
     onMouseEnter={(e) => {
       setIsHovered(true);
@@ -37,17 +30,17 @@ export default function RecipeCard({ receta, onSelect, isFavorito, onToggleFavor
     }}
     >
       {/* Imagen con Badge de estado y Botón de Favorito */}
-      <div style={{ position: 'relative', height: '170px', width: '100%' }}>
-        <img 
-          src={receta.imagenUrl || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=600&auto=format&fit=crop&q=60'} 
+      <div style={styles.imageWrapper}>
+        <img
+          src={receta.imagenUrl || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=600&auto=format&fit=crop&q=60'}
           alt={receta.titulo}
           onError={(e) => {
             e.currentTarget.onerror = null;
             e.currentTarget.src = 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=600&auto=format&fit=crop&q=60';
           }}
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          style={styles.image}
         />
-        
+
         {/* Botón Favorito */}
         <button
           onClick={(e) => {
@@ -55,109 +48,46 @@ export default function RecipeCard({ receta, onSelect, isFavorito, onToggleFavor
             if (onToggleFavorito) onToggleFavorito(receta.id);
           }}
           title={isFavorito ? 'Quitar de favoritos' : 'Guardar en favoritos'}
-          style={{
-            position: 'absolute',
-            top: '12px',
-            left: '12px',
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            border: 'none',
-            borderRadius: '50%',
-            width: '32px',
-            height: '32px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
-            transition: 'transform 0.2s'
-          }}
+          style={styles.favoritoButton}
           onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
           onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
         >
           <Heart size={18} color={isFavorito ? '#EF4444' : '#666'} fill={isFavorito ? '#EF4444' : 'none'} />
         </button>
 
-        <div style={{
-          position: 'absolute',
-          top: '12px',
-          right: '12px',
-          backgroundColor: badgeBg,
-          color: badgeColor,
-          padding: '4px 10px',
-          borderRadius: '20px',
-          fontSize: '0.75rem',
-          fontWeight: '700',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '5px'
-        }}>
+        <div style={styles.getBadge(badgeBg, badgeColor)}>
           <SemaforoIcon estado={receta.estadoGeneral} size={9} /> {badgeLabel}
         </div>
       </div>
 
       {/* Contenido de la tarjeta */}
-      <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-        <h3 style={{ 
-          fontSize: '1.15rem', 
-          color: 'var(--text-main)', 
-          marginBottom: '16px', 
-          fontWeight: '700',
-          lineHeight: '1.4',
-          minHeight: '2.8em',
-          display: '-webkit-box',
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: 'vertical',
-          overflow: 'hidden'
-        }}>
+      <div style={styles.body}>
+        <h3 style={styles.title}>
           {receta.titulo}
         </h3>
 
         {/* Barra de progreso de ingredientes disponibles */}
-        <div style={{ marginBottom: isHovered ? '16px' : '0', transition: 'margin 0.3s ease' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: '600', marginBottom: '4px' }}>
-            <span style={{ color: 'var(--text-muted)' }}>Compatibilidad</span>
-            <span style={{ color: isVerde ? '#16A34A' : isAmarillo ? '#CA8A04' : '#DC2626' }}>
+        <div style={styles.getProgressSection(isHovered)}>
+          <div style={styles.progressLabelRow}>
+            <span style={styles.progressLabelText}>Compatibilidad</span>
+            <span style={styles.getProgressPercentText(progressColor)}>
               {receta.porcentajeCoincidencia}% ({receta.ingredientesVerdes}/{receta.totalIngredientes} ingredientes)
             </span>
           </div>
-          <div style={{ width: '100%', height: '8px', backgroundColor: '#E5E7EB', borderRadius: '4px', overflow: 'hidden' }}>
-            <div style={{
-              width: `${receta.porcentajeCoincidencia}%`,
-              height: '100%',
-              backgroundColor: isVerde ? '#38A169' : isAmarillo ? '#D69E2E' : '#E53E3E',
-              borderRadius: '4px',
-              transition: 'width 0.4s ease'
-            }} />
+          <div style={styles.progressTrack}>
+            <div style={styles.getProgressFill(receta.porcentajeCoincidencia, progressFillColor)} />
           </div>
         </div>
 
         {/* Contenido que se despliega on hover */}
-        <div style={{
-          maxHeight: isHovered ? '300px' : '0px',
-          opacity: isHovered ? 1 : 0,
-          overflow: 'hidden',
-          transition: 'all 0.3s ease-in-out',
-          display: 'flex',
-          flexDirection: 'column'
-        }}>
+        <div style={styles.getHoverContent(isHovered)}>
           {/* Badges de ingredientes semáforo rápidos */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '16px', marginTop: '16px' }}>
+          <div style={styles.ingredientBadgesRow}>
             {receta.ingredientes.map(ing => {
               return (
                 <span
                   key={ing.ingredienteId}
-                  style={{
-                    padding: '3px 8px',
-                    borderRadius: '12px',
-                    fontSize: '0.75rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    backgroundColor: '#F3F4F6',
-                    color: '#4B5563',
-                    fontWeight: '500'
-                  }}
+                  style={styles.ingredientBadge}
                 >
                   <SemaforoIcon estado={ing.estado} size={8} /> {ing.nombreIngrediente}
                 </span>
@@ -166,31 +96,17 @@ export default function RecipeCard({ receta, onSelect, isFavorito, onToggleFavor
           </div>
 
           {/* Footer con tiempo, porciones y botón ver */}
-          <div style={{
-            marginTop: 'auto',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            paddingTop: '12px',
-            borderTop: '1px solid #F3F4F6'
-          }}>
-            <div style={{ display: 'flex', gap: '12px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <div style={styles.footer}>
+            <div style={styles.footerMetaGroup}>
+              <span style={styles.footerMetaItem}>
                 <Clock size={14} /> {receta.tiempoMinutos}m
               </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span style={styles.footerMetaItem}>
                 <Users size={14} /> {receta.porciones}
               </span>
             </div>
 
-            <span style={{
-              fontSize: '0.85rem',
-              color: 'var(--primary-dark)',
-              fontWeight: '600',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px'
-            }}>
+            <span style={styles.footerLink}>
               Ver receta <ArrowRight size={14} />
             </span>
           </div>

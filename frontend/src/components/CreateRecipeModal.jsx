@@ -4,6 +4,7 @@ import axiosClient from '../api/axiosClient';
 // cambios aqui
 import { getIngredienteEmoji } from './Sidebar';
 // hasta aqui
+import * as styles from '../styles/createRecipeModal.styles';
 
 const UNIDADES_DISPONIBLES = [
   { value: 'UNIDAD', label: 'Unidades (ud)' },
@@ -124,105 +125,85 @@ export default function CreateRecipeModal({ onClose, onRecipeCreated, recetaEdit
   };
 
   return (
-    <div style={{
-      position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      backdropFilter: 'blur(4px)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      zIndex: 1000, padding: '20px'
-    }}>
-      <div style={{
-        backgroundColor: 'white',
-        borderRadius: 'var(--border-radius-lg)',
-        maxWidth: '680px',
-        width: '100%',
-        maxHeight: '90vh',
-        overflowY: 'auto',
-        padding: '32px',
-        boxShadow: 'var(--shadow-md)',
-        position: 'relative'
-      }}>
-        <div style={{
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          marginBottom: '20px', position: 'sticky', top: '-32px', zIndex: 10,
-          backgroundColor: 'white', paddingTop: '32px', marginTop: '-32px'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+    <div style={styles.overlay}>
+      <div style={styles.panel}>
+        <div style={styles.header}>
+          <div style={styles.headerTitleGroup}>
             <Sparkles size={24} color="var(--primary-dark)" />
-            <h2 style={{ fontSize: '1.5rem', margin: 0, color: 'var(--text-main)' }}>{esEdicion ? 'Editar Receta' : 'Crear Nueva Receta'}</h2>
+            <h2 style={styles.headerTitle}>{esEdicion ? 'Editar Receta' : 'Crear Nueva Receta'}</h2>
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#666' }}>
+          <button onClick={onClose} style={styles.closeButton}>
             <X size={22} />
           </button>
         </div>
 
         {errorMsg && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#EF4444', backgroundColor: '#FEE2E2', padding: '10px 14px', borderRadius: 'var(--border-radius-sm)', marginBottom: '16px', fontSize: '0.85rem' }}>
+          <div style={styles.errorBox}>
             <AlertCircle size={16} /> {errorMsg}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <form onSubmit={handleSubmit} style={styles.form}>
           <div>
-            <label style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>
+            <label style={styles.fieldLabel}>
               Título de la Receta *
             </label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder="Ej. Tortilla de Acelga y Queso"
               value={titulo}
               onChange={(e) => setTitulo(e.target.value)}
               required
-              style={{ width: '100%', padding: '10px 12px', borderRadius: 'var(--border-radius-sm)', border: '1px solid #D1D5DB', fontSize: '0.9rem' }}
+              style={styles.textInput}
             />
           </div>
 
           <div>
-            <label style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>
+            <label style={styles.fieldLabel}>
               Descripción breve
             </label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder="Ej. Una preparación ligera y deliciosa para cualquier hora."
               value={descripcion}
               onChange={(e) => setDescripcion(e.target.value)}
-              style={{ width: '100%', padding: '10px 12px', borderRadius: 'var(--border-radius-sm)', border: '1px solid #D1D5DB', fontSize: '0.9rem' }}
+              style={styles.textInput}
             />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+          <div style={styles.threeColGrid}>
             <div>
-              <label style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>
+              <label style={styles.fieldLabel}>
                 Tiempo (min)
               </label>
-              <input 
-                type="number" 
+              <input
+                type="number"
                 min="1"
                 value={tiempoMinutos}
                 onChange={(e) => setTiempoMinutos(e.target.value)}
-                style={{ width: '100%', padding: '8px 12px', borderRadius: 'var(--border-radius-sm)', border: '1px solid #D1D5DB', fontSize: '0.9rem' }}
+                style={styles.smallInput}
               />
             </div>
             <div>
-              <label style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>
+              <label style={styles.fieldLabel}>
                 Porciones
               </label>
-              <input 
-                type="number" 
+              <input
+                type="number"
                 min="1"
                 value={porciones}
                 onChange={(e) => setPorciones(e.target.value)}
-                style={{ width: '100%', padding: '8px 12px', borderRadius: 'var(--border-radius-sm)', border: '1px solid #D1D5DB', fontSize: '0.9rem' }}
+                style={styles.smallInput}
               />
             </div>
             <div>
-              <label style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>
+              <label style={styles.fieldLabel}>
                 Dificultad
               </label>
-              <select 
+              <select
                 value={dificultad}
                 onChange={(e) => setDificultad(e.target.value)}
-                style={{ width: '100%', padding: '8px 12px', borderRadius: 'var(--border-radius-sm)', border: '1px solid #D1D5DB', fontSize: '0.9rem' }}
+                style={styles.smallInput}
               >
                 <option value="Fácil">Fácil</option>
                 <option value="Media">Media</option>
@@ -232,42 +213,42 @@ export default function CreateRecipeModal({ onClose, onRecipeCreated, recetaEdit
           </div>
 
           <div>
-            <label style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>
+            <label style={styles.fieldLabel}>
               URL de imagen (opcional)
             </label>
-            <input 
-              type="url" 
+            <input
+              type="url"
               placeholder="https://..."
               value={imagenUrl}
               onChange={(e) => setImagenUrl(e.target.value)}
-              style={{ width: '100%', padding: '10px 12px', borderRadius: 'var(--border-radius-sm)', border: '1px solid #D1D5DB', fontSize: '0.9rem' }}
+              style={styles.textInput}
             />
           </div>
 
           {/* Lista de ingredientes */}
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-              <label style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-main)' }}>
+            <div style={styles.ingredientesHeaderRow}>
+              <label style={styles.ingredientesHeaderLabel}>
                 Ingredientes requeridos *
               </label>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={handleAddIngredienteRow}
                 className="btn btn-outline"
-                style={{ padding: '4px 10px', fontSize: '0.75rem', gap: '4px' }}
+                style={styles.addIngredienteButton}
               >
                 <Plus size={14} /> Añadir ingrediente
               </button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={styles.ingredientesList}>
               {ingredientes.map((row, index) => (
-                <div key={index} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <select 
+                <div key={index} style={styles.ingredienteRow}>
+                  <select
                     value={row.ingredienteId}
                     onChange={(e) => handleIngredienteChange(index, 'ingredienteId', e.target.value)}
                     required
-                    style={{ flex: 2, padding: '8px', borderRadius: 'var(--border-radius-sm)', border: '1px solid #D1D5DB', fontSize: '0.85rem' }}
+                    style={styles.ingredienteSelect}
                   >
                     <option value="">Selecciona ingrediente...</option>
                     {/* cambios aqui */}
@@ -277,21 +258,21 @@ export default function CreateRecipeModal({ onClose, onRecipeCreated, recetaEdit
                     {/* hasta aqui */}
                   </select>
 
-                  <input 
-                    type="number" 
-                    step="0.1" 
+                  <input
+                    type="number"
+                    step="0.1"
                     min="0.1"
                     placeholder="Cant."
                     value={row.cantidadRequerida}
                     onChange={(e) => handleIngredienteChange(index, 'cantidadRequerida', e.target.value)}
                     required
-                    style={{ flex: 1, padding: '8px', borderRadius: 'var(--border-radius-sm)', border: '1px solid #D1D5DB', fontSize: '0.85rem' }}
+                    style={styles.ingredienteCantidadInput}
                   />
 
-                  <select 
+                  <select
                     value={row.unidad}
                     onChange={(e) => handleIngredienteChange(index, 'unidad', e.target.value)}
-                    style={{ flex: 1.5, padding: '8px', borderRadius: 'var(--border-radius-sm)', border: '1px solid #D1D5DB', fontSize: '0.85rem' }}
+                    style={styles.ingredienteUnidadSelect}
                   >
                     {UNIDADES_DISPONIBLES.map(u => (
                       <option key={u.value} value={u.value}>{u.label}</option>
@@ -299,10 +280,10 @@ export default function CreateRecipeModal({ onClose, onRecipeCreated, recetaEdit
                   </select>
 
                   {ingredientes.length > 1 && (
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       onClick={() => handleRemoveIngredienteRow(index)}
-                      style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer', padding: '4px' }}
+                      style={styles.removeIngredienteButton}
                     >
                       <Trash2 size={16} />
                     </button>
@@ -313,33 +294,33 @@ export default function CreateRecipeModal({ onClose, onRecipeCreated, recetaEdit
           </div>
 
           <div>
-            <label style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-main)', display: 'block', marginBottom: '6px' }}>
+            <label style={styles.fieldLabel}>
               Instrucciones paso a paso *
             </label>
-            <textarea 
+            <textarea
               rows={4}
               placeholder="1. Pica las verduras...&#10;2. Calienta el sartén...&#10;3. Sirve caliente."
               value={instrucciones}
               onChange={(e) => setInstrucciones(e.target.value)}
               required
-              style={{ width: '100%', padding: '10px 12px', borderRadius: 'var(--border-radius-sm)', border: '1px solid #D1D5DB', fontSize: '0.9rem', fontFamily: 'inherit', resize: 'vertical' }}
+              style={styles.textarea}
             />
           </div>
 
-          <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
-            <button 
-              type="submit" 
-              disabled={submitting} 
+          <div style={styles.formActionsRow}>
+            <button
+              type="submit"
+              disabled={submitting}
               className="btn btn-primary"
-              style={{ flex: 1, padding: '12px' }}
+              style={styles.submitButton}
             >
               {submitting ? <Loader2 size={18} className="spin" /> : (esEdicion ? 'Guardar Cambios' : 'Guardar y Publicar Receta')}
             </button>
-            <button 
-              type="button" 
-              onClick={onClose} 
+            <button
+              type="button"
+              onClick={onClose}
               className="btn btn-outline"
-              style={{ padding: '12px 20px' }}
+              style={styles.cancelButton}
             >
               Cancelar
             </button>
