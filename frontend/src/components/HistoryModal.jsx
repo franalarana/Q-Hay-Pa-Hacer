@@ -92,6 +92,10 @@ export default function HistoryModal({ onClose }) {
                 <img 
                   src={item.imagenUrl || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=200&auto=format&fit=crop&q=60'} 
                   alt={item.tituloReceta}
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=200&auto=format&fit=crop&q=60';
+                  }}
                   style={{ width: '64px', height: '64px', borderRadius: 'var(--border-radius-sm)', objectFit: 'cover' }}
                 />
                 

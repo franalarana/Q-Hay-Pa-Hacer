@@ -63,6 +63,10 @@ export default function RecipeDetailModal({ receta, onClose, isFavorito, onToggl
           <img 
             src={receta.imagenUrl || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800&auto=format&fit=crop&q=60'} 
             alt={receta.titulo}
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800&auto=format&fit=crop&q=60';
+            }}
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
           
