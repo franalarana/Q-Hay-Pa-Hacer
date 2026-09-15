@@ -313,7 +313,7 @@ export default function Dashboard() {
           onToggleFavorito={handleToggleFavorito}
           onCookingDone={cargarRecetas}
           onClose={() => setSelectedReceta(null)}
-          esPropia={activeTab === 'MIS_RECETAS'}
+          esPropia={activeTab === 'MIS_RECETAS' || Boolean(userData?.esAdmin)}
           onEditar={(receta) => {
             setEditingReceta(receta);
             setSelectedReceta(null);
