@@ -289,22 +289,55 @@ public class ComparadorRecetasService {
         if (origen == destino) {
             return cantidad;
         }
-        // Kilos a Gramos
-        if (origen == UnidadMedida.KILOGRAMOS && destino == UnidadMedida.GRAMOS) {
-            return cantidad * 1000.0;
+        
+        // Paso 1: Convertir la cantidad de 'origen' a una unidad base (Gramos / Mililitros)
+        double cantidadEnBase = aUnidadBase(cantidad, origen);
+
+        // Paso 2: Convertir de la unidad base a la unidad 'destino'
+        return desdeUnidadBase(cantidadEnBase, destino);
+    }
+
+    private double aUnidadBase(double cantidad, UnidadMedida unidad) {
+        switch (unidad) {
+            case KILOGRAMOS:
+            case LITROS:
+                return cantidad * 1000.0;
+            case TAZA:
+                return cantidad * 250.0;
+            case CUCHARADA:
+                return cantidad * 15.0;
+            case CUCHARADITA:
+                return cantidad * 5.0;
+            case PIZCA:
+                return cantidad * 1.0;
+            case UNIDAD:
+                return cantidad * 100.0; // Estimación promedio para ingredientes genéricos (ej. 1 huevo, 1 cebolla pequeña)
+            case GRAMOS:
+            case MILILITROS:
+            default:
+                return cantidad;
         }
-        // Gramos a Kilos
-        if (origen == UnidadMedida.GRAMOS && destino == UnidadMedida.KILOGRAMOS) {
-            return cantidad / 1000.0;
+    }
+
+    private double desdeUnidadBase(double cantidadBase, UnidadMedida unidadDestino) {
+        switch (unidadDestino) {
+            case KILOGRAMOS:
+            case LITROS:
+                return cantidadBase / 1000.0;
+            case TAZA:
+                return cantidadBase / 250.0;
+            case CUCHARADA:
+                return cantidadBase / 15.0;
+            case CUCHARADITA:
+                return cantidadBase / 5.0;
+            case PIZCA:
+                return cantidadBase / 1.0;
+            case UNIDAD:
+                return cantidadBase / 100.0;
+            case GRAMOS:
+            case MILILITROS:
+            default:
+                return cantidadBase;
         }
-        // Litros a Mililitros
-        if (origen == UnidadMedida.LITROS && destino == UnidadMedida.MILILITROS) {
-            return cantidad * 1000.0;
-        }
-        // Mililitros a Litros
-        if (origen == UnidadMedida.MILILITROS && destino == UnidadMedida.LITROS) {
-            return cantidad / 1000.0;
-        }
-        return cantidad;
     }
 }
