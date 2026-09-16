@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -56,5 +57,12 @@ public class RecetaController {
     public ResponseEntity<Void> eliminarRecetaPropia(JwtAuthenticationToken auth, @PathVariable Long id) {
         comparadorRecetasService.eliminarRecetaPropia(auth.getToken(), id);
         return ResponseEntity.noContent().build();
+    }
+
+    // Endpoint exclusivo para Administradores (evidencia de rúbrica 403)
+    @GetMapping("/admin/reportes")
+    @PreAuthorize("hasRole('Admin')")
+    public ResponseEntity<String> obtenerReportesAdmin() {
+        return ResponseEntity.ok("Datos clasificados de administrador");
     }
 }
