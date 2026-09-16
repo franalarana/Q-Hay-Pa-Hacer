@@ -1,0 +1,87 @@
+{
+  "info": {
+    "name": "Q-Hay-Pa-Hacer API Tests",
+    "description": "Evidencia de pruebas de endpoints protegidos por JWT y Roles",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Obtener Mis Recetas (SIN Token - Espera 401)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/recetas/mis-recetas",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "recetas",
+            "mis-recetas"
+          ]
+        },
+        "description": "Debe fallar con estado 401 Unauthorized por falta de Bearer token."
+      },
+      "response": []
+    },
+    {
+      "name": "2. Obtener Mis Recetas (CON Token - Espera 200)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer TU_TOKEN_JWT_AQUI",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/recetas/mis-recetas",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "recetas",
+            "mis-recetas"
+          ]
+        },
+        "description": "Debe retornar 200 OK asumiendo que se reemplace TU_TOKEN_JWT_AQUI por un token válido del frontend."
+      },
+      "response": []
+    },
+    {
+      "name": "3. Eliminar Receta (Sin Rol Admin - Espera 403)",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer TU_TOKEN_JWT_AQUI",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/recetas/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "recetas",
+            "1"
+          ]
+        },
+        "description": "Debe fallar con estado 403 Forbidden asumiendo un token válido pero de un usuario sin el rol Admin."
+      },
+      "response": []
+    }
+  ]
+}
