@@ -1,4 +1,25 @@
 services:
+  # Broker de mensajería RabbitMQ (AMQP 5672 + panel web 15672)
+  # El usuario "guest" solo funciona desde localhost dentro del contenedor,
+  # por eso se define un usuario propio que usa el backend.
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: quehaypahacer_rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME:-quehaypahacer}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-quehaypahacer}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - quehaypahacer_net
+
   # Backend Spring Boot (API REST & BFF)
   # La base de datos es Amazon RDS — no se levanta contenedor MySQL local
   backend:
@@ -16,6 +37,14 @@ services:
       AZURE_CLIENT_ID: ${AZURE_CLIENT_ID:-36bb5da3-29f4-4386-988b-244a844b285c}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-*}
       SERVER_PORT: 8080
+      # Dentro de la red Docker el broker se resuelve por nombre de servicio
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:-quehaypahacer}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-quehaypahacer}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
     ports:
       - "8080:8080"
     networks:
