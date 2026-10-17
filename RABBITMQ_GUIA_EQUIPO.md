@@ -8,7 +8,7 @@ No se toca MySQL RDS, Azure AD ni el frontend.
 | **1. Infraestructura y configuración** | Integrante 1 | 1 (12%) + 2 (13%) | ✅ **HECHA** |
 | **2. Publicadores + integración + endpoint de prueba DLQ** | Integrante 2 | 3 (10%) + soporte a 5 | ✅ **HECHA** |
 | **3. Consumidores con ACK manual + DLQ** | Integrante 3 | 4 (15%) + 5 (20%) | ✅ **HECHA** |
-| **4. Módulo administrador REST** | Integrante 4 | 6 (13%) + 7 (10%) + 8 (7%) | ⏳ Pendiente |
+| **4. Módulo administrador REST** | Integrante 4 | 6 (13%) + 7 (10%) + 8 (7%) | ✅ **HECHA** |
 
 > [!IMPORTANT]
 > Las partes 2, 3 y 4 **no dependen entre sí**: solo dependen de la Parte 1 (que ya está lista).
@@ -97,7 +97,7 @@ Lo mismo para `NotificacionDespensaEvent`: inválido si `ingredienteUsuarioId ==
 
 ---
 
-## 2. ⏳ Parte 2 — Publicadores + integración + endpoint de prueba (Integrante 2)
+## 2. ✅ Parte 2 — Publicadores + integración + endpoint de prueba (Integrante 2)
 
 **Indicador 3**: la lógica de negocio queda separada de la mensajería.
 
@@ -279,7 +279,7 @@ public void auditar(Message message, Channel channel,
 
 ---
 
-## 4. ⏳ Parte 4 — Módulo administrador REST (Integrante 4)
+## 4. ✅ Parte 4 — Módulo administrador REST (Integrante 4)
 
 **Indicadores 6, 7 y 8.**
 
