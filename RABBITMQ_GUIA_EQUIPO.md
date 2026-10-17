@@ -7,7 +7,7 @@ No se toca MySQL RDS, Azure AD ni el frontend.
 |---|---|---|---|
 | **1. Infraestructura y configuración** | Integrante 1 | 1 (12%) + 2 (13%) | ✅ **HECHA** |
 | **2. Publicadores + integración + endpoint de prueba DLQ** | Integrante 2 | 3 (10%) + soporte a 5 | ✅ **HECHA** |
-| **3. Consumidores con ACK manual + DLQ** | Integrante 3 | 4 (15%) + 5 (20%) | ⏳ Pendiente |
+| **3. Consumidores con ACK manual + DLQ** | Integrante 3 | 4 (15%) + 5 (20%) | ✅ **HECHA** |
 | **4. Módulo administrador REST** | Integrante 4 | 6 (13%) + 7 (10%) + 8 (7%) | ⏳ Pendiente |
 
 > [!IMPORTANT]
@@ -208,7 +208,7 @@ El controlador **solo llama a los publishers**, nunca a `RabbitTemplate` directo
 
 ---
 
-## 3. ⏳ Parte 3 — Consumidores con ACK manual + DLQ (Integrante 3)
+## 3. ✅ Parte 3 — Consumidores con ACK manual + DLQ (Integrante 3)
 
 **Indicadores 4 y 5 (35%, el bloque que más pesa).**
 
@@ -272,10 +272,10 @@ public void auditar(Message message, Channel channel,
 > Si prefieres que los mensajes **se queden visibles** en la DLQ del panel durante la defensa, se puede agregar `autoStartup = "${app.rabbitmq.dlq-auditor-enabled:true}"` y apagarlo con esa propiedad. Coordinarlo con el grupo.
 
 ### ✅ Listo cuando
-- [ ] Evento válido → log `[ACK]` y la cola queda en 0.
-- [ ] `POST /api/admin/rabbitmq/test/ticket-invalido` (Parte 2) → log `[NACK → DLQ]` y luego log de auditoría de la DLQ.
-- [ ] Un payload corrupto publicado a mano desde el panel (Queues → *Publish message* con body `hola`) también termina en la DLQ: Spring rechaza los errores de conversión sin reencolar.
-- [ ] Cada consumidor está en su subpaquete por dominio (`ticket`, `notificacion`, `dlq`).
+- [x] Evento válido → log `[ACK]` y la cola queda en 0.
+- [x] `POST /api/admin/rabbitmq/test/ticket-invalido` (Parte 2) → log `[NACK → DLQ]` y luego log de auditoría de la DLQ.
+- [x] Un payload corrupto publicado a mano desde el panel (Queues → *Publish message* con body `hola`) también termina en la DLQ: Spring rechaza los errores de conversión sin reencolar.
+- [x] Cada consumidor está en su subpaquete por dominio (`ticket`, `notificacion`, `dlq`).
 
 ---
 
