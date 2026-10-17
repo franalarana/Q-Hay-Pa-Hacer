@@ -1,6 +1,8 @@
 package cl.quehaypahacer.backend.service;
 
 import cl.quehaypahacer.backend.dto.HistorialCocinaResponse;
+import cl.quehaypahacer.backend.messaging.event.TicketCocinaEvent;
+import cl.quehaypahacer.backend.messaging.publisher.TicketEventPublisher;
 import cl.quehaypahacer.backend.model.HistorialCocina;
 import cl.quehaypahacer.backend.model.Receta;
 import cl.quehaypahacer.backend.model.Usuario;
@@ -21,6 +23,7 @@ public class HistorialCocinaService {
     private final HistorialCocinaRepository historialCocinaRepository;
     private final RecetaRepository recetaRepository;
     private final UsuarioService usuarioService;
+    private final TicketEventPublisher ticketEventPublisher;
 
     @Transactional(readOnly = true)
     public List<HistorialCocinaResponse> obtenerHistorial(Jwt jwt) {
@@ -43,6 +46,15 @@ public class HistorialCocinaService {
                 .notas(notas)
                 .build();
 
-        return HistorialCocinaResponse.fromEntity(historialCocinaRepository.save(nuevoRegistro));
+        HistorialCocina guardado = historialCocinaRepository.save(nuevoRegistro);
+        ticketEventPublisher.publicarTicketCocina(new TicketCocinaEvent(
+                guardado.getId(),
+                receta.getId(),
+                receta.getTitulo(),
+                usuario.getCorreo(),
+                guardado.getNotas(),
+                guardado.getCocinadoAt()));
+
+        return HistorialCocinaResponse.fromEntity(guardado);
     }
 }

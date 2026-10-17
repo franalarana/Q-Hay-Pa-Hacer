@@ -82,6 +82,174 @@
         "description": "Debe fallar con estado 403 Forbidden asumiendo un token válido pero de un usuario sin el rol Admin."
       },
       "response": []
+    },
+    {
+      "name": "RabbitMQ - Eventos y DLQ",
+      "item": [
+        {
+          "name": "1. Registrar Cocinado (Publica TicketCocinaEvent)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notas\": \"Prueba de cocinado para publicar en RabbitMQ\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/historial/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "historial",
+                "1"
+              ]
+            },
+            "description": "Registra cocinado de receta 1 y tras commit en BD publica TicketCocinaEvent en recetas.tickets.queue."
+          },
+          "response": []
+        },
+        {
+          "name": "2. Agregar a Despensa (Publica NotificacionDespensaEvent)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ingredienteId\": 1,\n  \"cantidad\": 2.0,\n  \"unidad\": \"KILOGRAMO\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/despensa",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "despensa"
+              ]
+            },
+            "description": "Agrega o actualiza ingrediente en despensa y publica NotificacionDespensaEvent (AGREGADO o ACTUALIZADO)."
+          },
+          "response": []
+        },
+        {
+          "name": "3. Test DLQ - Ticket Válido (ACK)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/admin/rabbitmq/test/ticket-valido",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "admin",
+                "rabbitmq",
+                "test",
+                "ticket-valido"
+              ]
+            },
+            "description": "Publica TicketCocinaEvent válido (recetaId = 1). Espera 202 Accepted. Consumidor confirma con ACK."
+          },
+          "response": []
+        },
+        {
+          "name": "4. Test DLQ - Ticket Inválido (NACK -> DLQ)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/admin/rabbitmq/test/ticket-invalido",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "admin",
+                "rabbitmq",
+                "test",
+                "ticket-invalido"
+              ]
+            },
+            "description": "Publica TicketCocinaEvent con recetaId = -1. Espera 202 Accepted. Consumidor hace NACK (requeue=false) y cae en recetas.tickets.dlq."
+          },
+          "response": []
+        },
+        {
+          "name": "5. Test DLQ - Notificación Inválida (NACK -> DLQ)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/admin/rabbitmq/test/notificacion-invalida",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "admin",
+                "rabbitmq",
+                "test",
+                "notificacion-invalida"
+              ]
+            },
+            "description": "Publica NotificacionDespensaEvent con accion = null. Espera 202 Accepted. Consumidor hace NACK y cae en recetas.notificaciones.dlq."
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }

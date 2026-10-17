@@ -6,7 +6,7 @@ No se toca MySQL RDS, Azure AD ni el frontend.
 | Parte | Responsable | Indicadores de la rúbrica | Estado |
 |---|---|---|---|
 | **1. Infraestructura y configuración** | Integrante 1 | 1 (12%) + 2 (13%) | ✅ **HECHA** |
-| **2. Publicadores + integración + endpoint de prueba DLQ** | Integrante 2 | 3 (10%) + soporte a 5 | ⏳ Pendiente |
+| **2. Publicadores + integración + endpoint de prueba DLQ** | Integrante 2 | 3 (10%) + soporte a 5 | ✅ **HECHA** |
 | **3. Consumidores con ACK manual + DLQ** | Integrante 3 | 4 (15%) + 5 (20%) | ⏳ Pendiente |
 | **4. Módulo administrador REST** | Integrante 4 | 6 (13%) + 7 (10%) + 8 (7%) | ⏳ Pendiente |
 

@@ -2,6 +2,8 @@ package cl.quehaypahacer.backend.service;
 
 import cl.quehaypahacer.backend.dto.IngredienteUsuarioRequest;
 import cl.quehaypahacer.backend.dto.IngredienteUsuarioResponse;
+import cl.quehaypahacer.backend.messaging.event.NotificacionDespensaEvent;
+import cl.quehaypahacer.backend.messaging.publisher.NotificacionEventPublisher;
 import cl.quehaypahacer.backend.model.Ingrediente;
 import cl.quehaypahacer.backend.model.IngredienteUsuario;
 import cl.quehaypahacer.backend.model.UnidadMedida;
@@ -13,6 +15,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,6 +26,7 @@ public class DespensaService {
     private final IngredienteUsuarioRepository ingredienteUsuarioRepository;
     private final IngredienteRepository ingredienteRepository;
     private final UsuarioService usuarioService;
+    private final NotificacionEventPublisher notificacionEventPublisher;
 
     @Transactional(readOnly = true)
     public List<IngredienteUsuarioResponse> obtenerDespensa(Jwt jwt) {
@@ -53,7 +57,19 @@ public class DespensaService {
                         .unidad(request.getUnidad())
                         .build());
 
+        boolean esNuevo = (item.getId() == null);
         IngredienteUsuario guardado = ingredienteUsuarioRepository.save(item);
+
+        notificacionEventPublisher.publicarNotificacionDespensa(new NotificacionDespensaEvent(
+                guardado.getId(),
+                guardado.getIngrediente().getNombre(),
+                guardado.getCantidad(),
+                guardado.getUnidad() != null ? guardado.getUnidad().name() : null,
+                esNuevo ? NotificacionDespensaEvent.Accion.AGREGADO : NotificacionDespensaEvent.Accion.ACTUALIZADO,
+                usuario.getCorreo(),
+                guardado.getUpdatedAt() != null ? guardado.getUpdatedAt() : LocalDateTime.now()
+        ));
+
         return IngredienteUsuarioResponse.fromEntity(guardado);
     }
 
@@ -67,7 +83,19 @@ public class DespensaService {
         if (unidad != null) {
             item.setUnidad(unidad);
         }
-        return IngredienteUsuarioResponse.fromEntity(ingredienteUsuarioRepository.save(item));
+        IngredienteUsuario guardado = ingredienteUsuarioRepository.save(item);
+
+        notificacionEventPublisher.publicarNotificacionDespensa(new NotificacionDespensaEvent(
+                guardado.getId(),
+                guardado.getIngrediente().getNombre(),
+                guardado.getCantidad(),
+                guardado.getUnidad() != null ? guardado.getUnidad().name() : null,
+                NotificacionDespensaEvent.Accion.ACTUALIZADO,
+                usuario.getCorreo(),
+                guardado.getUpdatedAt() != null ? guardado.getUpdatedAt() : LocalDateTime.now()
+        ));
+
+        return IngredienteUsuarioResponse.fromEntity(guardado);
     }
 
     @Transactional
@@ -75,6 +103,22 @@ public class DespensaService {
         Usuario usuario = usuarioService.obtenerOCrear(jwt);
         IngredienteUsuario item = ingredienteUsuarioRepository.findByUsuarioAndId(usuario, id)
                 .orElseThrow(() -> new IllegalArgumentException("Ingrediente de despensa no encontrado con id: " + id));
+
+        Long itemId = item.getId();
+        String ingredienteNombre = item.getIngrediente().getNombre();
+        String unidadNombre = item.getUnidad() != null ? item.getUnidad().name() : null;
+        String usuarioCorreo = usuario.getCorreo();
+
         ingredienteUsuarioRepository.delete(item);
+
+        notificacionEventPublisher.publicarNotificacionDespensa(new NotificacionDespensaEvent(
+                itemId,
+                ingredienteNombre,
+                null,
+                unidadNombre,
+                NotificacionDespensaEvent.Accion.ELIMINADO,
+                usuarioCorreo,
+                LocalDateTime.now()
+        ));
     }
 }
