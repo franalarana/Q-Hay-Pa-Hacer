@@ -250,6 +250,482 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "RabbitMQ - Admin",
+      "item": [
+        {
+          "name": "1. Crear cola (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"demo.cola\",\n  \"durable\": true,\n  \"autoDelete\": false\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/admin/rabbitmq/queues",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "admin",
+                "rabbitmq",
+                "queues"
+              ]
+            },
+            "description": "Aparece en el panel :15672"
+          },
+          "response": []
+        },
+        {
+          "name": "2. Estado de cola (200)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/admin/rabbitmq/queues/recetas.tickets.queue",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "admin",
+                "rabbitmq",
+                "queues",
+                "recetas.tickets.queue"
+              ]
+            },
+            "description": "messageCount y consumerCount"
+          },
+          "response": []
+        },
+        {
+          "name": "3. Crear exchange (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"demo.exchange\",\n  \"type\": \"topic\",\n  \"durable\": true\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/admin/rabbitmq/exchanges",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "admin",
+                "rabbitmq",
+                "exchanges"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "4. Crear binding (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"queue\": \"demo.cola\",\n  \"exchange\": \"recetas.exchange\",\n  \"routingKey\": \"recetas.demo.*\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/admin/rabbitmq/bindings",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "admin",
+                "rabbitmq",
+                "bindings"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "5. Eliminar binding (204)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"queue\": \"demo.cola\",\n  \"exchange\": \"recetas.exchange\",\n  \"routingKey\": \"recetas.demo.*\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/admin/rabbitmq/bindings",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "admin",
+                "rabbitmq",
+                "bindings"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "6. Eliminar exchange (204)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/admin/rabbitmq/exchanges/demo.exchange",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "admin",
+                "rabbitmq",
+                "exchanges",
+                "demo.exchange"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "7. Eliminar cola (204)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/admin/rabbitmq/queues/demo.cola",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "admin",
+                "rabbitmq",
+                "queues",
+                "demo.cola"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "E1. Nombre vacío (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/admin/rabbitmq/queues",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "admin",
+                "rabbitmq",
+                "queues"
+              ]
+            },
+            "description": "Detalle por campo"
+          },
+          "response": []
+        },
+        {
+          "name": "E2. Nombre inválido (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"mi cola!\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/admin/rabbitmq/queues",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "admin",
+                "rabbitmq",
+                "queues"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "E3. Tipo de exchange inválido (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"x\",\n  \"type\": \"raro\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/admin/rabbitmq/exchanges",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "admin",
+                "rabbitmq",
+                "exchanges"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "E4. Cola inexistente (404)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/admin/rabbitmq/queues/no.existe",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "admin",
+                "rabbitmq",
+                "queues",
+                "no.existe"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        },
+        {
+          "name": "E5. Borrar cola del sistema (409)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/admin/rabbitmq/queues/recetas.tickets.queue",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "admin",
+                "rabbitmq",
+                "queues",
+                "recetas.tickets.queue"
+              ]
+            },
+            "description": "Protegida"
+          },
+          "response": []
+        },
+        {
+          "name": "E6. Sin token (401)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/admin/rabbitmq/queues/recetas.tickets.queue",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "admin",
+                "rabbitmq",
+                "queues",
+                "recetas.tickets.queue"
+              ]
+            },
+            "description": ""
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }
