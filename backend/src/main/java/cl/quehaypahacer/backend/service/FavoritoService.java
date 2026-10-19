@@ -1,6 +1,8 @@
 package cl.quehaypahacer.backend.service;
 
 import cl.quehaypahacer.backend.dto.RecetaComparadaDTO;
+import cl.quehaypahacer.backend.messaging.event.FavoritoEvent;
+import cl.quehaypahacer.backend.messaging.publisher.FavoritoEventPublisher;
 import cl.quehaypahacer.backend.model.Favorito;
 import cl.quehaypahacer.backend.model.Receta;
 import cl.quehaypahacer.backend.model.Usuario;
@@ -11,6 +13,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,6 +25,7 @@ public class FavoritoService {
     private final RecetaRepository recetaRepository;
     private final UsuarioService usuarioService;
     private final ComparadorRecetasService comparadorRecetasService;
+    private final FavoritoEventPublisher favoritoEventPublisher;
 
     @Transactional(readOnly = true)
     public List<Long> obtenerIdsFavoritos(Jwt jwt) {
@@ -50,11 +54,31 @@ public class FavoritoService {
 
         favoritoRepository.findByUsuarioAndReceta(usuario, receta)
                 .ifPresentOrElse(
-                        favoritoRepository::delete,
-                        () -> favoritoRepository.save(Favorito.builder()
-                                .usuario(usuario)
-                                .receta(receta)
-                                .build())
+                        existente -> {
+                            favoritoRepository.delete(existente);
+                            favoritoEventPublisher.publicarFavorito(new FavoritoEvent(
+                                    existente.getId(),
+                                    receta.getId(),
+                                    receta.getTitulo(),
+                                    usuario.getCorreo(),
+                                    FavoritoEvent.Accion.ELIMINADO,
+                                    LocalDateTime.now()
+                            ));
+                        },
+                        () -> {
+                            Favorito guardado = favoritoRepository.save(Favorito.builder()
+                                    .usuario(usuario)
+                                    .receta(receta)
+                                    .build());
+                            favoritoEventPublisher.publicarFavorito(new FavoritoEvent(
+                                    guardado.getId(),
+                                    receta.getId(),
+                                    receta.getTitulo(),
+                                    usuario.getCorreo(),
+                                    FavoritoEvent.Accion.AGREGADO,
+                                    LocalDateTime.now()
+                            ));
+                        }
                 );
     }
 }

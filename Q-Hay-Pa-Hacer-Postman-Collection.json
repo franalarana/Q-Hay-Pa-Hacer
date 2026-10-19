@@ -248,6 +248,36 @@
             "description": "Publica NotificacionDespensaEvent con accion = null. Espera 202 Accepted. Consumidor hace NACK y cae en recetas.notificaciones.dlq."
           },
           "response": []
+        },
+        {
+          "name": "6. Test DLQ - Favorito Inválido (NACK -> DLQ)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/admin/rabbitmq/test/favorito-invalido",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "admin",
+                "rabbitmq",
+                "test",
+                "favorito-invalido"
+              ]
+            },
+            "description": "Publica FavoritoEvent con recetaId = -1. Espera 202 Accepted. Consumidor hace NACK y cae en la 3ra DLQ: recetas.favoritos.dlq."
+          },
+          "response": []
         }
       ]
     },

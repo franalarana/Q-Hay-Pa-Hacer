@@ -78,6 +78,14 @@ public class RabbitMQConfig {
                 .build();
     }
 
+    @Bean
+    public Queue favoritosQueue() {
+        return QueueBuilder.durable(props.queues().favoritos())
+                .deadLetterExchange(props.exchanges().deadLetter())
+                .deadLetterRoutingKey(props.routingKeys().favoritosDlq())
+                .build();
+    }
+
     // ------------------------------------------------------------------
     // Dead Letter Queues
     // ------------------------------------------------------------------
@@ -90,6 +98,11 @@ public class RabbitMQConfig {
     @Bean
     public Queue notificacionesDlq() {
         return QueueBuilder.durable(props.queues().notificacionesDlq()).build();
+    }
+
+    @Bean
+    public Queue favoritosDlq() {
+        return QueueBuilder.durable(props.queues().favoritosDlq()).build();
     }
 
     // ------------------------------------------------------------------
@@ -111,6 +124,13 @@ public class RabbitMQConfig {
     }
 
     @Bean
+    public Binding favoritosBinding() {
+        return BindingBuilder.bind(favoritosQueue())
+                .to(recetasExchange())
+                .with(props.routingKeys().favoritos());
+    }
+
+    @Bean
     public Binding ticketsDlqBinding() {
         return BindingBuilder.bind(ticketsDlq())
                 .to(deadLetterExchange())
@@ -122,6 +142,13 @@ public class RabbitMQConfig {
         return BindingBuilder.bind(notificacionesDlq())
                 .to(deadLetterExchange())
                 .with(props.routingKeys().notificacionesDlq());
+    }
+
+    @Bean
+    public Binding favoritosDlqBinding() {
+        return BindingBuilder.bind(favoritosDlq())
+                .to(deadLetterExchange())
+                .with(props.routingKeys().favoritosDlq());
     }
 
     // ------------------------------------------------------------------

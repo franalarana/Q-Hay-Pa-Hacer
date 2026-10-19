@@ -1,24 +1,60 @@
 services:
-  # Broker de mensajería RabbitMQ (AMQP 5672 + panel web 15672)
-  # El usuario "guest" solo funciona desde localhost dentro del contenedor,
-  # por eso se define un usuario propio que usa el backend.
-  rabbitmq:
+  # Broker de mensajería RabbitMQ en Clúster de 2 nodos (AMQP 5672/5673 + panel web 15672/15673)
+  # Nodo 1 del Clúster
+  rabbitmq1:
     image: rabbitmq:3.13-management
-    container_name: quehaypahacer_rabbitmq
+    container_name: quehaypahacer_rabbitmq1
+    hostname: rabbit1
     restart: unless-stopped
     environment:
+      RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE:-cookie_cluster_quehaypahacer}
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME:-quehaypahacer}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-quehaypahacer}
+      RABBITMQ_NODENAME: rabbit@rabbit1
     ports:
       - "5672:5672"
       - "15672:15672"
+    volumes:
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 10s
       timeout: 5s
       retries: 10
     networks:
-      - quehaypahacer_net
+      quehaypahacer_net:
+        aliases:
+          - rabbitmq
+          - rabbit1
+
+  # Nodo 2 del Clúster (se integra automáticamente a rabbit1 mediante classic_config)
+  rabbitmq2:
+    image: rabbitmq:3.13-management
+    container_name: quehaypahacer_rabbitmq2
+    hostname: rabbit2
+    restart: unless-stopped
+    environment:
+      RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE:-cookie_cluster_quehaypahacer}
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME:-quehaypahacer}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-quehaypahacer}
+      RABBITMQ_NODENAME: rabbit@rabbit2
+    ports:
+      - "5673:5672"
+      - "15673:15672"
+    volumes:
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+    depends_on:
+      rabbitmq1:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      quehaypahacer_net:
+        aliases:
+          - rabbit2
 
   # Backend Spring Boot (API REST & BFF)
   # La base de datos es Amazon RDS — no se levanta contenedor MySQL local
@@ -37,13 +73,16 @@ services:
       AZURE_CLIENT_ID: ${AZURE_CLIENT_ID:-36bb5da3-29f4-4386-988b-244a844b285c}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-*}
       SERVER_PORT: 8080
-      # Dentro de la red Docker el broker se resuelve por nombre de servicio
-      RABBITMQ_HOST: rabbitmq
+      # Soporte para clúster: resuelve por nombres dentro de la red Docker
+      RABBITMQ_HOST: rabbitmq1
       RABBITMQ_PORT: 5672
+      RABBITMQ_ADDRESSES: rabbitmq1:5672,rabbitmq2:5672
       RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:-quehaypahacer}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-quehaypahacer}
     depends_on:
-      rabbitmq:
+      rabbitmq1:
+        condition: service_healthy
+      rabbitmq2:
         condition: service_healthy
     ports:
       - "8080:8080"

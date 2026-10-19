@@ -1,6 +1,7 @@
 package cl.quehaypahacer.backend.admin.rabbitmq.controller;
 
 import cl.quehaypahacer.backend.config.rabbitmq.RabbitMQProperties;
+import cl.quehaypahacer.backend.messaging.publisher.FavoritoEventPublisher;
 import cl.quehaypahacer.backend.messaging.publisher.NotificacionEventPublisher;
 import cl.quehaypahacer.backend.messaging.publisher.TicketEventPublisher;
 import cl.quehaypahacer.backend.security.SecurityConfig;
@@ -36,6 +37,9 @@ class RabbitTestControllerSecurityTest {
     private NotificacionEventPublisher notificacionEventPublisher;
 
     @MockitoBean
+    private FavoritoEventPublisher favoritoEventPublisher;
+
+    @MockitoBean
     private RabbitMQProperties props;
 
     @MockitoBean
@@ -46,8 +50,10 @@ class RabbitTestControllerSecurityTest {
         RabbitMQProperties.RoutingKeys rk = new RabbitMQProperties.RoutingKeys(
                 "recetas.ticket.generar",
                 "recetas.despensa.notificar",
+                "recetas.favorito.marcar",
                 "recetas.ticket.dlq",
-                "recetas.despensa.dlq"
+                "recetas.despensa.dlq",
+                "recetas.favorito.dlq"
         );
         when(props.routingKeys()).thenReturn(rk);
     }
@@ -96,5 +102,16 @@ class RabbitTestControllerSecurityTest {
                 .andExpect(jsonPath("$.routingKey").value("recetas.despensa.notificar"));
 
         verify(notificacionEventPublisher).publicarNotificacionDespensa(any());
+    }
+
+    @Test
+    void favoritoInvalidoConRolAdminDevuelve202YPublica() throws Exception {
+        mockMvc.perform(post("/api/admin/rabbitmq/test/favorito-invalido")
+                        .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_Admin"))))
+                .andExpect(status().isAccepted())
+                .andExpect(jsonPath("$.mensaje").value("Favorito inválido publicado"))
+                .andExpect(jsonPath("$.routingKey").value("recetas.favorito.marcar"));
+
+        verify(favoritoEventPublisher).publicarFavorito(any());
     }
 }

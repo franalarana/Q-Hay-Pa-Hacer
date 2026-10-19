@@ -29,10 +29,10 @@ class RabbitTicketEventPublisherTest {
     void setUp() {
         props = new RabbitMQProperties(
                 new RabbitMQProperties.Exchanges("recetas.exchange", "recetas.dlx.exchange"),
-                new RabbitMQProperties.Queues("recetas.tickets.queue", "recetas.notificaciones.queue",
-                        "recetas.tickets.dlq", "recetas.notificaciones.dlq"),
-                new RabbitMQProperties.RoutingKeys("recetas.ticket.generar", "recetas.despensa.notificar",
-                        "recetas.ticket.dlq", "recetas.despensa.dlq")
+                new RabbitMQProperties.Queues("recetas.tickets.queue", "recetas.notificaciones.queue", "recetas.favoritos.queue",
+                        "recetas.tickets.dlq", "recetas.notificaciones.dlq", "recetas.favoritos.dlq"),
+                new RabbitMQProperties.RoutingKeys("recetas.ticket.generar", "recetas.despensa.notificar", "recetas.favorito.marcar",
+                        "recetas.ticket.dlq", "recetas.despensa.dlq", "recetas.favorito.dlq")
         );
         publisher = new RabbitTicketEventPublisher(rabbitTemplate, props);
     }

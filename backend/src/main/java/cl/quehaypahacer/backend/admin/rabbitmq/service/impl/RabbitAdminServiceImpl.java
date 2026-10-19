@@ -111,7 +111,10 @@ public class RabbitAdminServiceImpl implements RabbitAdminService {
 
     private Set<String> colasDelSistema() {
         RabbitMQProperties.Queues q = props.queues();
-        return Set.of(q.tickets(), q.notificaciones(), q.ticketsDlq(), q.notificacionesDlq());
+        return Set.of(
+                q.tickets(), q.notificaciones(), q.favoritos(),
+                q.ticketsDlq(), q.notificacionesDlq(), q.favoritosDlq()
+        );
     }
 
     private Set<String> exchangesDelSistema() {

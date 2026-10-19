@@ -29,9 +29,9 @@ class RabbitAdminServiceImplTest {
         rabbitAdmin = mock(RabbitAdmin.class);
         RabbitMQProperties props = new RabbitMQProperties(
                 new RabbitMQProperties.Exchanges("recetas.exchange", "recetas.dlx.exchange"),
-                new RabbitMQProperties.Queues("recetas.tickets.queue", "recetas.notificaciones.queue",
-                        "recetas.tickets.dlq", "recetas.notificaciones.dlq"),
-                new RabbitMQProperties.RoutingKeys("a", "b", "c", "d"));
+                new RabbitMQProperties.Queues("recetas.tickets.queue", "recetas.notificaciones.queue", "recetas.favoritos.queue",
+                        "recetas.tickets.dlq", "recetas.notificaciones.dlq", "recetas.favoritos.dlq"),
+                new RabbitMQProperties.RoutingKeys("a", "b", "c", "d", "e", "f"));
         service = new RabbitAdminServiceImpl(rabbitAdmin, props);
     }
 
