@@ -1,5 +1,5 @@
-# Stage 1: Build con Maven y JDK 21
-FROM eclipse-temurin:21-jdk-alpine AS builder
+# Stage 1: Build con Maven y JDK 25
+FROM eclipse-temurin:25-jdk-alpine AS builder
 WORKDIR /app
 
 # Copiar archivos de Maven Wrapper y dependencias
@@ -11,8 +11,8 @@ RUN chmod +x mvnw && ./mvnw dependency:go-offline -B
 COPY src ./src
 RUN ./mvnw clean package -DskipTests -B
 
-# Stage 2: Runtime liviano con JRE 21
-FROM eclipse-temurin:21-jre-alpine
+# Stage 2: Runtime liviano con JRE 25
+FROM eclipse-temurin:25-jre-alpine
 WORKDIR /app
 
 # Crear usuario no-root por seguridad
