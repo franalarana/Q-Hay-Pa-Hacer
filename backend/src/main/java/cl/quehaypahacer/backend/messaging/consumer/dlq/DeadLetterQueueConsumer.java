@@ -27,7 +27,11 @@ import java.nio.charset.StandardCharsets;
 public class DeadLetterQueueConsumer {
 
     @RabbitListener(
-            queues = {"${app.rabbitmq.queues.tickets-dlq}", "${app.rabbitmq.queues.notificaciones-dlq}"},
+            queues = {
+                    "${app.rabbitmq.queues.tickets-dlq}",
+                    "${app.rabbitmq.queues.notificaciones-dlq}",
+                    "${app.rabbitmq.queues.favoritos-dlq}"
+            },
             ackMode = "MANUAL",
             autoStartup = "${app.rabbitmq.dlq-auditor-enabled:true}"
     )
