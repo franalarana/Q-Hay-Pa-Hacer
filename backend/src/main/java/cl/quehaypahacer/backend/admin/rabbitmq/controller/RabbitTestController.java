@@ -1,8 +1,10 @@
 package cl.quehaypahacer.backend.admin.rabbitmq.controller;
 
 import cl.quehaypahacer.backend.config.rabbitmq.RabbitMQProperties;
+import cl.quehaypahacer.backend.messaging.event.FavoritoEvent;
 import cl.quehaypahacer.backend.messaging.event.NotificacionDespensaEvent;
 import cl.quehaypahacer.backend.messaging.event.TicketCocinaEvent;
+import cl.quehaypahacer.backend.messaging.publisher.FavoritoEventPublisher;
 import cl.quehaypahacer.backend.messaging.publisher.NotificacionEventPublisher;
 import cl.quehaypahacer.backend.messaging.publisher.TicketEventPublisher;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,7 @@ public class RabbitTestController {
 
     private final TicketEventPublisher ticketEventPublisher;
     private final NotificacionEventPublisher notificacionEventPublisher;
+    private final FavoritoEventPublisher favoritoEventPublisher;
     private final RabbitMQProperties props;
 
     /**
@@ -97,6 +100,28 @@ public class RabbitTestController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(Map.of(
                 "mensaje", "Notificación inválida publicada",
                 "routingKey", props.routingKeys().notificaciones()
+        ));
+    }
+
+    /**
+     * Publica un FavoritoEvent inválido (recetaId = -1) para forzar
+     * el rechazo y direccionamiento a la 3ra DLQ: recetas.favoritos.dlq.
+     */
+    @PostMapping("/favorito-invalido")
+    public ResponseEntity<Map<String, String>> publicarFavoritoInvalido() {
+        FavoritoEvent event = new FavoritoEvent(
+                999L,
+                -1L,
+                "Receta Favorita Inválida",
+                "admin@quehaypahacer.cl",
+                FavoritoEvent.Accion.AGREGADO,
+                LocalDateTime.now()
+        );
+        favoritoEventPublisher.publicarFavorito(event);
+
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(Map.of(
+                "mensaje", "Favorito inválido publicado",
+                "routingKey", props.routingKeys().favoritos()
         ));
     }
 }
