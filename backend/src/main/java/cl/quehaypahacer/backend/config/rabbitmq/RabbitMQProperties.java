@@ -34,8 +34,10 @@ public record RabbitMQProperties(
     public record Queues(
             @NotBlank String tickets,
             @NotBlank String notificaciones,
+            @NotBlank String favoritos,
             @NotBlank String ticketsDlq,
-            @NotBlank String notificacionesDlq
+            @NotBlank String notificacionesDlq,
+            @NotBlank String favoritosDlq
     ) {
     }
 
@@ -43,8 +45,10 @@ public record RabbitMQProperties(
     public record RoutingKeys(
             @NotBlank String tickets,
             @NotBlank String notificaciones,
+            @NotBlank String favoritos,
             @NotBlank String ticketsDlq,
-            @NotBlank String notificacionesDlq
+            @NotBlank String notificacionesDlq,
+            @NotBlank String favoritosDlq
     ) {
     }
 }

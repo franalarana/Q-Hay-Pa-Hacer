@@ -5,7 +5,7 @@ spring:
   datasource:
     url: ${DB_URL:jdbc:mysql://localhost:3306/quehaypahacer}
     username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD}
+    password: ${DB_PASSWORD:pepe}
 
   jpa:
     hibernate:
@@ -21,8 +21,9 @@ spring:
         jwt:
           issuer-uri: https://login.microsoftonline.com/${AZURE_TENANT_ID:1abed6ed-c70a-4381-b9fe-0a67d2f0745e}/v2.0
 
-  # Conexión al broker RabbitMQ
+  # Conexión al broker RabbitMQ (soporta cluster o nodo individual)
   rabbitmq:
+    addresses: ${RABBITMQ_ADDRESSES:}
     host: ${RABBITMQ_HOST:localhost}
     port: ${RABBITMQ_PORT:5672}
     username: ${RABBITMQ_USERNAME:quehaypahacer}
@@ -50,13 +51,17 @@ app:
     queues:
       tickets: recetas.tickets.queue
       notificaciones: recetas.notificaciones.queue
+      favoritos: recetas.favoritos.queue
       tickets-dlq: recetas.tickets.dlq
       notificaciones-dlq: recetas.notificaciones.dlq
+      favoritos-dlq: recetas.favoritos.dlq
     routing-keys:
       tickets: recetas.ticket.generar
       notificaciones: recetas.despensa.notificar
+      favoritos: recetas.favorito.marcar
       tickets-dlq: recetas.ticket.dlq
       notificaciones-dlq: recetas.despensa.dlq
+      favoritos-dlq: recetas.favorito.dlq
 
 server:
   port: ${SERVER_PORT:8080}
