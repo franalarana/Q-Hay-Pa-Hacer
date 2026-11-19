@@ -3,9 +3,9 @@ spring:
     name: backend
 
   datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:3306/quehaypahacer}
+    url: ${DB_URL:jdbc:mysql://localhost:3306/quehaypahacer?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true}
     username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD}
+    password: ${DB_PASSWORD:pepe}
 
   jpa:
     hibernate:
@@ -36,6 +36,21 @@ spring:
         default-requeue-rejected: false
         prefetch: 10
 
+  # Conexión y configuración de Apache Kafka (Streaming & Analítica)
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
+      properties:
+        spring.json.add.type.headers: true
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
+      auto-offset-reset: earliest
+      properties:
+        spring.json.trusted.packages: "cl.quehaypahacer.backend.messaging.kafka.event,cl.quehaypahacer.backend.messaging.event"
+
 app:
   azure:
     tenant-id: ${AZURE_TENANT_ID:1abed6ed-c70a-4381-b9fe-0a67d2f0745e}
@@ -62,6 +77,19 @@ app:
       tickets-dlq: recetas.ticket.dlq
       notificaciones-dlq: recetas.despensa.dlq
       favoritos-dlq: recetas.favorito.dlq
+
+  # Configuración centralizada de Kafka (Streaming y Analítica - Indicador Evaluación 5)
+  kafka:
+    topics:
+      ingredientes-despensa: analitica.despensa.ingredientes
+      ingredientes-cocina: analitica.cocina.ingredientes
+    partitions: 2
+    replication-factor: 1
+    retention-ms: 604800000 # 7 días de retención de telemetría analítica
+    cleanup-policy: delete
+    consumer-groups:
+      analitica: quehaypahacer-analitica-group
+      auditoria: quehaypahacer-auditoria-group
 
 server:
   port: ${SERVER_PORT:8080}
