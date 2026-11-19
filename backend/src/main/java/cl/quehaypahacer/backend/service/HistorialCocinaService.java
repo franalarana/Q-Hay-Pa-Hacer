@@ -2,8 +2,11 @@ package cl.quehaypahacer.backend.service;
 
 import cl.quehaypahacer.backend.dto.HistorialCocinaResponse;
 import cl.quehaypahacer.backend.messaging.event.TicketCocinaEvent;
+import cl.quehaypahacer.backend.messaging.kafka.event.IngredienteCocinaAnaliticaEvent;
+import cl.quehaypahacer.backend.messaging.kafka.publisher.KafkaAnaliticaEventPublisher;
 import cl.quehaypahacer.backend.messaging.publisher.TicketEventPublisher;
 import cl.quehaypahacer.backend.model.HistorialCocina;
+import cl.quehaypahacer.backend.model.IngredienteReceta;
 import cl.quehaypahacer.backend.model.Receta;
 import cl.quehaypahacer.backend.model.Usuario;
 import cl.quehaypahacer.backend.repository.HistorialCocinaRepository;
@@ -13,6 +16,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,6 +28,7 @@ public class HistorialCocinaService {
     private final RecetaRepository recetaRepository;
     private final UsuarioService usuarioService;
     private final TicketEventPublisher ticketEventPublisher;
+    private final KafkaAnaliticaEventPublisher kafkaAnaliticaPublisher;
 
     @Transactional(readOnly = true)
     public List<HistorialCocinaResponse> obtenerHistorial(Jwt jwt) {
@@ -54,6 +59,23 @@ public class HistorialCocinaService {
                 usuario.getCorreo(),
                 guardado.getNotas(),
                 guardado.getCocinadoAt()));
+
+        if (receta.getIngredientes() != null) {
+            for (IngredienteReceta ir : receta.getIngredientes()) {
+                if (ir.getIngrediente() != null) {
+                    kafkaAnaliticaPublisher.publicarEventoCocina(new IngredienteCocinaAnaliticaEvent(
+                            receta.getId(),
+                            receta.getTitulo(),
+                            ir.getIngrediente().getId(),
+                            ir.getIngrediente().getNombre(),
+                            ir.getCantidadRequerida(),
+                            ir.getUnidad() != null ? ir.getUnidad().name() : null,
+                            usuario.getCorreo(),
+                            LocalDateTime.now()
+                    ));
+                }
+            }
+        }
 
         return HistorialCocinaResponse.fromEntity(guardado);
     }

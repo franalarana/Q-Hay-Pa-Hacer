@@ -3,6 +3,8 @@ package cl.quehaypahacer.backend.service;
 import cl.quehaypahacer.backend.dto.IngredienteUsuarioRequest;
 import cl.quehaypahacer.backend.dto.IngredienteUsuarioResponse;
 import cl.quehaypahacer.backend.messaging.event.NotificacionDespensaEvent;
+import cl.quehaypahacer.backend.messaging.kafka.event.IngredienteDespensaAnaliticaEvent;
+import cl.quehaypahacer.backend.messaging.kafka.publisher.KafkaAnaliticaEventPublisher;
 import cl.quehaypahacer.backend.messaging.publisher.NotificacionEventPublisher;
 import cl.quehaypahacer.backend.model.Ingrediente;
 import cl.quehaypahacer.backend.model.IngredienteUsuario;
@@ -27,6 +29,7 @@ public class DespensaService {
     private final IngredienteRepository ingredienteRepository;
     private final UsuarioService usuarioService;
     private final NotificacionEventPublisher notificacionEventPublisher;
+    private final KafkaAnaliticaEventPublisher kafkaAnaliticaPublisher;
 
     @Transactional(readOnly = true)
     public List<IngredienteUsuarioResponse> obtenerDespensa(Jwt jwt) {
@@ -70,6 +73,16 @@ public class DespensaService {
                 guardado.getUpdatedAt() != null ? guardado.getUpdatedAt() : LocalDateTime.now()
         ));
 
+        kafkaAnaliticaPublisher.publicarEventoDespensa(new IngredienteDespensaAnaliticaEvent(
+                guardado.getIngrediente().getId(),
+                guardado.getIngrediente().getNombre(),
+                guardado.getCantidad(),
+                guardado.getUnidad() != null ? guardado.getUnidad().name() : null,
+                esNuevo ? IngredienteDespensaAnaliticaEvent.Accion.AGREGADO : IngredienteDespensaAnaliticaEvent.Accion.ACTUALIZADO,
+                usuario.getCorreo(),
+                LocalDateTime.now()
+        ));
+
         return IngredienteUsuarioResponse.fromEntity(guardado);
     }
 
@@ -95,6 +108,16 @@ public class DespensaService {
                 guardado.getUpdatedAt() != null ? guardado.getUpdatedAt() : LocalDateTime.now()
         ));
 
+        kafkaAnaliticaPublisher.publicarEventoDespensa(new IngredienteDespensaAnaliticaEvent(
+                guardado.getIngrediente().getId(),
+                guardado.getIngrediente().getNombre(),
+                guardado.getCantidad(),
+                guardado.getUnidad() != null ? guardado.getUnidad().name() : null,
+                IngredienteDespensaAnaliticaEvent.Accion.ACTUALIZADO,
+                usuario.getCorreo(),
+                LocalDateTime.now()
+        ));
+
         return IngredienteUsuarioResponse.fromEntity(guardado);
     }
 
@@ -105,6 +128,7 @@ public class DespensaService {
                 .orElseThrow(() -> new IllegalArgumentException("Ingrediente de despensa no encontrado con id: " + id));
 
         Long itemId = item.getId();
+        Long ingredienteId = item.getIngrediente().getId();
         String ingredienteNombre = item.getIngrediente().getNombre();
         String unidadNombre = item.getUnidad() != null ? item.getUnidad().name() : null;
         String usuarioCorreo = usuario.getCorreo();
@@ -117,6 +141,16 @@ public class DespensaService {
                 null,
                 unidadNombre,
                 NotificacionDespensaEvent.Accion.ELIMINADO,
+                usuarioCorreo,
+                LocalDateTime.now()
+        ));
+
+        kafkaAnaliticaPublisher.publicarEventoDespensa(new IngredienteDespensaAnaliticaEvent(
+                ingredienteId,
+                ingredienteNombre,
+                0.0,
+                unidadNombre,
+                IngredienteDespensaAnaliticaEvent.Accion.ELIMINADO,
                 usuarioCorreo,
                 LocalDateTime.now()
         ));
