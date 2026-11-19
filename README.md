@@ -85,13 +85,27 @@ Errores: 400 si la validación falla (nombre vacío, caracteres inválidos o JSO
 - **Persistencia**: el mensaje se guarda en disco. Spring AMQP publica los mensajes como persistentes por defecto, pero solo sobreviven a un reinicio si además están en una cola durable.
 - **DLQ**: cola donde caen los mensajes rechazados, expirados o que fallaron al convertirse, para auditarlos sin perderlos.
 
-Guía de trabajo del equipo: [RABBITMQ_GUIA_EQUIPO.md](RABBITMQ_GUIA_EQUIPO.md).
+Guía de trabajo del equipo (RabbitMQ): [RABBITMQ_GUIA_EQUIPO.md](RABBITMQ_GUIA_EQUIPO.md).
+
+## Apache Kafka: streaming y analítica en tiempo real
+
+El backend integra Apache Kafka para el procesamiento continuo de eventos y analítica de ingredientes en tiempo real, complementando a RabbitMQ sin afectar sus flujos:
+
+- **Ingredientes en Despensa**: al registrar o actualizar stock en la despensa, se emite un evento a `analitica.despensa.ingredientes` para calcular los ingredientes más comunes en los hogares.
+- **Ingredientes en Cocina**: al registrar el cocinado de una receta, se emite un evento a `analitica.cocina.ingredientes` para calcular los ingredientes más consumidos.
+- **Consumer Groups múltiples**:
+  - `quehaypahacer-analitica-group`: agrega y totaliza los conteos en tiempo real para el ranking.
+  - `quehaypahacer-auditoria-group`: registra telemetría de eventos de forma independiente.
+- **Módulo Administrador REST**: `/api/admin/kafka` permite crear, inspeccionar y eliminar tópicos en caliente, así como listar los consumer groups mediante `AdminClient`.
+- **Panel Web Kafka-UI**: disponible en http://localhost:8085.
+
+Guía completa de trabajo y defensa de Kafka: [KAFKA_GUIA_EQUIPO.md](KAFKA_GUIA_EQUIPO.md).
 
 ### Tests
 
 ```powershell
 cd backend
-.\mvnw.cmd test -Dtest="Rabbit*,*ConsumerTest,*PublisherTest"
+.\mvnw.cmd test -Dtest="Rabbit*,*Kafka*,IngredienteAnalitica*,*ConsumerTest,*PublisherTest"
 ```
 
 `BackendApplicationTests` necesita una base de datos MySQL accesible; sin ella falla al cargar el contexto.

@@ -756,6 +756,255 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Kafka - Streaming & Analítica (Evaluación 5)",
+      "item": [
+        {
+          "name": "K1. Analítica - Resumen General (Público)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/analitica/resumen",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "analitica", "resumen"]
+            },
+            "description": "Retorna métricas consolidadas en tiempo real: total de eventos procesados y top 5 de ingredientes."
+          },
+          "response": []
+        },
+        {
+          "name": "K2. Analítica - Top Ingredientes Más Comunes (Despensa)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/analitica/ingredientes/mas-comunes?limite=10",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "analitica", "ingredientes", "mas-comunes"],
+              "query": [{"key": "limite", "value": "10"}]
+            },
+            "description": "Retorna el ranking de ingredientes más frecuentes en las despensas acumulados vía Kafka."
+          },
+          "response": []
+        },
+        {
+          "name": "K3. Analítica - Top Ingredientes Más Cocinados (Cocina)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/analitica/ingredientes/mas-cocinados?limite=10",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "analitica", "ingredientes", "mas-cocinados"],
+              "query": [{"key": "limite", "value": "10"}]
+            },
+            "description": "Retorna el ranking de ingredientes que más se utilizan al cocinar recetas."
+          },
+          "response": []
+        },
+        {
+          "name": "K4. Admin Kafka - Listar Tópicos (Con Token)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/admin/kafka/topics",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "admin", "kafka", "topics"]
+            },
+            "description": "Inspecciona en caliente los tópicos de Kafka, número de particiones, factor de replicación y configuraciones."
+          },
+          "response": []
+        },
+        {
+          "name": "K5. Admin Kafka - Detalle Tópico Despensa (Con Token)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/admin/kafka/topics/analitica.despensa.ingredientes",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "admin", "kafka", "topics", "analitica.despensa.ingredientes"]
+            },
+            "description": "Retorna particiones, replicación y retención del tópico analítico de despensa."
+          },
+          "response": []
+        },
+        {
+          "name": "K6. Admin Kafka - Crear Nuevo Tópico (Con Token)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"analitica.nuevo.topico\",\n  \"partitions\": 2,\n  \"replicationFactor\": 1,\n  \"retentionMs\": 604800000,\n  \"cleanupPolicy\": \"delete\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/admin/kafka/topics",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "admin", "kafka", "topics"]
+            },
+            "description": "Crea programáticamente un nuevo tópico en el clúster Kafka."
+          },
+          "response": []
+        },
+        {
+          "name": "K7. Admin Kafka - Eliminar Tópico (Con Token)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/admin/kafka/topics/analitica.nuevo.topico",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "admin", "kafka", "topics", "analitica.nuevo.topico"]
+            },
+            "description": "Elimina en caliente un tópico en el broker Kafka."
+          },
+          "response": []
+        },
+        {
+          "name": "K8. Admin Kafka - Listar Consumer Groups (Con Token)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/admin/kafka/consumer-groups",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "admin", "kafka", "consumer-groups"]
+            },
+            "description": "Inspecciona los grupos de consumidores registrados y su estado (STABLE, EMPTY, etc.)."
+          },
+          "response": []
+        },
+        {
+          "name": "K9. Test Streaming - Simular Evento Despensa",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/admin/kafka/test/evento-despensa?ingrediente=Palta&cantidad=2.0&unidad=UNIDAD",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "admin", "kafka", "test", "evento-despensa"],
+              "query": [
+                {"key": "ingrediente", "value": "Palta"},
+                {"key": "cantidad", "value": "2.0"},
+                {"key": "unidad", "value": "UNIDAD"}
+              ]
+            },
+            "description": "Emite directamente un evento al tópico de despensa para verificar la agregación en streaming."
+          },
+          "response": []
+        },
+        {
+          "name": "K10. Test Streaming - Simular Evento Cocina",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/admin/kafka/test/evento-cocina?receta=Completos%20Italianos&ingrediente=Palta",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "admin", "kafka", "test", "evento-cocina"],
+              "query": [
+                {"key": "receta", "value": "Completos Italianos"},
+                {"key": "ingrediente", "value": "Palta"}
+              ]
+            },
+            "description": "Emite directamente un evento al tópico de cocina para verificar la agregación de ingredientes usados."
+          },
+          "response": []
+        },
+        {
+          "name": "K11. Test Error Handling - Enviar Evento Inválido (DefaultErrorHandler)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/admin/kafka/test/evento-invalido",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "admin", "kafka", "test", "evento-invalido"]
+            },
+            "description": "Prueba de resiliencia: envía un payload inválido para comprobar que DefaultErrorHandler captura el error y registra los logs sin tumbar el listener."
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }
