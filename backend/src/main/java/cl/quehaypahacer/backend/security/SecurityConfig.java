@@ -58,6 +58,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/public/**").permitAll()
                 // cambios aqui
                 .requestMatchers(HttpMethod.GET, "/api/ingredientes/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/analitica/**").permitAll()
                 // hasta aqui
                 .anyRequest().authenticated()
             )
