@@ -1,0 +1,244 @@
+.analitica-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.analitica-panel {
+  background-color: white;
+  border-radius: var(--border-radius-lg);
+  max-width: 860px;
+  width: 100%;
+  max-height: 88vh;
+  overflow-y: auto;
+  padding: 28px;
+  box-shadow: var(--shadow-md);
+}
+
+.analitica-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.analitica-header-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.analitica-header-title {
+  font-size: 1.4rem;
+  margin: 0;
+  color: var(--text-main);
+}
+
+.analitica-header-subtitle {
+  margin: 2px 0 0 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.analitica-header-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.analitica-icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.analitica-icon-button:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.analitica-loading-row {
+  padding: 40px 0;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.analitica-error-box {
+  background-color: var(--red-bg);
+  color: var(--red-text);
+  padding: 10px 14px;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+}
+
+.analitica-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.analitica-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  background-color: #F9FAFB;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+}
+
+.analitica-stat-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text-main);
+  font-variant-numeric: tabular-nums;
+}
+
+.analitica-stat-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.analitica-rankings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.analitica-ranking-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  margin: 0 0 12px 0;
+  color: var(--text-main);
+}
+
+.analitica-ranking-empty {
+  padding: 24px 16px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  background-color: #F9FAFB;
+  border: 2px dashed var(--border-color);
+  border-radius: var(--border-radius-sm);
+}
+
+.analitica-ranking-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.analitica-ranking-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: var(--border-radius-sm);
+}
+
+.analitica-ranking-row:hover {
+  background-color: #F3F4F6;
+}
+
+.analitica-ranking-pos {
+  width: 18px;
+  text-align: right;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.analitica-ranking-emoji {
+  font-size: 1.2rem;
+}
+
+.analitica-ranking-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.analitica-ranking-label-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.analitica-ranking-name {
+  font-size: 0.9rem;
+  color: var(--text-main);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.analitica-ranking-value {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-main);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.analitica-ranking-value small {
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.analitica-bar-track {
+  height: 8px;
+  background-color: #F3F4F6;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.analitica-bar-fill {
+  height: 100%;
+  background-color: var(--primary-dark);
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
+.analitica-footer {
+  margin-top: 24px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.analitica-footer code {
+  font-size: 0.72rem;
+  background-color: #F3F4F6;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+@media (max-width: 600px) {
+  .analitica-stats-row {
+    grid-template-columns: 1fr;
+  }
+}
