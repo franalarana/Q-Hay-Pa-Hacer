@@ -12,6 +12,8 @@ import cl.quehaypahacer.backend.model.Usuario;
 import cl.quehaypahacer.backend.repository.HistorialCocinaRepository;
 import cl.quehaypahacer.backend.repository.RecetaRepository;
 import lombok.RequiredArgsConstructor;
+import cl.quehaypahacer.backend.dto.analitica.RecetaRankingDTO;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +31,30 @@ public class HistorialCocinaService {
     private final UsuarioService usuarioService;
     private final TicketEventPublisher ticketEventPublisher;
     private final KafkaAnaliticaEventPublisher kafkaAnaliticaPublisher;
+    private final IngredienteAnaliticaService analiticaService;
+
+    @Transactional(readOnly = true)
+    public List<RecetaRankingDTO> obtenerTopRecetasSemanal(int limite) {
+        LocalDateTime desde = LocalDateTime.now().minusDays(7);
+        long total = historialCocinaRepository.countCocinadasDesde(desde);
+        List<RecetaRankingDTO> ranking = historialCocinaRepository.findTopRecetasCocinadasDesde(
+                desde,
+                PageRequest.of(0, Math.max(1, limite))
+        );
+
+        if (total == 0 || ranking.isEmpty()) {
+            return List.of();
+        }
+
+        return ranking.stream()
+                .map(r -> new RecetaRankingDTO(
+                        r.recetaId(),
+                        r.titulo(),
+                        r.totalCocinadas(),
+                        Math.round(((double) r.totalCocinadas() / total * 100.0) * 10.0) / 10.0
+                ))
+                .collect(Collectors.toList());
+    }
 
     @Transactional(readOnly = true)
     public List<HistorialCocinaResponse> obtenerHistorial(Jwt jwt) {
@@ -73,6 +99,7 @@ public class HistorialCocinaService {
                             usuario.getCorreo(),
                             LocalDateTime.now()
                     ));
+                    analiticaService.registrarIngredienteCocina(ir.getIngrediente().getNombre());
                 }
             }
         }

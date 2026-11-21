@@ -1,7 +1,9 @@
 package cl.quehaypahacer.backend.controller;
 
 import cl.quehaypahacer.backend.dto.analitica.IngredienteRankingDTO;
+import cl.quehaypahacer.backend.dto.analitica.RecetaRankingDTO;
 import cl.quehaypahacer.backend.dto.analitica.ResumenAnaliticaDTO;
+import cl.quehaypahacer.backend.service.HistorialCocinaService;
 import cl.quehaypahacer.backend.service.IngredienteAnaliticaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * Controlador REST para consultar analítica y métricas generadas en tiempo real mediante Apache Kafka.
+ * Controlador REST para consultar analítica y métricas generadas en tiempo real mediante Apache Kafka y base de datos.
  */
 @RestController
 @RequestMapping("/api/analitica")
@@ -21,6 +23,7 @@ import java.util.List;
 public class AnaliticaController {
 
     private final IngredienteAnaliticaService analiticaService;
+    private final HistorialCocinaService historialCocinaService;
 
     @GetMapping("/ingredientes/mas-comunes")
     public ResponseEntity<List<IngredienteRankingDTO>> obtenerIngredientesMasComunes(
@@ -32,6 +35,12 @@ public class AnaliticaController {
     public ResponseEntity<List<IngredienteRankingDTO>> obtenerIngredientesMasCocinados(
             @RequestParam(defaultValue = "10") int limite) {
         return ResponseEntity.ok(analiticaService.obtenerTopIngredientesCocina(limite));
+    }
+
+    @GetMapping("/recetas/top-semanal")
+    public ResponseEntity<List<RecetaRankingDTO>> obtenerTopRecetasSemanal(
+            @RequestParam(defaultValue = "10") int limite) {
+        return ResponseEntity.ok(historialCocinaService.obtenerTopRecetasSemanal(limite));
     }
 
     @GetMapping("/resumen")
