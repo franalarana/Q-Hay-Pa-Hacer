@@ -9,10 +9,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
  * Implementación de productor Kafka con KafkaTemplate tipado y logging contextual (Indicadores 1 y 4).
  * Utiliza el nombre del ingrediente como clave de particionado para garantizar orden relativo.
+ * <p>
+ * Convive con RabbitMQ sin afectarlo:
+ * - Publica solo después del commit de la transacción (mismo patrón que los publishers RabbitMQ),
+ *   por lo que una falla de Kafka nunca provoca rollback ni impide el envío de tickets/notificaciones.
+ * - Cualquier excepción del envío se captura y se registra en log: el flujo del usuario continúa.
+ * - El tiempo máximo de bloqueo del productor está acotado (max.block.ms en KafkaConfig).
  */
 @Component
 @RequiredArgsConstructor
@@ -26,40 +34,47 @@ public class SpringKafkaAnaliticaEventPublisher implements KafkaAnaliticaEventPu
     @Override
     public void publicarEventoDespensa(IngredienteDespensaAnaliticaEvent event) {
         String topic = kafkaProperties.topics().ingredientesDespensa();
-        String key = event.nombreIngrediente();
-
-        log.info("[KAFKA PUBLISHER] Publicando evento despensa -> Tópico: '{}', Clave: '{}', Ingrediente: '{}'",
-                topic, key, event.nombreIngrediente());
-
-        kafkaTemplate.send(topic, key, event).whenComplete((result, ex) -> {
-            if (ex != null) {
-                log.warn("[KAFKA PUBLISHER WARN] No se pudo enviar evento despensa para '{}': {}",
-                        event.nombreIngrediente(), ex.getMessage());
-            } else {
-                log.debug("[KAFKA PUBLISHER OK] Evento despensa entregado en partición {}, offset {}",
-                        result.getRecordMetadata().partition(),
-                        result.getRecordMetadata().offset());
-            }
-        });
+        ejecutarDespuesDelCommit(() -> enviar(topic, event.nombreIngrediente(), event, "despensa"));
     }
 
     @Override
     public void publicarEventoCocina(IngredienteCocinaAnaliticaEvent event) {
         String topic = kafkaProperties.topics().ingredientesCocina();
-        String key = event.nombreIngrediente();
+        ejecutarDespuesDelCommit(() -> enviar(topic, event.nombreIngrediente(), event,
+                "cocina (receta '" + event.recetaTitulo() + "')"));
+    }
 
-        log.info("[KAFKA PUBLISHER] Publicando evento cocina -> Tópico: '{}', Clave: '{}', Ingrediente: '{}' (Receta: '{}')",
-                topic, key, event.nombreIngrediente(), event.recetaTitulo());
+    private void enviar(String topic, String key, Object event, String tipo) {
+        try {
+            log.info("[KAFKA PUBLISHER] Publicando evento {} -> Tópico: '{}', Clave: '{}'", tipo, topic, key);
+            kafkaTemplate.send(topic, key, event).whenComplete((result, ex) -> {
+                if (ex != null) {
+                    log.warn("[KAFKA PUBLISHER WARN] No se pudo enviar evento {} con clave '{}': {}",
+                            tipo, key, ex.getMessage());
+                } else {
+                    log.debug("[KAFKA PUBLISHER OK] Evento {} entregado en partición {}, offset {}",
+                            tipo,
+                            result.getRecordMetadata().partition(),
+                            result.getRecordMetadata().offset());
+                }
+            });
+        } catch (Exception e) {
+            // Kafka es analítica complementaria: su falla no debe interrumpir el flujo de negocio ni RabbitMQ
+            log.error("[KAFKA PUBLISHER ERROR] Falla al publicar evento {} en '{}' (clave '{}'): {}",
+                    tipo, topic, key, e.getMessage());
+        }
+    }
 
-        kafkaTemplate.send(topic, key, event).whenComplete((result, ex) -> {
-            if (ex != null) {
-                log.warn("[KAFKA PUBLISHER WARN] No se pudo enviar evento cocina para '{}': {}",
-                        event.nombreIngrediente(), ex.getMessage());
-            } else {
-                log.debug("[KAFKA PUBLISHER OK] Evento cocina entregado en partición {}, offset {}",
-                        result.getRecordMetadata().partition(),
-                        result.getRecordMetadata().offset());
-            }
-        });
+    private void ejecutarDespuesDelCommit(Runnable envio) {
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    envio.run();
+                }
+            });
+        } else {
+            envio.run();
+        }
     }
 }
