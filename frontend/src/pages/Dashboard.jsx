@@ -1,10 +1,11 @@
 import { useMsal, useAccount } from '@azure/msal-react';
-import { LogOut, User, CheckCircle2, AlertCircle, ShieldCheck, Search, Sparkles, Loader2, UtensilsCrossed, Heart, Plus, History, ChefHat } from 'lucide-react';
+import { LogOut, User, CheckCircle2, AlertCircle, ShieldCheck, Search, Sparkles, Loader2, UtensilsCrossed, Heart, Plus, History, ChefHat, TrendingUp } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import RecipeCard from '../components/RecipeCard';
 import RecipeDetailModal from '../components/RecipeDetailModal';
 import CreateRecipeModal from '../components/CreateRecipeModal';
 import HistoryModal from '../components/HistoryModal';
+import AnaliticaModal from '../components/AnaliticaModal';
 import SemaforoIcon from '../components/SemaforoIcon';
 import { useState, useEffect } from 'react';
 import axiosClient from '../api/axiosClient';
@@ -21,6 +22,7 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('EXPLORAR'); // EXPLORAR, FAVORITOS, MIS_RECETAS
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [showAnaliticaModal, setShowAnaliticaModal] = useState(false);
   const [selectedReceta, setSelectedReceta] = useState(null);
   const [editingReceta, setEditingReceta] = useState(null);
 
@@ -170,6 +172,13 @@ export default function Dashboard() {
               className="dash-history-button"
             >
               <History size={16} /> Historial
+            </button>
+
+            <button
+              onClick={() => setShowAnaliticaModal(true)}
+              className="dash-history-button"
+            >
+              <TrendingUp size={16} /> Top Ingredientes
             </button>
 
             <button
@@ -343,6 +352,13 @@ export default function Dashboard() {
       {showHistoryModal && (
         <HistoryModal
           onClose={() => setShowHistoryModal(false)}
+        />
+      )}
+
+      {/* Modal de Analítica en tiempo real (Kafka) */}
+      {showAnaliticaModal && (
+        <AnaliticaModal
+          onClose={() => setShowAnaliticaModal(false)}
         />
       )}
     </div>
