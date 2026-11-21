@@ -98,6 +98,7 @@ public class KafkaConfig {
     public AdminClient kafkaAdminClient(@Value("${spring.kafka.bootstrap-servers:localhost:9092}") String bootstrapServers) {
         Map<String, Object> configs = new HashMap<>();
         configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        configs.put(AdminClientConfig.RECONNECT_BACKOFF_MAX_MS_CONFIG, 10000);
         return AdminClient.create(configs);
     }
 
@@ -112,6 +113,15 @@ public class KafkaConfig {
         configs.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         configs.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
         configs.put(JacksonJsonSerializer.ADD_TYPE_INFO_HEADERS, true);
+        // Confiabilidad: espera confirmación de todas las réplicas y evita duplicados en reintentos
+        configs.put(ProducerConfig.ACKS_CONFIG, "all");
+        configs.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
+        // Aislamiento ante caída del broker: send() nunca bloquea el hilo más de 3 s
+        // (por defecto son 60 s), así la petición HTTP y los flujos RabbitMQ no quedan colgados
+        configs.put(ProducerConfig.MAX_BLOCK_MS_CONFIG, 3000);
+        configs.put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, 5000);
+        configs.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, 10000);
+        configs.put(ProducerConfig.RECONNECT_BACKOFF_MAX_MS_CONFIG, 10000);
         return new DefaultKafkaProducerFactory<>(configs);
     }
 
@@ -136,6 +146,9 @@ public class KafkaConfig {
         configs.put(ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, StringDeserializer.class);
         configs.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JacksonJsonDeserializer.class);
         configs.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        // Si el broker no está disponible, reintenta conexión con backoff creciente hasta 10 s
+        // en vez de cada 1 s, evitando saturar el log (y los logs de RabbitMQ) con advertencias
+        configs.put(ConsumerConfig.RECONNECT_BACKOFF_MAX_MS_CONFIG, 10000);
         configs.put(JacksonJsonDeserializer.TRUSTED_PACKAGES, "cl.quehaypahacer.backend.messaging.kafka.event,cl.quehaypahacer.backend.messaging.event,*");
         return new DefaultKafkaConsumerFactory<>(configs);
     }
