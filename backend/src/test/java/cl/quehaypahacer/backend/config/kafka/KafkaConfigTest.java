@@ -8,7 +8,9 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.jupiter.api.Test;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
@@ -60,6 +62,17 @@ class KafkaConfigTest {
     }
 
     @Test
+    void cadaTopicoTieneSuDltConLasMismasParticiones() {
+        NewTopic dltDespensa = config.topicIngredientesDespensaDlt();
+        NewTopic dltCocina = config.topicIngredientesCocinaDlt();
+
+        assertThat(dltDespensa.name()).isEqualTo("analitica.despensa.ingredientes.DLT");
+        assertThat(dltDespensa.numPartitions()).isEqualTo(config.topicIngredientesDespensa().numPartitions());
+        assertThat(dltCocina.name()).isEqualTo("analitica.cocina.ingredientes.DLT");
+        assertThat(dltCocina.numPartitions()).isEqualTo(config.topicIngredientesCocina().numPartitions());
+    }
+
+    @Test
     void productorUsaSerializersJsonYConfiabilidad() {
         ProducerFactory<String, Object> factory = config.producerFactory(BOOTSTRAP);
         Map<String, Object> cfg = factory.getConfigurationProperties();
@@ -82,19 +95,22 @@ class KafkaConfigTest {
     }
 
     @Test
-    void consumidorEnvuelveDeserializadoresParaToleraPayloadsCorruptos() {
+    void consumidorEnvuelveDeserializadoresYSoloConfiaEnNuestrosPaquetes() {
         ConsumerFactory<String, Object> factory = config.consumerFactory(BOOTSTRAP);
         Map<String, Object> cfg = factory.getConfigurationProperties();
 
         assertThat(cfg).containsEntry(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
         assertThat(cfg).containsEntry(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JacksonJsonDeserializer.class);
         assertThat(cfg).containsEntry(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        assertThat((String) cfg.get(JacksonJsonDeserializer.TRUSTED_PACKAGES)).doesNotContain("*");
     }
 
     @Test
-    void contenedorDeListenersTieneErrorHandlerConReintentos() {
+    void contenedorDeListenersTieneErrorHandlerConDlt() {
+        KafkaTemplate<String, Object> template = config.kafkaTemplate(config.producerFactory(BOOTSTRAP));
+        DeadLetterPublishingRecoverer recoverer = config.deadLetterPublishingRecoverer(template);
         ConcurrentKafkaListenerContainerFactory<String, Object> factory =
-                config.kafkaListenerContainerFactory(config.consumerFactory(BOOTSTRAP));
+                config.kafkaListenerContainerFactory(config.consumerFactory(BOOTSTRAP), recoverer);
 
         assertThat(factory.getConsumerFactory()).isNotNull();
         assertThat(factory).extracting("commonErrorHandler").isInstanceOf(DefaultErrorHandler.class);
