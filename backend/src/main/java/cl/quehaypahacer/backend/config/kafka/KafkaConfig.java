@@ -40,7 +40,7 @@ import java.util.Map;
  * Configuración de infraestructura para Apache Kafka (Streaming y Analítica).
  * <p>
  * Declara como beans:
- * - Los 2 tópicos requeridos por la rúbrica (con particiones, réplicas y retención) y sus DLT.
+ * - Los 2 tópicos de negocio, cada uno con parámetros ajustados a su flujo, y sus DLT.
  * - El cliente AdminClient para operaciones administrativas en caliente.
  * - El contenedor de listeners con control de reintentos, DLT y logging contextual.
  */
@@ -64,45 +64,47 @@ public class KafkaConfig {
     }
 
     /**
-     * Tópico 1: Flujo analítico de ingredientes registrados en despensa.
+     * Tópico 1: ingredientes registrados en despensa.
+     * Flujo de alto volumen (cada alta/edición/baja) y valor de corto plazo → más particiones, retención corta.
      */
     @Bean
     public NewTopic topicIngredientesDespensa() {
-        return TopicBuilder.name(props.topics().ingredientesDespensa())
-                .partitions(props.partitions())
-                .replicas(props.replicationFactor())
-                .config(TopicConfig.RETENTION_MS_CONFIG, String.valueOf(props.retentionMs()))
-                .config(TopicConfig.CLEANUP_POLICY_CONFIG, props.cleanupPolicy())
-                .build();
+        return construirTopico(props.topics().ingredientesDespensa(), props.despensa());
     }
 
     /**
-     * Tópico 2: Flujo analítico de ingredientes consumidos al cocinar recetas.
+     * Tópico 2: ingredientes consumidos al cocinar.
+     * Flujo de menor volumen pero histórico (alimenta rankings) → retención larga.
      */
     @Bean
     public NewTopic topicIngredientesCocina() {
-        return TopicBuilder.name(props.topics().ingredientesCocina())
-                .partitions(props.partitions())
-                .replicas(props.replicationFactor())
-                .config(TopicConfig.RETENTION_MS_CONFIG, String.valueOf(props.retentionMs()))
-                .config(TopicConfig.CLEANUP_POLICY_CONFIG, props.cleanupPolicy())
-                .build();
+        return construirTopico(props.topics().ingredientesCocina(), props.cocina());
     }
 
     /** DLT de despensa: mismas particiones que el original (el recoverer conserva el número de partición). */
     @Bean
     public NewTopic topicIngredientesDespensaDlt() {
-        return construirDlt(props.topics().ingredientesDespensa());
+        return construirDlt(props.topics().ingredientesDespensa(), props.despensa());
     }
 
     @Bean
     public NewTopic topicIngredientesCocinaDlt() {
-        return construirDlt(props.topics().ingredientesCocina());
+        return construirDlt(props.topics().ingredientesCocina(), props.cocina());
     }
 
-    private NewTopic construirDlt(String nombreOriginal) {
+    private NewTopic construirTopico(String nombre, KafkaProperties.FlujoConfig flujo) {
+        return TopicBuilder.name(nombre)
+                .partitions(flujo.partitions())
+                .replicas(props.replicationFactor())
+                .config(TopicConfig.RETENTION_MS_CONFIG, String.valueOf(flujo.retentionMs()))
+                .config(TopicConfig.CLEANUP_POLICY_CONFIG, flujo.cleanupPolicy())
+                .config(TopicConfig.MIN_IN_SYNC_REPLICAS_CONFIG, String.valueOf(props.minInsyncReplicas()))
+                .build();
+    }
+
+    private NewTopic construirDlt(String nombreOriginal, KafkaProperties.FlujoConfig flujo) {
         return TopicBuilder.name(nombreOriginal + DLT_SUFFIX)
-                .partitions(props.partitions())
+                .partitions(flujo.partitions())
                 .replicas(props.replicationFactor())
                 .config(TopicConfig.RETENTION_MS_CONFIG, String.valueOf(DLT_RETENTION_MS))
                 .config(TopicConfig.CLEANUP_POLICY_CONFIG, TopicConfig.CLEANUP_POLICY_DELETE)
