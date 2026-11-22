@@ -42,7 +42,7 @@ import java.util.Map;
  * Declara como beans:
  * - Los 2 tópicos de negocio, cada uno con parámetros ajustados a su flujo, y sus DLT.
  * - El cliente AdminClient para operaciones administrativas en caliente.
- * - El contenedor de listeners con control de reintentos, DLT y logging contextual.
+ * - El contenedor de listeners con concurrencia, reintentos, DLT y logging contextual.
  */
 @Configuration
 @EnableKafka
@@ -207,7 +207,7 @@ public class KafkaConfig {
     }
 
     /**
-     * Factory de contenedores de consumo con política de manejo de errores, reintentos y DLT (Indicador 6).
+     * Factory de contenedores de consumo: concurrencia, reintentos y DLT (Indicadores 6 y 8).
      */
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory(
@@ -216,6 +216,8 @@ public class KafkaConfig {
         ConcurrentKafkaListenerContainerFactory<String, Object> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
+        // N hilos consumidores por listener dentro del mismo grupo: Kafka reparte las particiones entre ellos
+        factory.setConcurrency(props.consumerConcurrency());
 
         DefaultErrorHandler errorHandler = new DefaultErrorHandler((record, exception) -> {
             log.error("[KAFKA ERROR] Fallo definitivo en tópico '{}', partición '{}', offset '{}': {} → enviando a {}{}",
