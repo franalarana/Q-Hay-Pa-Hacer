@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Verifica, sin broker, que la configuración del cliente Kafka y de los tópicos
- * declara los parámetros que exige la arquitectura (indicadores 1, 6 y 7).
+ * declara los parámetros que exige la arquitectura (indicadores 1, 6, 7 y 8).
  */
 class KafkaConfigTest {
 
@@ -113,13 +113,13 @@ class KafkaConfigTest {
     }
 
     @Test
-    void contenedorDeListenersTieneErrorHandlerConDlt() {
+    void contenedorTieneConcurrenciaYErrorHandlerConDlt() {
         KafkaTemplate<String, Object> template = config.kafkaTemplate(config.producerFactory(BOOTSTRAP));
         DeadLetterPublishingRecoverer recoverer = config.deadLetterPublishingRecoverer(template);
         ConcurrentKafkaListenerContainerFactory<String, Object> factory =
                 config.kafkaListenerContainerFactory(config.consumerFactory(BOOTSTRAP), recoverer);
 
-        assertThat(factory.getConsumerFactory()).isNotNull();
+        assertThat(factory).extracting("concurrency").isEqualTo(2);
         assertThat(factory).extracting("commonErrorHandler").isInstanceOf(DefaultErrorHandler.class);
     }
 }
