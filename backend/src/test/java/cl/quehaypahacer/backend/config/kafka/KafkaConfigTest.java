@@ -26,39 +26,46 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class KafkaConfigTest {
 
-    private static final String BOOTSTRAP = "localhost:9092";
+    private static final String BOOTSTRAP = "localhost:9092,localhost:9093,localhost:9094";
 
     private final KafkaProperties props = new KafkaProperties(
             new KafkaProperties.Topics("analitica.despensa.ingredientes", "analitica.cocina.ingredientes"),
+            (short) 3,
             2,
-            (short) 1,
-            604800000L,
-            "delete",
+            new KafkaProperties.FlujoConfig(3, 604800000L, "delete"),
+            new KafkaProperties.FlujoConfig(2, 2592000000L, "delete"),
+            2,
             new KafkaProperties.ConsumerGroups("quehaypahacer-analitica-group", "quehaypahacer-auditoria-group")
     );
 
     private final KafkaConfig config = new KafkaConfig(props);
 
     @Test
-    void topicoDespensaTieneParticionesReplicasRetencionYCleanup() {
+    void topicoDespensaUsaSuPropiaConfiguracion() {
         NewTopic topic = config.topicIngredientesDespensa();
 
         assertThat(topic.name()).isEqualTo("analitica.despensa.ingredientes");
-        assertThat(topic.numPartitions()).isEqualTo(2);
-        assertThat(topic.replicationFactor()).isEqualTo((short) 1);
+        assertThat(topic.numPartitions()).isEqualTo(3);
+        assertThat(topic.replicationFactor()).isEqualTo((short) 3);
         assertThat(topic.configs())
                 .containsEntry(TopicConfig.RETENTION_MS_CONFIG, "604800000")
-                .containsEntry(TopicConfig.CLEANUP_POLICY_CONFIG, "delete");
+                .containsEntry(TopicConfig.CLEANUP_POLICY_CONFIG, "delete")
+                .containsEntry(TopicConfig.MIN_IN_SYNC_REPLICAS_CONFIG, "2");
     }
 
     @Test
-    void topicoCocinaTieneParticionesReplicasRetencionYCleanup() {
+    void topicoCocinaUsaSuPropiaConfiguracion() {
         NewTopic topic = config.topicIngredientesCocina();
 
         assertThat(topic.name()).isEqualTo("analitica.cocina.ingredientes");
         assertThat(topic.numPartitions()).isEqualTo(2);
-        assertThat(topic.replicationFactor()).isEqualTo((short) 1);
-        assertThat(topic.configs()).containsKeys(TopicConfig.RETENTION_MS_CONFIG, TopicConfig.CLEANUP_POLICY_CONFIG);
+        assertThat(topic.configs()).containsEntry(TopicConfig.RETENTION_MS_CONFIG, "2592000000");
+    }
+
+    @Test
+    void losFlujosTienenRetencionDistinta() {
+        assertThat(config.topicIngredientesDespensa().configs().get(TopicConfig.RETENTION_MS_CONFIG))
+                .isNotEqualTo(config.topicIngredientesCocina().configs().get(TopicConfig.RETENTION_MS_CONFIG));
     }
 
     @Test
