@@ -83,10 +83,20 @@ app:
     topics:
       ingredientes-despensa: analitica.despensa.ingredientes
       ingredientes-cocina: analitica.cocina.ingredientes
-    partitions: 2
-    replication-factor: 1
-    retention-ms: 604800000 # 7 días de retención de telemetría analítica
-    cleanup-policy: delete
+    # 3 brokers: cada partición se copia en los 3 y se exige que 2 confirmen (acks=all)
+    replication-factor: 3
+    min-insync-replicas: 2
+    # Configuración ajustada a cada flujo de datos
+    despensa:
+      partitions: 3             # alto volumen: cada alta/edición/baja de despensa
+      retention-ms: 604800000   # 7 días: dato de corto plazo
+      cleanup-policy: delete    # flujo de eventos, no estado por clave
+    cocina:
+      partitions: 2             # menor volumen: solo al cocinar
+      retention-ms: 2592000000  # 30 días: histórico para rankings
+      cleanup-policy: delete
+    # Hilos consumidores por listener (balanceo dentro de cada consumer group)
+    consumer-concurrency: 2
     consumer-groups:
       analitica: quehaypahacer-analitica-group
       auditoria: quehaypahacer-auditoria-group
