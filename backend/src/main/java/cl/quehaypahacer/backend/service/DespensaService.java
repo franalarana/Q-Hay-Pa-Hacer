@@ -33,7 +33,6 @@ public class DespensaService {
     private final UsuarioService usuarioService;
     private final NotificacionEventPublisher notificacionEventPublisher;
     private final KafkaAnaliticaEventPublisher kafkaAnaliticaPublisher;
-    private final IngredienteAnaliticaService analiticaService;
 
     @Transactional(readOnly = true)
     public List<IngredienteUsuarioResponse> obtenerDespensa(Jwt jwt) {
@@ -86,8 +85,6 @@ public class DespensaService {
                 LocalDateTime.now()
         ));
 
-        analiticaService.registrarIngredienteDespensa(guardado.getIngrediente().getNombre());
-
         return IngredienteUsuarioResponse.fromEntity(guardado);
     }
 
@@ -122,8 +119,6 @@ public class DespensaService {
                 usuario.getCorreo(),
                 LocalDateTime.now()
         ));
-
-        analiticaService.registrarIngredienteDespensa(guardado.getIngrediente().getNombre());
 
         return IngredienteUsuarioResponse.fromEntity(guardado);
     }
