@@ -69,23 +69,6 @@ services:
     networks:
       - quehaypahacer_net
 
-  # Base de Datos MySQL local para desarrollo y pruebas
-  db:
-    image: mysql:8.0
-    container_name: quehaypahacer_db
-    restart: unless-stopped
-    environment:
-      MYSQL_DATABASE: ${DB_NAME:-quehaypahacer}
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-pepe}
-      MYSQL_USER: ${DB_USER:-quehaypahacer_user}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-pepe}
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-    networks:
-      - quehaypahacer_net
-
   # Clúster Kafka de 3 brokers coordinados por Zookeeper (Indicador Evaluación 5)
   # Cada broker escucha en 2 listeners:
   #   PLAINTEXT      → kafkaN:29092  (tráfico dentro de la red Docker: backend, kafka-ui, réplicas)
