@@ -1,6 +1,9 @@
 package cl.quehaypahacer.backend.admin.kafka.controller;
 
 import cl.quehaypahacer.backend.admin.kafka.dto.KafkaConsumerGroupDTO;
+import cl.quehaypahacer.backend.admin.kafka.dto.KafkaConsumerGroupDetailDTO;
+import cl.quehaypahacer.backend.admin.kafka.dto.KafkaPartitionsRequestDTO;
+import cl.quehaypahacer.backend.admin.kafka.dto.KafkaTopicConfigUpdateDTO;
 import cl.quehaypahacer.backend.admin.kafka.dto.KafkaTopicInfoDTO;
 import cl.quehaypahacer.backend.admin.kafka.dto.KafkaTopicRequestDTO;
 import cl.quehaypahacer.backend.admin.kafka.service.KafkaAdminService;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -60,6 +64,20 @@ public class KafkaAdminController {
         ));
     }
 
+    @PutMapping("/topics/{name}/config")
+    public ResponseEntity<KafkaTopicInfoDTO> actualizarConfiguracion(
+            @PathVariable @Pattern(regexp = NAME_REGEX, message = NAME_MSG) String name,
+            @Valid @RequestBody KafkaTopicConfigUpdateDTO dto) {
+        return ResponseEntity.ok(kafkaAdminService.actualizarConfiguracion(name, dto));
+    }
+
+    @PostMapping("/topics/{name}/partitions")
+    public ResponseEntity<KafkaTopicInfoDTO> aumentarParticiones(
+            @PathVariable @Pattern(regexp = NAME_REGEX, message = NAME_MSG) String name,
+            @Valid @RequestBody KafkaPartitionsRequestDTO dto) {
+        return ResponseEntity.ok(kafkaAdminService.aumentarParticiones(name, dto.totalPartitions()));
+    }
+
     @DeleteMapping("/topics/{name}")
     public ResponseEntity<Void> eliminarTopico(
             @PathVariable @Pattern(regexp = NAME_REGEX, message = NAME_MSG) String name) {
@@ -70,5 +88,11 @@ public class KafkaAdminController {
     @GetMapping("/consumer-groups")
     public ResponseEntity<List<KafkaConsumerGroupDTO>> listarConsumerGroups() {
         return ResponseEntity.ok(kafkaAdminService.listarConsumerGroups());
+    }
+
+    @GetMapping("/consumer-groups/{groupId}")
+    public ResponseEntity<KafkaConsumerGroupDetailDTO> describirConsumerGroup(
+            @PathVariable @Pattern(regexp = NAME_REGEX, message = NAME_MSG) String groupId) {
+        return ResponseEntity.ok(kafkaAdminService.describirConsumerGroup(groupId));
     }
 }

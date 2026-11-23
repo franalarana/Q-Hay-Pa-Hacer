@@ -1,19 +1,33 @@
 package cl.quehaypahacer.backend.admin.kafka.service.impl;
 
 import cl.quehaypahacer.backend.admin.kafka.dto.KafkaConsumerGroupDTO;
+import cl.quehaypahacer.backend.admin.kafka.dto.KafkaConsumerGroupDetailDTO;
+import cl.quehaypahacer.backend.admin.kafka.dto.KafkaPartitionOffsetDTO;
+import cl.quehaypahacer.backend.admin.kafka.dto.KafkaTopicConfigUpdateDTO;
 import cl.quehaypahacer.backend.admin.kafka.dto.KafkaTopicInfoDTO;
 import cl.quehaypahacer.backend.admin.kafka.dto.KafkaTopicRequestDTO;
+import cl.quehaypahacer.backend.admin.kafka.exception.KafkaConsumerGroupNotFoundException;
 import cl.quehaypahacer.backend.admin.kafka.exception.KafkaTopicNotFoundException;
 import cl.quehaypahacer.backend.admin.kafka.service.KafkaAdminService;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.AlterConfigOp;
 import org.apache.kafka.clients.admin.Config;
 import org.apache.kafka.clients.admin.ConfigEntry;
+import org.apache.kafka.clients.admin.ConsumerGroupDescription;
 import org.apache.kafka.clients.admin.ConsumerGroupListing;
+import org.apache.kafka.clients.admin.ListOffsetsResult;
+import org.apache.kafka.clients.admin.MemberDescription;
+import org.apache.kafka.clients.admin.NewPartitions;
 import org.apache.kafka.clients.admin.NewTopic;
+import org.apache.kafka.clients.admin.OffsetSpec;
 import org.apache.kafka.clients.admin.TopicDescription;
+import org.apache.kafka.clients.consumer.OffsetAndMetadata;
+import org.apache.kafka.common.GroupState;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.config.ConfigResource;
 import org.apache.kafka.common.config.TopicConfig;
+import org.apache.kafka.common.errors.GroupIdNotFoundException;
 import org.apache.kafka.common.errors.UnknownTopicOrPartitionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +35,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -118,6 +133,115 @@ public class KafkaAdminServiceImpl implements KafkaAdminService {
         } catch (Exception e) {
             log.error("[KAFKA ADMIN] Error al listar grupos de consumidores: {}", e.getMessage());
             throw new RuntimeException("Error al listar consumer groups: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public KafkaTopicInfoDTO actualizarConfiguracion(String name, KafkaTopicConfigUpdateDTO dto) {
+        List<AlterConfigOp> cambios = new ArrayList<>();
+        if (dto.retentionMs() != null) {
+            cambios.add(new AlterConfigOp(
+                    new ConfigEntry(TopicConfig.RETENTION_MS_CONFIG, String.valueOf(dto.retentionMs())),
+                    AlterConfigOp.OpType.SET));
+        }
+        if (dto.cleanupPolicy() != null && !dto.cleanupPolicy().isBlank()) {
+            cambios.add(new AlterConfigOp(
+                    new ConfigEntry(TopicConfig.CLEANUP_POLICY_CONFIG, dto.cleanupPolicy()),
+                    AlterConfigOp.OpType.SET));
+        }
+        if (cambios.isEmpty()) {
+            throw new IllegalArgumentException("Debe indicar al menos una configuración a modificar");
+        }
+
+        obtenerTopicInfo(name); // lanza 404 si el tópico no existe
+
+        ConfigResource recurso = new ConfigResource(ConfigResource.Type.TOPIC, name);
+        try {
+            adminClient.incrementalAlterConfigs(Map.of(recurso, cambios))
+                    .all().get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
+            log.info("[KAFKA ADMIN] Configuración del tópico '{}' actualizada: {}", name, dto);
+        } catch (ExecutionException e) {
+            throw new IllegalArgumentException("Kafka rechazó la configuración: " + e.getCause().getMessage(), e);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al actualizar configuración de '" + name + "': " + e.getMessage(), e);
+        }
+        return obtenerTopicInfo(name);
+    }
+
+    @Override
+    public KafkaTopicInfoDTO aumentarParticiones(String name, int totalParticiones) {
+        KafkaTopicInfoDTO actual = obtenerTopicInfo(name); // 404 si no existe
+        if (totalParticiones <= actual.partitions()) {
+            throw new IllegalArgumentException("Kafka solo permite aumentar particiones: '" + name
+                    + "' ya tiene " + actual.partitions());
+        }
+        try {
+            adminClient.createPartitions(Map.of(name, NewPartitions.increaseTo(totalParticiones)))
+                    .all().get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
+            log.info("[KAFKA ADMIN] Tópico '{}' escalado de {} a {} particiones",
+                    name, actual.partitions(), totalParticiones);
+        } catch (ExecutionException e) {
+            throw new IllegalArgumentException("Kafka rechazó el cambio de particiones: " + e.getCause().getMessage(), e);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al aumentar particiones de '" + name + "': " + e.getMessage(), e);
+        }
+        return obtenerTopicInfo(name);
+    }
+
+    @Override
+    public KafkaConsumerGroupDetailDTO describirConsumerGroup(String groupId) {
+        try {
+            ConsumerGroupDescription grupo = adminClient.describeConsumerGroups(List.of(groupId))
+                    .describedGroups().get(groupId).get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
+            if (grupo.groupState() == GroupState.DEAD) {
+                throw new KafkaConsumerGroupNotFoundException("El consumer group '" + groupId + "' no existe");
+            }
+
+            // Qué consumidor tiene asignada cada partición
+            Map<TopicPartition, String> duenoPorParticion = new HashMap<>();
+            for (MemberDescription miembro : grupo.members()) {
+                for (TopicPartition tp : miembro.assignment().topicPartitions()) {
+                    duenoPorParticion.put(tp, miembro.consumerId());
+                }
+            }
+
+            // Offset confirmado (commit) del grupo por partición
+            Map<TopicPartition, OffsetAndMetadata> confirmados = adminClient.listConsumerGroupOffsets(groupId)
+                    .partitionsToOffsetAndMetadata().get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
+
+            // Último offset escrito (fin del log) por partición
+            Map<TopicPartition, OffsetSpec> consulta = new HashMap<>();
+            confirmados.keySet().forEach(tp -> consulta.put(tp, OffsetSpec.latest()));
+            Map<TopicPartition, ListOffsetsResult.ListOffsetsResultInfo> finales = consulta.isEmpty()
+                    ? Map.of()
+                    : adminClient.listOffsets(consulta).all().get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
+
+            List<KafkaPartitionOffsetDTO> particiones = new ArrayList<>();
+            long lagTotal = 0;
+            for (Map.Entry<TopicPartition, OffsetAndMetadata> entry : confirmados.entrySet()) {
+                TopicPartition tp = entry.getKey();
+                long confirmado = entry.getValue() == null ? 0 : entry.getValue().offset();
+                long fin = finales.containsKey(tp) ? finales.get(tp).offset() : confirmado;
+                long lag = Math.max(0, fin - confirmado);
+                lagTotal += lag;
+                particiones.add(new KafkaPartitionOffsetDTO(tp.topic(), tp.partition(), confirmado, fin, lag,
+                        duenoPorParticion.getOrDefault(tp, "sin asignar")));
+            }
+            particiones.sort(Comparator.comparing(KafkaPartitionOffsetDTO::topic)
+                    .thenComparingInt(KafkaPartitionOffsetDTO::partition));
+
+            return new KafkaConsumerGroupDetailDTO(groupId, grupo.groupState().toString(),
+                    grupo.members().size(), lagTotal, particiones);
+        } catch (KafkaConsumerGroupNotFoundException e) {
+            throw e;
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof GroupIdNotFoundException) {
+                throw new KafkaConsumerGroupNotFoundException("El consumer group '" + groupId + "' no existe");
+            }
+            throw new RuntimeException("Error al describir consumer group '" + groupId + "': " + e.getMessage(), e);
+        } catch (Exception e) {
+            log.error("[KAFKA ADMIN] Error al describir consumer group '{}': {}", groupId, e.getMessage());
+            throw new RuntimeException("Error al describir consumer group '" + groupId + "': " + e.getMessage(), e);
         }
     }
 
