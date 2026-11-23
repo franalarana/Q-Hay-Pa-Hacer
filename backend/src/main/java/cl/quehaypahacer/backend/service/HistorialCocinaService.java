@@ -31,7 +31,6 @@ public class HistorialCocinaService {
     private final UsuarioService usuarioService;
     private final TicketEventPublisher ticketEventPublisher;
     private final KafkaAnaliticaEventPublisher kafkaAnaliticaPublisher;
-    private final IngredienteAnaliticaService analiticaService;
 
     @Transactional(readOnly = true)
     public List<RecetaRankingDTO> obtenerTopRecetasSemanal(int limite) {
@@ -99,7 +98,6 @@ public class HistorialCocinaService {
                             usuario.getCorreo(),
                             LocalDateTime.now()
                     ));
-                    analiticaService.registrarIngredienteCocina(ir.getIngrediente().getNombre());
                 }
             }
         }
