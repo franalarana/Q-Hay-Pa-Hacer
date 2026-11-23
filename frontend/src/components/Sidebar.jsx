@@ -279,8 +279,13 @@ export default function Sidebar({ onDespensaChange }) {
                   }
                   setCreandoNuevo(false);
                   setSelectedIngredienteId(val);
-                  const sel = catalogo.find(c => String(c.id) === String(val));
-                  if (sel) setUnidad(sel.unidadBase);
+                  const enDespensa = despensa.find(d => String(d.ingredienteId) === String(val));
+                  if (enDespensa) {
+                    setUnidad(enDespensa.unidad);
+                  } else {
+                    const sel = catalogo.find(c => String(c.id) === String(val));
+                    if (sel) setUnidad(sel.unidadBase);
+                  }
                 }}
                 options={[
                   { value: '', label: 'Selecciona del catálogo...' },

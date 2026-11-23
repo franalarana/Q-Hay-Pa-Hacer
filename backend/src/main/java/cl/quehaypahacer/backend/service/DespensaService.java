@@ -17,8 +17,11 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,8 +53,7 @@ public class DespensaService {
         IngredienteUsuario item = ingredienteUsuarioRepository
                 .findByUsuarioAndIngrediente(usuario, ingrediente)
                 .map(existente -> {
-                    existente.setCantidad(request.getCantidad());
-                    existente.setUnidad(request.getUnidad());
+                    acumularCantidad(existente, request.getCantidad(), request.getUnidad());
                     return existente;
                 })
                 .orElseGet(() -> IngredienteUsuario.builder()
@@ -159,5 +161,69 @@ public class DespensaService {
                 usuarioCorreo,
                 LocalDateTime.now()
         ));
+    }
+
+    private void acumularCantidad(IngredienteUsuario existente, Double cantidadAgregada, UnidadMedida unidadAgregada) {
+        double cantidadActual = existente.getCantidad() != null ? existente.getCantidad() : 0.0;
+        UnidadMedida unidadActual = existente.getUnidad();
+
+        if (unidadActual == null) {
+            existente.setCantidad(redondearCantidad(cantidadAgregada));
+            existente.setUnidad(unidadAgregada);
+            return;
+        }
+
+        Optional<Double> agregadaEnUnidadActual = convertirSiCompatible(cantidadAgregada, unidadAgregada, unidadActual);
+        if (agregadaEnUnidadActual.isPresent()) {
+            existente.setCantidad(redondearCantidad(cantidadActual + agregadaEnUnidadActual.get()));
+        } else {
+            existente.setCantidad(redondearCantidad(cantidadAgregada));
+            existente.setUnidad(unidadAgregada);
+        }
+    }
+
+    private Optional<Double> convertirSiCompatible(Double cantidad, UnidadMedida origen, UnidadMedida destino) {
+        if (origen == destino) {
+            return Optional.of(cantidad);
+        }
+
+        Double factorMasaOrigen = factorMasaEnGramos(origen);
+        Double factorMasaDestino = factorMasaEnGramos(destino);
+        if (factorMasaOrigen != null && factorMasaDestino != null) {
+            return Optional.of(cantidad * factorMasaOrigen / factorMasaDestino);
+        }
+
+        Double factorVolOrigen = factorVolumenEnMililitros(origen);
+        Double factorVolDestino = factorVolumenEnMililitros(destino);
+        if (factorVolOrigen != null && factorVolDestino != null) {
+            return Optional.of(cantidad * factorVolOrigen / factorVolDestino);
+        }
+
+        return Optional.empty();
+    }
+
+    private Double factorMasaEnGramos(UnidadMedida unidad) {
+        return switch (unidad) {
+            case GRAMOS -> 1.0;
+            case KILOGRAMOS -> 1000.0;
+            default -> null;
+        };
+    }
+
+    private Double factorVolumenEnMililitros(UnidadMedida unidad) {
+        return switch (unidad) {
+            case MILILITROS -> 1.0;
+            case LITROS -> 1000.0;
+            case TAZA -> 250.0;
+            case CUCHARADA -> 15.0;
+            case CUCHARADITA -> 5.0;
+            default -> null;
+        };
+    }
+
+    private double redondearCantidad(double cantidad) {
+        return BigDecimal.valueOf(cantidad)
+                .setScale(3, RoundingMode.HALF_UP)
+                .doubleValue();
     }
 }
