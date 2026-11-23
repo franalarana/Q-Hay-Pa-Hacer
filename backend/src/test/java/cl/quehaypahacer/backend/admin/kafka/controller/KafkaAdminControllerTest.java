@@ -1,8 +1,11 @@
 package cl.quehaypahacer.backend.admin.kafka.controller;
 
 import cl.quehaypahacer.backend.admin.kafka.dto.KafkaConsumerGroupDTO;
+import cl.quehaypahacer.backend.admin.kafka.dto.KafkaConsumerGroupDetailDTO;
+import cl.quehaypahacer.backend.admin.kafka.dto.KafkaPartitionOffsetDTO;
 import cl.quehaypahacer.backend.admin.kafka.dto.KafkaTopicInfoDTO;
 import cl.quehaypahacer.backend.admin.kafka.exception.KafkaAdminExceptionHandler;
+import cl.quehaypahacer.backend.admin.kafka.exception.KafkaConsumerGroupNotFoundException;
 import cl.quehaypahacer.backend.admin.kafka.exception.KafkaTopicNotFoundException;
 import cl.quehaypahacer.backend.admin.kafka.service.KafkaAdminService;
 import cl.quehaypahacer.backend.security.SecurityConfig;
@@ -21,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -29,6 +33,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -184,6 +189,82 @@ class KafkaAdminControllerTest {
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].groupId").value("quehaypahacer-analitica-group"))
                 .andExpect(jsonPath("$[1].state").value("STABLE"));
+    }
+
+    @Test
+    void actualizarConfiguracionDevuelveTopicoActualizado() throws Exception {
+        when(kafkaAdminService.actualizarConfiguracion(eq("mi.topico"), any()))
+                .thenReturn(new KafkaTopicInfoDTO("mi.topico", 2, 1, Map.of("retention.ms", "86400000")));
+
+        mockMvc.perform(put(BASE + "/topics/mi.topico/config").with(admin())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"retentionMs\":86400000}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.configs['retention.ms']").value("86400000"));
+    }
+
+    @Test
+    void actualizarConfiguracionConCleanupInvalidoDevuelve400() throws Exception {
+        mockMvc.perform(put(BASE + "/topics/mi.topico/config").with(admin())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"cleanupPolicy\":\"borrar\"}"))
+                .andExpect(status().isBadRequest());
+
+        verify(kafkaAdminService, never()).actualizarConfiguracion(any(), any());
+    }
+
+    @Test
+    void actualizarConfiguracionConRetencionNegativaDevuelve400() throws Exception {
+        mockMvc.perform(put(BASE + "/topics/mi.topico/config").with(admin())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"retentionMs\":-5}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void aumentarParticionesDevuelveNuevoTotal() throws Exception {
+        when(kafkaAdminService.aumentarParticiones("mi.topico", 4))
+                .thenReturn(new KafkaTopicInfoDTO("mi.topico", 4, 1, Map.of()));
+
+        mockMvc.perform(post(BASE + "/topics/mi.topico/partitions").with(admin())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"totalPartitions\":4}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.partitions").value(4));
+    }
+
+    @Test
+    void disminuirParticionesDevuelve400() throws Exception {
+        when(kafkaAdminService.aumentarParticiones("mi.topico", 1))
+                .thenThrow(new IllegalArgumentException("Kafka solo permite aumentar particiones"));
+
+        mockMvc.perform(post(BASE + "/topics/mi.topico/partitions").with(admin())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"totalPartitions\":1}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void describirConsumerGroupDevuelveOffsetsYLag() throws Exception {
+        when(kafkaAdminService.describirConsumerGroup("quehaypahacer-analitica-group"))
+                .thenReturn(new KafkaConsumerGroupDetailDTO("quehaypahacer-analitica-group", "STABLE", 2, 5,
+                        List.of(new KafkaPartitionOffsetDTO("analitica.cocina.ingredientes", 0, 10, 15, 5, "consumer-1"))));
+
+        mockMvc.perform(get(BASE + "/consumer-groups/quehaypahacer-analitica-group").with(admin()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.members").value(2))
+                .andExpect(jsonPath("$.totalLag").value(5))
+                .andExpect(jsonPath("$.partitions[0].committedOffset").value(10))
+                .andExpect(jsonPath("$.partitions[0].endOffset").value(15));
+    }
+
+    @Test
+    void consumerGroupInexistenteDevuelve404() throws Exception {
+        when(kafkaAdminService.describirConsumerGroup("fantasma"))
+                .thenThrow(new KafkaConsumerGroupNotFoundException("El consumer group 'fantasma' no existe"));
+
+        mockMvc.perform(get(BASE + "/consumer-groups/fantasma").with(admin()))
+                .andExpect(status().isNotFound());
     }
 
     @Test

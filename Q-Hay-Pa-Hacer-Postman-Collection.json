@@ -930,6 +930,174 @@
           "response": []
         },
         {
+          "name": "K8a. Admin Kafka - Modificar Config Tópico (Con Token)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"retentionMs\": 86400000\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/admin/kafka/topics/analitica.cocina.ingredientes/config",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "admin", "kafka", "topics", "analitica.cocina.ingredientes", "config"]
+            },
+            "description": "Modifica en caliente la configuración (retention.ms, cleanup.policy) de un tópico existente."
+          },
+          "response": []
+        },
+        {
+          "name": "K8b. Admin Kafka - Modificar Config Inválida (400)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cleanupPolicy\": \"borrar\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/admin/kafka/topics/analitica.cocina.ingredientes/config",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "admin", "kafka", "topics", "analitica.cocina.ingredientes", "config"]
+            },
+            "description": "Verifica validación 400 cuando cleanupPolicy es inválida."
+          },
+          "response": []
+        },
+        {
+          "name": "K8c. Admin Kafka - Aumentar Particiones (Con Token)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"totalPartitions\": 4\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/admin/kafka/topics/analitica.cocina.ingredientes/partitions",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "admin", "kafka", "topics", "analitica.cocina.ingredientes", "partitions"]
+            },
+            "description": "Aumenta el total de particiones de un tópico existente."
+          },
+          "response": []
+        },
+        {
+          "name": "K8d. Admin Kafka - Disminuir Particiones (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"totalPartitions\": 1\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/admin/kafka/topics/analitica.cocina.ingredientes/partitions",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "admin", "kafka", "topics", "analitica.cocina.ingredientes", "partitions"]
+            },
+            "description": "Verifica validación 400 ya que Kafka solo permite aumentar particiones."
+          },
+          "response": []
+        },
+        {
+          "name": "K8e. Admin Kafka - Detalle Consumer Group (Con Token)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/admin/kafka/consumer-groups/quehaypahacer-analitica-group",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "admin", "kafka", "consumer-groups", "quehaypahacer-analitica-group"]
+            },
+            "description": "Inspecciona miembros, offsets por partición y lag total de un consumer group."
+          },
+          "response": []
+        },
+        {
+          "name": "K8f. Admin Kafka - Consumer Group Inexistente (404)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/admin/kafka/consumer-groups/fantasma",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "admin", "kafka", "consumer-groups", "fantasma"]
+            },
+            "description": "Verifica respuesta 404 al consultar un consumer group que no existe."
+          },
+          "response": []
+        },
+        {
           "name": "K9. Test Streaming - Simular Evento Despensa",
           "request": {
             "method": "POST",
