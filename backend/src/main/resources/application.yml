@@ -36,20 +36,10 @@ spring:
         default-requeue-rejected: false
         prefetch: 10
 
-  # Conexión y configuración de Apache Kafka (Streaming & Analítica)
+  # Conexión a Apache Kafka. El resto de la config del cliente (serializers, acks,
+  # deserializers, grupos) vive SOLO en config/kafka/KafkaConfig.java
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
-      properties:
-        spring.json.add.type.headers: true
-    consumer:
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
-      auto-offset-reset: earliest
-      properties:
-        spring.json.trusted.packages: "cl.quehaypahacer.backend.messaging.kafka.event,cl.quehaypahacer.backend.messaging.event"
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092,localhost:9093,localhost:9094}
 
 app:
   azure:
