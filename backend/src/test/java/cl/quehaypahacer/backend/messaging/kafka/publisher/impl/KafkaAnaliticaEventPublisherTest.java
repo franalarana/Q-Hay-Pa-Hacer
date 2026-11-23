@@ -34,10 +34,11 @@ class KafkaAnaliticaEventPublisherTest {
     void setUp() {
         props = new KafkaProperties(
                 new KafkaProperties.Topics("analitica.despensa.ingredientes", "analitica.cocina.ingredientes"),
-                2,
                 (short) 1,
-                604800000L,
-                "delete",
+                1,
+                new KafkaProperties.FlujoConfig(3, 604800000L, "delete"),
+                new KafkaProperties.FlujoConfig(2, 2592000000L, "delete"),
+                2,
                 new KafkaProperties.ConsumerGroups("quehaypahacer-analitica-group", "quehaypahacer-auditoria-group")
         );
         publisher = new SpringKafkaAnaliticaEventPublisher(kafkaTemplate, props);

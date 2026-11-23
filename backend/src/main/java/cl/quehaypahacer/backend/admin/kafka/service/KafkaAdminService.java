@@ -1,6 +1,8 @@
 package cl.quehaypahacer.backend.admin.kafka.service;
 
 import cl.quehaypahacer.backend.admin.kafka.dto.KafkaConsumerGroupDTO;
+import cl.quehaypahacer.backend.admin.kafka.dto.KafkaConsumerGroupDetailDTO;
+import cl.quehaypahacer.backend.admin.kafka.dto.KafkaTopicConfigUpdateDTO;
 import cl.quehaypahacer.backend.admin.kafka.dto.KafkaTopicInfoDTO;
 import cl.quehaypahacer.backend.admin.kafka.dto.KafkaTopicRequestDTO;
 
@@ -20,4 +22,10 @@ public interface KafkaAdminService {
     void eliminarTopico(String name);
 
     List<KafkaConsumerGroupDTO> listarConsumerGroups();
+
+    KafkaTopicInfoDTO actualizarConfiguracion(String name, KafkaTopicConfigUpdateDTO dto);
+
+    KafkaTopicInfoDTO aumentarParticiones(String name, int totalParticiones);
+
+    KafkaConsumerGroupDetailDTO describirConsumerGroup(String groupId);
 }

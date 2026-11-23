@@ -6,6 +6,7 @@ import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.config.TopicConfig;
+import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
@@ -21,8 +22,10 @@ import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaAdmin;
+import org.springframework.kafka.core.KafkaOperations;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
@@ -30,15 +33,16 @@ import org.springframework.kafka.support.serializer.JacksonJsonSerializer;
 import org.springframework.util.backoff.FixedBackOff;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
  * Configuración de infraestructura para Apache Kafka (Streaming y Analítica).
  * <p>
  * Declara como beans:
- * - Los 2 tópicos requeridos por la rúbrica (con particiones, réplicas y retención).
+ * - Los 2 tópicos de negocio, cada uno con parámetros ajustados a su flujo, y sus DLT.
  * - El cliente AdminClient para operaciones administrativas en caliente.
- * - El contenedor de listeners con control de reintentos y logging contextual.
+ * - El contenedor de listeners con concurrencia, reintentos, DLT y logging contextual.
  */
 @Configuration
 @EnableKafka
@@ -47,6 +51,12 @@ public class KafkaConfig {
 
     private static final Logger log = LoggerFactory.getLogger(KafkaConfig.class);
 
+    /** Sufijo por defecto que usa DeadLetterPublishingRecoverer para el tópico de mensajes fallidos. */
+    public static final String DLT_SUFFIX = ".DLT";
+
+    /** Los mensajes fallidos se guardan 30 días para poder investigarlos. */
+    private static final long DLT_RETENTION_MS = 2_592_000_000L;
+
     private final KafkaProperties props;
 
     public KafkaConfig(KafkaProperties props) {
@@ -54,28 +64,50 @@ public class KafkaConfig {
     }
 
     /**
-     * Tópico 1: Flujo analítico de ingredientes registrados en despensa.
+     * Tópico 1: ingredientes registrados en despensa.
+     * Flujo de alto volumen (cada alta/edición/baja) y valor de corto plazo → más particiones, retención corta.
      */
     @Bean
     public NewTopic topicIngredientesDespensa() {
-        return TopicBuilder.name(props.topics().ingredientesDespensa())
-                .partitions(props.partitions())
-                .replicas(props.replicationFactor())
-                .config(TopicConfig.RETENTION_MS_CONFIG, String.valueOf(props.retentionMs()))
-                .config(TopicConfig.CLEANUP_POLICY_CONFIG, props.cleanupPolicy())
-                .build();
+        return construirTopico(props.topics().ingredientesDespensa(), props.despensa());
     }
 
     /**
-     * Tópico 2: Flujo analítico de ingredientes consumidos al cocinar recetas.
+     * Tópico 2: ingredientes consumidos al cocinar.
+     * Flujo de menor volumen pero histórico (alimenta rankings) → retención larga.
      */
     @Bean
     public NewTopic topicIngredientesCocina() {
-        return TopicBuilder.name(props.topics().ingredientesCocina())
-                .partitions(props.partitions())
+        return construirTopico(props.topics().ingredientesCocina(), props.cocina());
+    }
+
+    /** DLT de despensa: mismas particiones que el original (el recoverer conserva el número de partición). */
+    @Bean
+    public NewTopic topicIngredientesDespensaDlt() {
+        return construirDlt(props.topics().ingredientesDespensa(), props.despensa());
+    }
+
+    @Bean
+    public NewTopic topicIngredientesCocinaDlt() {
+        return construirDlt(props.topics().ingredientesCocina(), props.cocina());
+    }
+
+    private NewTopic construirTopico(String nombre, KafkaProperties.FlujoConfig flujo) {
+        return TopicBuilder.name(nombre)
+                .partitions(flujo.partitions())
                 .replicas(props.replicationFactor())
-                .config(TopicConfig.RETENTION_MS_CONFIG, String.valueOf(props.retentionMs()))
-                .config(TopicConfig.CLEANUP_POLICY_CONFIG, props.cleanupPolicy())
+                .config(TopicConfig.RETENTION_MS_CONFIG, String.valueOf(flujo.retentionMs()))
+                .config(TopicConfig.CLEANUP_POLICY_CONFIG, flujo.cleanupPolicy())
+                .config(TopicConfig.MIN_IN_SYNC_REPLICAS_CONFIG, String.valueOf(props.minInsyncReplicas()))
+                .build();
+    }
+
+    private NewTopic construirDlt(String nombreOriginal, KafkaProperties.FlujoConfig flujo) {
+        return TopicBuilder.name(nombreOriginal + DLT_SUFFIX)
+                .partitions(flujo.partitions())
+                .replicas(props.replicationFactor())
+                .config(TopicConfig.RETENTION_MS_CONFIG, String.valueOf(DLT_RETENTION_MS))
+                .config(TopicConfig.CLEANUP_POLICY_CONFIG, TopicConfig.CLEANUP_POLICY_DELETE)
                 .build();
     }
 
@@ -149,24 +181,52 @@ public class KafkaConfig {
         // Si el broker no está disponible, reintenta conexión con backoff creciente hasta 10 s
         // en vez de cada 1 s, evitando saturar el log (y los logs de RabbitMQ) con advertencias
         configs.put(ConsumerConfig.RECONNECT_BACKOFF_MAX_MS_CONFIG, 10000);
-        configs.put(JacksonJsonDeserializer.TRUSTED_PACKAGES, "cl.quehaypahacer.backend.messaging.kafka.event,cl.quehaypahacer.backend.messaging.event,*");
+        // Solo se deserializan clases de nuestros paquetes de eventos (sin comodín "*")
+        configs.put(JacksonJsonDeserializer.TRUSTED_PACKAGES,
+                "cl.quehaypahacer.backend.messaging.kafka.event,cl.quehaypahacer.backend.messaging.event");
         return new DefaultKafkaConsumerFactory<>(configs);
     }
 
     /**
-     * Factory de contenedores de consumo con política de manejo de errores y reintentos (Indicador 6).
+     * Recoverer que envía a "<tópico>.DLT" los mensajes que fallaron tras los reintentos.
+     * - Si el fallo fue de deserialización, el valor original llega como byte[] → plantilla de bytes.
+     * - Cualquier otro valor (evento ya deserializado) → plantilla JSON normal.
+     * Agrega headers con la excepción, tópico, partición y offset originales.
+     */
+    @Bean
+    public DeadLetterPublishingRecoverer deadLetterPublishingRecoverer(KafkaTemplate<String, Object> kafkaTemplate) {
+        Map<String, Object> configBytes = new HashMap<>(kafkaTemplate.getProducerFactory().getConfigurationProperties());
+        configBytes.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class);
+        configBytes.remove(JacksonJsonSerializer.ADD_TYPE_INFO_HEADERS);
+        KafkaTemplate<String, byte[]> plantillaBytes = new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(configBytes));
+
+        Map<Class<?>, KafkaOperations<?, ?>> plantillas = new LinkedHashMap<>();
+        plantillas.put(byte[].class, plantillaBytes);
+        plantillas.put(Object.class, kafkaTemplate);
+        return new DeadLetterPublishingRecoverer(plantillas);
+    }
+
+    /**
+     * Factory de contenedores de consumo: concurrencia, reintentos y DLT (Indicadores 6 y 8).
      */
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory(
-            ConsumerFactory<String, Object> consumerFactory) {
+            ConsumerFactory<String, Object> consumerFactory,
+            DeadLetterPublishingRecoverer deadLetterPublishingRecoverer) {
         ConcurrentKafkaListenerContainerFactory<String, Object> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
+        // N hilos consumidores por listener dentro del mismo grupo: Kafka reparte las particiones entre ellos
+        factory.setConcurrency(props.consumerConcurrency());
 
         DefaultErrorHandler errorHandler = new DefaultErrorHandler((record, exception) -> {
-            log.error("[KAFKA ERROR] Fallo definitivo al procesar mensaje en tópico '{}', partición '{}', offset '{}': {}",
-                    record.topic(), record.partition(), record.offset(), exception.getMessage());
+            log.error("[KAFKA ERROR] Fallo definitivo en tópico '{}', partición '{}', offset '{}': {} → enviando a {}{}",
+                    record.topic(), record.partition(), record.offset(), exception.getMessage(),
+                    record.topic(), DLT_SUFFIX);
+            deadLetterPublishingRecoverer.accept(record, exception);
         }, new FixedBackOff(1000L, 2L));
+        // Un payload inválido no se arregla reintentando: directo a la DLT
+        errorHandler.addNotRetryableExceptions(IllegalArgumentException.class);
 
         factory.setCommonErrorHandler(errorHandler);
         return factory;
